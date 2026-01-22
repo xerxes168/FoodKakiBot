@@ -2,7 +2,7 @@
 
 ## Team 01
 
-- Lucas Ng
+- Lucas Ng Hong Wei
 - Gregory Tan
 - Tan Zheng Liang
 - Elsia Teo
@@ -23,6 +23,7 @@
 
 3. To run frontend:
    cd foodkakibot
+   npm install
    npm run dev
 
    Frontend will run on <http://localhost:3000>

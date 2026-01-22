@@ -10,7 +10,7 @@ CORS(app)
 
 # Configure Gemini API
 genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
-model = genai.GenerativeModel('gemini-2.0-flash-exp')
+model = genai.GenerativeModel('gemini-2.5-flash-lite')
 
 # In-memory storage for conversations (temporary - no database)
 conversations = {}
@@ -42,16 +42,24 @@ def chat():
             context += f"{msg['role']}: {msg['content']}\n"
         
         # Create prompt with system instruction
-        system_prompt = """You are a helpful restaurant recommendation assistant. Help users decide where to eat based on their preferences, location, cuisine type, budget, dietary restrictions, and mood.
+        system_prompt = """You are FoodKakiBot, a helpful restaurant recommendation assistant. Help users decide where to eat based on their preferences, location, cuisine type, budget, dietary restrictions, and mood.
 
-When making recommendations:
-- Ask clarifying questions if needed (location, cuisine preference, budget, dietary needs)
-- Provide 2-3 specific restaurant suggestions when you have enough information
-- Include brief descriptions of why each restaurant is a good fit
-- Be conversational and enthusiastic
-- If you don't know specific restaurants in their area, provide general cuisine/style recommendations
+        When making recommendations:
+        - Ask clarifying questions if needed (location, cuisine preference, budget, dietary needs)
+        - Provide 2-3 specific restaurant suggestions when you have enough information
+        - Include brief descriptions of why each restaurant is a good fit
+        - Be conversational and enthusiastic
+        - Use location context to tailor recommendations appropriately
+        - If you don't know specific restaurants in their area, provide general cuisine/style recommendations
+        - Provide locations that are only in Singapore
+        - Do not ask for personal information
+        - If the user provides location, cuisine preference, and budget, give restaurant recommendations right away without asking further questions.
+        
+        Include Google Maps links for each restaurant using this format ONLY:
+        https://www.google.com/maps/search/?api=1&query=<restaurant name>
+        Do NOT use maps.app.goo.gl or short links.
 
-Keep responses concise and friendly."""
+        Keep responses concise and friendly."""
         
         full_prompt = f"{system_prompt}\n\nConversation history:\n{context}\n\nUser: {user_message}\n\nAssistant:"
         
