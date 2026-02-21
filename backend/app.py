@@ -6,6 +6,9 @@ from datetime import datetime
 import uuid
 from supabase import create_client
 from dotenv import load_dotenv
+import requests
+from tagging import auto_tags_from_google
+import re
 
 app = Flask(__name__)
 CORS(app)
@@ -18,6 +21,7 @@ model = genai.GenerativeModel('gemini-2.5-flash-lite')
 # Configure Supabase Client
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_ANON_KEY")
+PLACES_KEY = os.getenv("GOOGLE_API_KEY")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # In-memory storage for conversations (temporary - no database)
@@ -58,11 +62,168 @@ def fetch_food_places_by_tags(tags, limit=5):
 
     return res.data
 
+def google_text_search(query: str, limit=5):
+    url = "https://maps.googleapis.com/maps/api/place/textsearch/json"
+    params = {"query": query, "key": PLACES_KEY}
+    r = requests.get(url, params=params, timeout=20)
+    data = r.json()
+
+    if data.get("status") != "OK":
+        return [], {"status": data.get("status"), "error": data.get("error_message")}
+
+    results = data.get("results", [])[:limit]
+    return results, None
+
+def google_place_details(place_id: str):
+    url = "https://maps.googleapis.com/maps/api/place/details/json"
+    params = {
+        "place_id": place_id,
+        "fields": "name,types,editorial_summary,opening_hours,formatted_address,geometry,price_level,rating,url,photos",
+        "key": PLACES_KEY
+    }
+    r = requests.get(url, params=params, timeout=20)
+    data = r.json()
+
+    # DEBUG (temporary): print what Google returns
+    print("DETAILS status:", data.get("status"))
+    print("DETAILS keys:", list((data.get("result") or {}).keys()))
+
+    if data.get("status") != "OK":
+        return None, {"status": data.get("status"), "error": data.get("error_message")}
+
+    return data.get("result"), None
+
+def google_photo_url(photo_ref: str, maxwidth=800):
+    return (
+        "https://maps.googleapis.com/maps/api/place/photo"
+        f"?maxwidth={maxwidth}&photo_reference={photo_ref}&key={PLACES_KEY}"
+    )
+
+def apply_rules_to_db(rules, limit=5):
+    query = supabase.table("places").select("*")
+
+    # ----- PRICE FILTER -----
+    if "budget_amount" in rules:
+        amt = rules["budget_amount"]
+        if amt <= 10:
+            rules["max_price"] = 1
+        elif amt <= 20:
+            rules["max_price"] = 2
+        elif amt <= 35:
+            rules["max_price"] = 3
+        else:
+            rules["max_price"] = 4
+
+    # Apply the max_price filter if present
+    if "max_price" in rules:
+        query = query.lte("price_level", rules["max_price"])
+
+    # ----- CUISINE FILTER -----
+    if "cuisine" in rules:
+        query = query.contains("types", [rules["cuisine"]])
+
+    # ----- DIETARY FILTER -----
+    if rules.get("dietary") == "halal":
+        query = query.contains("types", ["halal"])
+
+    # ----- DISTANCE FILTER -----
+    if "location_query" in rules:
+        loc = rules["location_query"]
+
+        # Google Text Search to get coordinates
+        location_results, _ = google_text_search(loc, limit=1)
+
+        if location_results:
+            # Get the FIRST result only
+            first = location_results[0]
+            latitude = first["geometry"]["location"]["lat"]
+            longitude = first["geometry"]["location"]["lng"]
+
+            # Simple radius filter (approx ±2 km)
+            query = (
+                query
+                .gte("latitude", latitude - 0.02)
+                .lte("latitude", latitude + 0.02)
+            )
+
+
+        res = query.limit(limit).execute()
+        return res.data
+
+@app.get("/api/google-places")
+def google_places_endpoint():
+    q = request.args.get("q", "dessert near Farrer Park MRT")
+    results, err = google_text_search(q, limit=3)
+    if err:
+        return jsonify(err), 400
+
+    enriched = []
+    for r in results:
+        place_id = r["place_id"]
+        details, derr = google_place_details(place_id)
+        if derr:
+            continue
+
+        photos = details.get("photos") or []
+        photo = google_photo_url(photos[0]["photo_reference"]) if photos else None
+
+        enriched.append({
+            "name": details.get("name"),
+            "address": details.get("formatted_address"),
+            "rating": details.get("rating"),
+            "price_level": details.get("price_level"),
+            "open_now": (details.get("opening_hours") or {}).get("open_now"),
+            "maps_url": details.get("url"),
+            "photo_url": photo,
+        })
+
+    return jsonify({"query": q, "results": enriched})
+
+def extract_filtering_rules(message):
+    message = message.lower()
+    rules = {}
+
+    # ----- BUDGET  -----
+    # 1) Always try to extract a number first (under $10, budget $20, <$15 etc.)
+    m = re.search(r"(?:under\s*)?\$?\s*(\d+)", message)
+    if "$" in message or "under" in message:
+        m2 = re.search(r"\$(\d+)", message)
+        if m2:
+            rules["budget_amount"] = int(m2.group(1))
+
+    # 2) If no explicit number, fall back to keywords
+    if "budget_amount" not in rules:
+        if "cheap" in message:
+            rules["max_price"] = 1
+        elif "budget" in message or "affordable" in message:
+            rules["max_price"] = 2  # budget but not super cheap
+
+    # ----- DIETARY -----
+    if "halal" in message:
+        rules["dietary"] = "halal"
+    if "vegetarian" in message:
+        rules["dietary"] = "vegetarian"
+
+    # ----- CUISINE -----
+    cuisines = ["japanese", "korean", "chinese", "western", "thai", "indian"]
+    for c in cuisines:
+        if c in message:
+            rules["cuisine"] = c
+
+    # ----- DISTANCE -----
+    if "near" in message:
+        rules["location_query"] = message.split("near", 1)[1].strip()
+
+    return rules
+
 @app.route('/api/chat', methods=['POST'])
 def chat():
     data = request.json
     user_message = data.get('message')
     session_id = data.get('session_id')
+    rules = extract_filtering_rules(user_message)
+    print("FILTERING RULES:", rules)
+
     
     if not user_message or not session_id:
         return jsonify({"error": "Missing message or session_id"}), 400
@@ -113,6 +274,11 @@ def chat():
             food_results = fetch_food_places_by_tags(matched_tags)
         else:
             food_results = []
+
+        filtered_results = apply_rules_to_db(rules)
+        food_results = list({*food_results, *filtered_results})
+        # Debug
+        print("FINAL FILTERED RESULTS:", food_results)
 
         food_context = ""
         if food_results:
@@ -172,6 +338,41 @@ def health():
         "gemini_configured": os.environ.get("GOOGLE_API_KEY") is not None
     })
 
+@app.get("/api/google-details-by-placeid")
+def google_details_by_placeid():
+    place_id = request.args.get("place_id")
+    if not place_id:
+        return jsonify({"error": "missing place_id"}), 400
+
+    details, err = google_place_details(place_id)
+    if err:
+        return jsonify(err), 400
+
+    tags = auto_tags_from_google(details)
+
+    return jsonify({
+        "place_id": place_id,
+        "name": details.get("name"),
+        "address": details.get("formatted_address"),
+        "price_level": details.get("price_level"),
+        "open_now": (details.get("opening_hours") or {}).get("open_now"),
+        "types": details.get("types"),
+        "auto_tags": tags
+    })
+
+@app.get("/api/test-filters")
+def test_filters():
+    message = request.args.get("q", "")
+    rules = extract_filtering_rules(message)
+
+    filtered_results = apply_rules_to_db(rules)
+
+    return jsonify({
+        "user_message": message,
+        "rules_detected": rules,
+        "results": filtered_results
+    })
+
 if __name__ == '__main__':
     print("=" * 50)
     print("Restaurant Chatbot Backend (No Database)")
@@ -181,3 +382,4 @@ if __name__ == '__main__':
     print("Health check: http://localhost:5000/api/health")
     print("=" * 50)
     app.run(debug=True, port=5000)
+
