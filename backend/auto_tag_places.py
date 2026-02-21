@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
-"""Auto-tag places in Supabase using dataset-derived area and cuisine signals.
+"""Auto-tag places in Supabase using dataset or places-table signals.
 
 What this script does:
-1. Reads rows from `food_places_data_set.xlsx`.
-2. Matches each row to a record in Supabase `places`.
-3. Infers an area tag (lat/lng reverse geocode when available, with dataset fallbacks).
-4. Infers cuisine tags from reviews/metadata with keyword scoring.
-5. Reuses existing tags and creates missing tags in `tags`.
-6. Creates missing links in `place_tags`.
+1. Loads source rows from Supabase `places` (default) or an Excel dataset.
+2. Infers area tags (lat/lng reverse geocode when available).
+3. Infers cuisine, budget, and allergy tags from reviews/metadata.
+4. Reuses existing tags and creates missing tags in `tags`.
+5. Creates missing links in `place_tags`.
 
 Run dry-run first, then apply if output looks correct.
 """
@@ -119,6 +118,15 @@ CUISINE_ALIASES: Dict[str, str] = {
     "western food": "Western",
 }
 
+ALLERGY_KEYWORDS: Dict[str, Sequence[str]] = {
+    "Gluten-Free": ("gluten free", "gluten-free", "gf"),
+    "Dairy-Free": ("dairy free", "dairy-free", "lactose free", "lactose-free", "no dairy"),
+    "Nut-Free": ("nut free", "nut-free", "peanut-free", "no nuts", "tree nut"),
+    "Shellfish-Free": ("shellfish free", "shellfish-free", "no shellfish"),
+    "Egg-Free": ("egg free", "egg-free", "no egg"),
+    "Soy-Free": ("soy free", "soy-free", "no soy"),
+}
+
 AREA_COMPONENT_TYPES = (
     "neighborhood",
     "sublocality_level_1",
@@ -135,6 +143,10 @@ PRICE_TAG_BUDGET = "Budget"
 PRICE_TAG_MID_RANGE = "Mid Range"
 PRICE_TAG_EXPENSIVE = "Expensive"
 UNKNOWN_AREA_TAG = "Unknown Area"
+TAG_CATEGORY_BUDGET = "budget"
+TAG_CATEGORY_CUISINE = "cuisine"
+TAG_CATEGORY_ALLERGY = "allergy"
+TAG_CATEGORY_AREA = "area"
 
 
 @dataclass
@@ -165,6 +177,48 @@ class DatasetRow:
     @property
     def label_name(self) -> str:
         return str(self.values.get("label_name") or "").strip()
+
+    @property
+    def editorial_summary(self) -> str:
+        return str(self.values.get("editorial_summary") or "").strip()
+
+    @property
+    def latitude(self) -> Optional[float]:
+        return to_float(self.values.get("latitude"))
+
+    @property
+    def longitude(self) -> Optional[float]:
+        return to_float(self.values.get("longitude"))
+
+
+@dataclass
+class PlaceRow:
+    row_num: int
+    values: Dict[str, Any]
+
+    @property
+    def place_name(self) -> str:
+        return str(self.values.get("name") or "").strip()
+
+    @property
+    def formatted_address(self) -> str:
+        return str(self.values.get("address") or "").strip()
+
+    @property
+    def gmaps_uri(self) -> str:
+        return str(self.values.get("gmaps_uri") or "").strip()
+
+    @property
+    def gmaps_place_id(self) -> str:
+        return str(self.values.get("gmaps_place_id") or "").strip()
+
+    @property
+    def geography(self) -> str:
+        return str(self.values.get("location") or "").strip()
+
+    @property
+    def label_name(self) -> str:
+        return ""
 
     @property
     def editorial_summary(self) -> str:
@@ -386,6 +440,23 @@ def infer_cuisine_tags(row: DatasetRow) -> List[str]:
     return selected
 
 
+def infer_allergy_tags(row: DatasetRow) -> List[str]:
+    combined_text_parts = [
+        row.place_name,
+        row.label_name,
+        row.editorial_summary,
+        extract_reviews_text(row.values.get("reviews")),
+    ]
+    text = normalize_text("\n".join(part for part in combined_text_parts if part))
+    matched: List[str] = []
+    for tag_name, keywords in ALLERGY_KEYWORDS.items():
+        for kw in keywords:
+            if normalize_text(kw) in text:
+                matched.append(tag_name)
+                break
+    return matched
+
+
 def infer_area_tag(row: DatasetRow, geocoder: Optional[GoogleReverseGeocoder]) -> str:
     from_payload = extract_area_from_gmaps_response(row.values.get("gmaps_response"))
     clean = sanitize_area_candidate(from_payload or "")
@@ -446,6 +517,20 @@ def infer_price_range_tag(row: DatasetRow) -> str:
     return PRICE_TAG_MID_RANGE
 
 
+def infer_tag_category(tag_name: str, area_tag: str) -> Optional[str]:
+    if not tag_name:
+        return None
+    if tag_name in (PRICE_TAG_BUDGET, PRICE_TAG_MID_RANGE, PRICE_TAG_EXPENSIVE):
+        return TAG_CATEGORY_BUDGET
+    if tag_name in CUISINE_KEYWORDS:
+        return TAG_CATEGORY_CUISINE
+    if tag_name in ALLERGY_KEYWORDS:
+        return TAG_CATEGORY_ALLERGY
+    if area_tag and tag_name == area_tag:
+        return TAG_CATEGORY_AREA
+    return None
+
+
 def chunked(values: Sequence[Dict[str, Any]], size: int) -> Iterable[Sequence[Dict[str, Any]]]:
     for i in range(0, len(values), size):
         yield values[i : i + size]
@@ -469,6 +554,22 @@ def fetch_all_table_rows(supabase: Client, table: str, select_expr: str, page_si
         offset += page_size
 
     return all_rows
+
+
+def pick_tags_query(supabase: Client) -> Tuple[str, List[Dict[str, Any]]]:
+    candidates = [
+        "id, name, category",
+        "id, name",
+    ]
+    last_error: Optional[Exception] = None
+    for select_expr in candidates:
+        try:
+            rows = fetch_all_table_rows(supabase, "tags", select_expr)
+            return select_expr, rows
+        except Exception as exc:
+            last_error = exc
+            continue
+    raise RuntimeError(f"Unable to query tags table with supported columns. Last error: {last_error}")
 
 
 def find_tag_by_name(supabase: Client, tag_name: str) -> Optional[Dict[str, Any]]:
@@ -541,13 +642,19 @@ def pick_place_query(supabase: Client) -> Tuple[str, List[Dict[str, Any]]]:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Auto-tag restaurants into tags/place_tags using dataset signals")
+    parser = argparse.ArgumentParser(description="Auto-tag restaurants into tags/place_tags using places or dataset signals")
+    parser.add_argument(
+        "--source",
+        choices=("supabase", "dataset"),
+        default="supabase",
+        help="Source of rows to tag (default: supabase)",
+    )
     parser.add_argument(
         "--dataset",
         default=str(Path(__file__).resolve().parents[2] / "datasets" / "food_places_data_set.xlsx"),
-        help="Path to dataset xlsx",
+        help="Path to dataset xlsx (used when --source=dataset)",
     )
-    parser.add_argument("--sheet", default="Result 1", help="Worksheet name in the dataset")
+    parser.add_argument("--sheet", default="Result 1", help="Worksheet name in the dataset (used when --source=dataset)")
     parser.add_argument(
         "--apply",
         action="store_true",
@@ -567,7 +674,7 @@ def main() -> None:
     parser.add_argument(
         "--report",
         default="",
-        help="Optional report output path (.csv or .json). Example: ./tagging_report.csv",
+        help="Optional report output path (.csv, .json, or .xlsx). Example: ./tagging_report.xlsx",
     )
     parser.add_argument("--places-csv", default="", help="Path to exported places.csv")
     parser.add_argument("--tags-csv", default="", help="Path to exported tags.csv")
@@ -591,12 +698,12 @@ def main() -> None:
         raise RuntimeError("CSV mode requires --places-csv, --tags-csv, and --place-tags-csv.")
 
     dataset_path = Path(args.dataset).resolve()
-    if not dataset_path.exists():
+    if args.source == "dataset" and not dataset_path.exists():
         raise FileNotFoundError(f"Dataset not found: {dataset_path}")
 
     geocoder: Optional[GoogleReverseGeocoder] = None
     if args.use_google_geocode:
-        maps_key = os.environ.get("GOOGLE_MAPS_API_KEY") or os.environ.get("GOOGLE_API_KEY")
+        maps_key = os.environ.get("GOOGLE_PLACES_API_KEY") or os.environ.get("GOOGLE_MAPS_API_KEY")
         if maps_key:
             geocoder = GoogleReverseGeocoder(api_key=maps_key)
         else:
@@ -612,23 +719,29 @@ def main() -> None:
             raise RuntimeError("Missing SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY/SUPABASE_ANON_KEY")
         supabase = create_client(supabase_url, supabase_key)
 
-    headers, dataset_rows = load_dataset_rows(dataset_path, args.sheet)
-    if args.limit > 0:
-        dataset_rows = dataset_rows[: args.limit]
+    headers: List[str] = []
+    dataset_rows: List[DatasetRow] = []
+    if args.source == "dataset":
+        headers, dataset_rows = load_dataset_rows(dataset_path, args.sheet)
+        if args.limit > 0:
+            dataset_rows = dataset_rows[: args.limit]
 
-    print(f"Dataset: {dataset_path}")
-    print(f"Sheet: {args.sheet}")
-    print(f"Rows loaded: {len(dataset_rows)}")
+    print(f"Source: {args.source}")
+    if args.source == "dataset":
+        print(f"Dataset: {dataset_path}")
+        print(f"Sheet: {args.sheet}")
+        print(f"Rows loaded: {len(dataset_rows)}")
     if csv_mode:
         print("Mode: CSV-EXPORT")
     else:
         print(f"Mode: {'APPLY' if args.apply else 'DRY-RUN'}")
 
-    if "id" not in headers:
+    if args.source == "dataset" and "id" not in headers:
         print("[info] Dataset has no 'id' column; matching will use gmaps_place_id/gmaps_uri/name+address.")
 
     tags_fieldnames: List[str]
     place_tags_fieldnames: List[str]
+    tags_select = ""
     if csv_mode:
         places_csv_path = Path(args.places_csv).expanduser().resolve()
         tags_csv_path = Path(args.tags_csv).expanduser().resolve()
@@ -637,20 +750,29 @@ def main() -> None:
         tags_fieldnames, tags_rows = read_csv_rows(tags_csv_path)
         place_tags_fieldnames, place_tag_rows = read_csv_rows(place_tags_csv_path)
         place_select = "csv"
+        tags_select = "csv"
     else:
         assert supabase is not None
         place_select, place_rows = pick_place_query(supabase)
-        tags_rows = fetch_all_table_rows(supabase, "tags", "id, name")
+        tags_select, tags_rows = pick_tags_query(supabase)
         place_tag_rows = fetch_all_table_rows(supabase, "place_tags", "place_id, tag_id")
         tags_fieldnames = ["id", "name"]
+        if tags_select and "category" in tags_select:
+            tags_fieldnames.append("category")
         place_tags_fieldnames = ["place_id", "tag_id"]
+
+    if args.source == "supabase" and args.limit > 0:
+        place_rows = place_rows[: args.limit]
 
     print(f"Places query used: {place_select}")
     print(f"Places loaded: {len(place_rows)}")
+    if not csv_mode:
+        print(f"Tags query used: {tags_select}")
 
     tags_by_norm: Dict[str, Dict[str, Any]] = {
         normalize_text(t.get("name")): t for t in tags_rows if t.get("name") is not None
     }
+    tags_has_category = "category" in tags_fieldnames
     existing_pairs: Set[Tuple[str, str]] = {
         (str(r.get("place_id")), str(r.get("tag_id")))
         for r in place_tag_rows
@@ -692,7 +814,7 @@ def main() -> None:
         except Exception:
             continue
 
-    def ensure_tag_id(tag_name: str) -> Optional[str]:
+    def ensure_tag_id(tag_name: str, category: Optional[str]) -> Optional[str]:
         nonlocal created_tags, synthetic_tag_id, failed_tag_ensures
         clean_name = normalize_tag_name(tag_name)
         if not clean_name:
@@ -707,6 +829,8 @@ def main() -> None:
             nonlocal max_tag_id
             max_tag_id += 1
             new_tag = {"id": str(max_tag_id), "name": clean_name}
+            if tags_has_category and category:
+                new_tag["category"] = category
             tags_by_norm[key] = new_tag
             created_tags += 1
             merged_tags_rows.append(new_tag)
@@ -714,12 +838,16 @@ def main() -> None:
 
         if not args.apply:
             synthetic = {"id": str(synthetic_tag_id), "name": clean_name}
+            if tags_has_category and category:
+                synthetic["category"] = category
             synthetic_tag_id -= 1
             tags_by_norm[key] = synthetic
             created_tags += 1
             return str(synthetic["id"])
 
         insert_payload = {"name": clean_name}
+        if tags_has_category and category:
+            insert_payload["category"] = category
         insert_error: Optional[Exception] = None
         try:
             assert supabase is not None
@@ -770,30 +898,15 @@ def main() -> None:
 
         return None, "none"
 
-    for row in dataset_rows:
-        place_id, matched_by = match_place_id(row)
-        if not place_id:
-            unmatched_rows += 1
-            report_rows.append(
-                {
-                    "row_num": row.row_num,
-                    "place_name": row.place_name,
-                    "matched": False,
-                    "matched_by": matched_by,
-                    "place_id": "",
-                    "area_tag": "",
-                    "cuisine_tags": "",
-                    "all_inferred_tags": "",
-                    "new_links_planned_or_inserted": 0,
-                }
-            )
-            continue
+    def process_row(row: DatasetRow, place_id: str, matched_by: str) -> None:
+        nonlocal rows_with_no_tags, planned_links
 
         area_tag = infer_area_tag(row, geocoder)
         price_tag = infer_price_range_tag(row)
         cuisine_tags = infer_cuisine_tags(row)
+        allergy_tags = infer_allergy_tags(row)
 
-        proposed = [t for t in [area_tag, price_tag, *cuisine_tags] if t and is_english_tag(t)]
+        proposed = [t for t in [area_tag, price_tag, *cuisine_tags, *allergy_tags] if t and is_english_tag(t)]
         # Preserve order, remove duplicates case-insensitively.
         seen_norm: Set[str] = set()
         deduped: List[str] = []
@@ -816,15 +929,17 @@ def main() -> None:
                     "area_tag": area_tag or "",
                     "price_range_tag": price_tag,
                     "cuisine_tags": "|".join(cuisine_tags),
+                    "allergy_tags": "|".join(allergy_tags),
                     "all_inferred_tags": "",
                     "new_links_planned_or_inserted": 0,
                 }
             )
-            continue
+            return
 
         row_links = 0
         for tag_name in deduped:
-            tag_id = ensure_tag_id(tag_name)
+            category = infer_tag_category(tag_name, area_tag)
+            tag_id = ensure_tag_id(tag_name, category)
             if not tag_id:
                 continue
 
@@ -850,10 +965,55 @@ def main() -> None:
                 "area_tag": area_tag or "",
                 "price_range_tag": price_tag,
                 "cuisine_tags": "|".join(cuisine_tags),
+                "allergy_tags": "|".join(allergy_tags),
                 "all_inferred_tags": "|".join(deduped),
                 "new_links_planned_or_inserted": row_links,
             }
         )
+
+    if args.source == "dataset":
+        for row in dataset_rows:
+            place_id, matched_by = match_place_id(row)
+            if not place_id:
+                unmatched_rows += 1
+                report_rows.append(
+                    {
+                        "row_num": row.row_num,
+                        "place_name": row.place_name,
+                        "matched": False,
+                        "matched_by": matched_by,
+                        "place_id": "",
+                        "area_tag": "",
+                        "cuisine_tags": "",
+                        "allergy_tags": "",
+                        "all_inferred_tags": "",
+                        "new_links_planned_or_inserted": 0,
+                    }
+                )
+                continue
+            process_row(row, place_id, matched_by)
+    else:
+        for idx, place in enumerate(place_rows, start=1):
+            place_id = str(place.get("id") or "")
+            if not place_id:
+                unmatched_rows += 1
+                report_rows.append(
+                    {
+                        "row_num": idx,
+                        "place_name": str(place.get("name") or ""),
+                        "matched": False,
+                        "matched_by": "places",
+                        "place_id": "",
+                        "area_tag": "",
+                        "cuisine_tags": "",
+                        "allergy_tags": "",
+                        "all_inferred_tags": "",
+                        "new_links_planned_or_inserted": 0,
+                    }
+                )
+                continue
+            row = PlaceRow(row_num=idx, values=place)
+            process_row(row, place_id, "places")
 
     if not csv_mode and args.apply and place_tags_to_insert:
         assert supabase is not None
@@ -877,7 +1037,8 @@ def main() -> None:
     print(f"- New place_tags {'inserted' if (args.apply or csv_mode) else 'planned'}: {planned_links}")
     if args.apply and not csv_mode:
         print(f"- Failed place_tags inserts: {failed_link_inserts}")
-    print(f"- Unmatched dataset rows: {unmatched_rows}")
+    unmatched_label = "Unmatched dataset rows" if args.source == "dataset" else "Rows missing place_id"
+    print(f"- {unmatched_label}: {unmatched_rows}")
     print(f"- Rows with no inferred tags: {rows_with_no_tags}")
 
     if csv_mode:
@@ -914,23 +1075,37 @@ def main() -> None:
             report_path = Path.cwd() / report_path
         report_path.parent.mkdir(parents=True, exist_ok=True)
 
+        fieldnames = [
+            "row_num",
+            "place_name",
+            "matched",
+            "matched_by",
+            "place_id",
+            "area_tag",
+            "price_range_tag",
+            "cuisine_tags",
+            "allergy_tags",
+            "all_inferred_tags",
+            "new_links_planned_or_inserted",
+        ]
         if report_path.suffix.lower() == ".csv":
-            fieldnames = [
-                "row_num",
-                "place_name",
-                "matched",
-                "matched_by",
-                "place_id",
-                "area_tag",
-                "price_range_tag",
-                "cuisine_tags",
-                "all_inferred_tags",
-                "new_links_planned_or_inserted",
-            ]
             with report_path.open("w", newline="", encoding="utf-8") as f:
                 writer = csv.DictWriter(f, fieldnames=fieldnames)
                 writer.writeheader()
                 writer.writerows(report_rows)
+        elif report_path.suffix.lower() == ".xlsx":
+            try:
+                from openpyxl import Workbook
+            except Exception as exc:
+                raise RuntimeError("openpyxl is required to write .xlsx reports") from exc
+
+            wb = Workbook()
+            ws = wb.active
+            ws.title = "auto_tag_report"
+            ws.append(fieldnames)
+            for row in report_rows:
+                ws.append([row.get(name, "") for name in fieldnames])
+            wb.save(report_path)
         else:
             with report_path.open("w", encoding="utf-8") as f:
                 json.dump(report_rows, f, ensure_ascii=False, indent=2)

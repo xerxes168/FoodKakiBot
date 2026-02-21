@@ -14,8 +14,10 @@
 
 """
 
-1. Enter Google API Key in:
+1. Enter API keys in:
    /backend/.env
+   - GOOGLE_API_KEY (Gemini)
+   - GOOGLE_PLACES_API_KEY or GOOGLE_MAPS_API_KEY (Places/Maps)
 
 2. Set up virtual environment:
    python -m venv venv
