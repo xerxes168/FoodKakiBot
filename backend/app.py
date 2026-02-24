@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 import requests
 from tagging import auto_tags_from_google
 import re
+import math
 
 app = Flask(__name__)
 CORS(app)
@@ -79,6 +80,19 @@ def detect_canonical_price_tag(message: str) -> str | None:
             return canonical
 
     return None
+
+def haversine_km(lat1, lon1, lat2, lon2):
+    R = 6371  # Earth radius in km
+
+    phi1 = math.radians(lat1)
+    phi2 = math.radians(lat2)
+    dphi = math.radians(lat2 - lat1)
+    dlambda = math.radians(lon2 - lon1)
+
+    a = math.sin(dphi/2)**2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda/2)**2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+    return R * c
 
 def get_all_tag_names():
     response = supabase.table("tags").select("name").execute()
@@ -196,25 +210,36 @@ def apply_rules_to_db(rules, limit=5):
     if "location_query" in rules:
         loc = rules["location_query"]
 
-        # Google Text Search to get coordinates
         location_results, _ = google_text_search(loc, limit=1)
-
         if location_results:
-            # Get the FIRST result only
             first = location_results[0]
-            latitude = first["geometry"]["location"]["lat"]
-            longitude = first["geometry"]["location"]["lng"]
+            user_lat = first["geometry"]["location"]["lat"]
+            user_lng = first["geometry"]["location"]["lng"]
 
-            # Simple radius filter (approx ±2 km)
-            query = (
-                query
-                .gte("latitude", latitude - 0.02)
-                .lte("latitude", latitude + 0.02)
-            )
+            # Pull a larger candidate pool first (adjust as needed)
+            # You MUST have latitude/longitude columns in places table
+            res = query.limit(200).execute()
+            rows = res.data or []
 
+            # compute distance + filter within radius (optional)
+            enriched = []
+            for r in rows:
+                lat = r.get("latitude")
+                lng = r.get("longitude")
+                if lat is None or lng is None:
+                    continue
+                dist_km = haversine_km(user_lat, user_lng, lat, lng)
+                r["distance_km"] = round(dist_km, 2)
+                enriched.append(r)
 
-        res = query.limit(limit).execute()
-        return res.data
+            # sort by nearest
+            enriched.sort(key=lambda x: x["distance_km"])
+
+            # return only closest N
+            return enriched[:limit]
+
+    res = query.limit(limit).execute()
+    return res.data
 
 @app.get("/api/google-places")
 def google_places_endpoint():
