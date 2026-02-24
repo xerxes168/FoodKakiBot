@@ -41,3 +41,26 @@
 
    Backend will run on <http://localhost:5000>
 """
+
+## For tagging test
+
+"""
+1. Set up virtual environment:
+   python -m venv venv
+   source venv/bin/activate
+
+2. cd backend
+
+3. Install dependencies:
+   pip install -r requirements.txt
+
+4. Run the test file:
+   python fetch_and_enrich.py
+
+   This will run the first 10 restaurants from the SupaBase DB through the Google Places API and generate an Excel file.
+
+   python fetch_and_enrich.py                         # 10 restaurants (default)
+   python fetch_and_enrich.py --limit 50              # 50 restaurants
+   python fetch_and_enrich.py --limit 0               # all restaurants
+   python fetch_and_enrich.py --limit 25 --output my_data.xlsx  # custom output name
+"""

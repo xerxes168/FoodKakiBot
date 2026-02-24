@@ -166,6 +166,77 @@ HALAL_KEYWORDS = [
 ]
 
 
+# ── Google Types → flat tags (non-cuisine attributes) ────────────────────────
+# These complement cuisine tags — capturing dining format, amenities, etc.
+GOOGLE_TYPE_TO_TAG = {
+    # Dining format
+    "meal_takeaway":        "Takeaway",
+    "meal_delivery":        "Delivery",
+    "fast_food_restaurant": "Fast Food",
+    "buffet_restaurant":    "Buffet",
+    "brunch_restaurant":    "Brunch",
+    "cafe":                 "Cafe",
+    "bar":                  "Bar",
+    "wine_bar":             "Wine Bar",
+    "bakery":               "Bakery",
+    "dessert_shop":         "Dessert",
+    "ice_cream_shop":       "Ice Cream",
+    "bubble_tea_store":     "Bubble Tea",
+    "juice_shop":           "Juice Bar",
+    "tea_house":            "Tea House",
+    "diner":                "Diner",
+    "food_court":           "Food Court",
+    "hawker_center":        "Hawker Centre",
+    # Venue type
+    "night_club":           "Nightclub",
+    "tourist_attraction":   "Tourist Spot",
+    "shopping_mall":        "In Mall",
+    # Dietary
+    "vegan_restaurant":     "Vegan",
+    "vegetarian_restaurant":"Vegetarian",
+}
+
+
+def tags_from_google_types(types: list) -> list[str]:
+    """Extract non-cuisine descriptive tags from the full types[] array."""
+    seen = set()
+    tags = []
+    for t in types:
+        label = GOOGLE_TYPE_TO_TAG.get(t)
+        if label and label not in seen:
+            seen.add(label)
+            tags.append(label)
+    return tags
+
+
+def price_from_range(price_range: dict) -> tuple[int | None, str]:
+    """
+    Parse priceRange (Places API New) when priceLevel is missing.
+    priceRange = {
+        "startPrice": {"currencyCode": "SGD", "units": "15"},
+        "endPrice":   {"currencyCode": "SGD", "units": "40"}
+    }
+    Returns (price_num, price_label) using midpoint heuristic in SGD.
+    """
+    if not price_range:
+        return None, "N/A"
+    try:
+        start = float((price_range.get("startPrice") or {}).get("units", 0) or 0)
+        end   = float((price_range.get("endPrice")   or {}).get("units", 0) or 0)
+        mid   = (start + end) / 2 if end else start
+        raw_label = f"~SGD ${int(start)}–${int(end)}" if end else f"~SGD ${int(start)}+"
+        if mid <= 15:
+            return 1, f"$ (Budget <$15) [{raw_label}]"
+        elif mid <= 30:
+            return 2, f"$$ (Moderate $15–$30) [{raw_label}]"
+        elif mid <= 60:
+            return 3, f"$$$ (Expensive $30–$60) [{raw_label}]"
+        else:
+            return 4, f"$$$$ (Very Expensive $60+) [{raw_label}]"
+    except (TypeError, ValueError):
+        return None, "N/A"
+
+
 # ── Google Places API (New) ───────────────────────────────────────────────────
 
 PLACES_NEW_BASE = "https://places.googleapis.com/v1/places"
@@ -178,6 +249,7 @@ NEW_API_FIELDS = ",".join([
     "rating",
     "userRatingCount",
     "priceLevel",
+    "priceRange",
     "primaryType",
     "primaryTypeDisplayName",
     "types",
@@ -196,6 +268,14 @@ NEW_API_FIELDS = ",".join([
     "servesVegetarianFood",
     "accessibilityOptions",
     "reviews",
+    "dineIn",
+    "takeout",
+    "delivery",
+    "reservable",
+    "goodForChildren",
+    "goodForGroups",
+    "liveMusic",
+    "outdoorSeating",
 ])
 
 
@@ -316,13 +396,20 @@ def build_row(r: dict, details: dict) -> dict:
     reviews = details.get("reviews") or []
     reviews_text = " ".join((rv.get("text") or {}).get("text", "") for rv in reviews[:5])
 
-    # Price — new API uses string enum
+    # Price — prefer priceLevel enum, fall back to priceRange, then DB value
     price_raw = details.get("priceLevel") or ""
     if price_raw in PRICE_LEVEL_MAP_NEW:
         price_num, price_label = PRICE_LEVEL_MAP_NEW[price_raw]
+        price_source = "priceLevel"
     else:
-        price_num = r.get("price_level")
-        price_label = PRICE_MAP.get(price_num, "N/A") if price_num is not None else "N/A"
+        # Try priceRange (shown on Google website when priceLevel is absent)
+        price_num, price_label = price_from_range(details.get("priceRange"))
+        if price_num is not None:
+            price_source = "priceRange"
+        else:
+            price_num = r.get("price_level")
+            price_label = PRICE_MAP.get(price_num, "N/A") if price_num is not None else "N/A"
+            price_source = "database" if price_num is not None else "none"
 
     rating = details.get("rating") or r.get("rating")
     rating_count = details.get("userRatingCount") or r.get("user_rating_count")
@@ -343,6 +430,9 @@ def build_row(r: dict, details: dict) -> dict:
     # Cuisine
     cuisine_tags, cuisine_source = resolve_cuisine(details)
 
+    # Tags from Google Types (dining format, venue attributes)
+    google_type_tags = tags_from_google_types(types)
+
     # Halal
     halal = infer_halal(name, types, editorial, reviews_text)
 
@@ -356,6 +446,22 @@ def build_row(r: dict, details: dict) -> dict:
     # Accessibility
     accessibility = details.get("accessibilityOptions") or {}
     wheelchair = "Yes" if accessibility.get("wheelchairAccessibleEntrance") else "N/A"
+
+    # Amenity tags from extra API fields
+    amenity_tags = []
+    if details.get("dineIn"):       amenity_tags.append("Dine-In")
+    if details.get("takeout"):      amenity_tags.append("Takeaway")
+    if details.get("delivery"):     amenity_tags.append("Delivery")
+    if details.get("reservable"):   amenity_tags.append("Reservable")
+    if details.get("outdoorSeating"): amenity_tags.append("Outdoor Seating")
+    if details.get("liveMusic"):    amenity_tags.append("Live Music")
+    if details.get("goodForGroups"): amenity_tags.append("Good for Groups")
+    if details.get("goodForChildren"): amenity_tags.append("Family-Friendly")
+
+    # Combine all tags (deduplicated)
+    all_tags = list(dict.fromkeys(
+        [cuisine_tags] + google_type_tags + amenity_tags
+    )) if cuisine_tags != "Unknown" else list(dict.fromkeys(google_type_tags + amenity_tags))
 
     # Photos
     photos = details.get("photos") or []
@@ -371,8 +477,12 @@ def build_row(r: dict, details: dict) -> dict:
         "Total Ratings": rating_count,
         "Price Level (1-4)": price_num,
         "Price Category": price_label,
+        "Price Source": price_source,
         "Cuisine Tags": cuisine_tags,
         "Cuisine Source": cuisine_source,
+        "Google Type Tags": ", ".join(google_type_tags) if google_type_tags else "N/A",
+        "Amenity Tags": ", ".join(amenity_tags) if amenity_tags else "N/A",
+        "All Tags": ", ".join(all_tags) if all_tags else "N/A",
         "Primary Type (Raw)": details.get("primaryType") or "",
         "Primary Type (Display)": (details.get("primaryTypeDisplayName") or {}).get("text") or "",
         "Halal": halal,
@@ -404,8 +514,9 @@ THIN_BORDER = Border(
 COL_WIDTHS = {
     "DB ID": 8, "Name": 30, "Address": 40, "Latitude": 12, "Longitude": 12,
     "Business Status": 18, "Rating (Google)": 15, "Total Ratings": 14,
-    "Price Level (1-4)": 16, "Price Category": 24,
+    "Price Level (1-4)": 16, "Price Category": 30, "Price Source": 14,
     "Cuisine Tags": 35, "Cuisine Source": 20,
+    "Google Type Tags": 35, "Amenity Tags": 40, "All Tags": 50,
     "Primary Type (Raw)": 28, "Primary Type (Display)": 28,
     "Halal": 10, "Meal Types Served": 28, "Dietary Info": 28,
     "Serves Alcohol": 14, "Wheelchair Accessible": 20,
