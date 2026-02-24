@@ -1,0 +1,32 @@
+id,name,status
+103,Asian,existing_or_synced
+104,Bakery,existing_or_synced
+101,Budget,existing_or_synced
+18,Buffet,existing_or_synced
+19,Cafe,existing_or_synced
+105,Delivery,existing_or_synced
+10,Dessert,existing_or_synced
+106,Dine-In,existing_or_synced
+107,Diner,existing_or_synced
+32,Downtown Core,existing_or_synced
+108,Family-Friendly,existing_or_synced
+109,Food Court,existing_or_synced
+110,Good for Groups,existing_or_synced
+54,Hougang,existing_or_synced
+116,Ice Cream,existing_or_synced
+29,Italian,existing_or_synced
+7,Japanese,existing_or_synced
+28,Kallang,existing_or_synced
+21,Korean,existing_or_synced
+121,Mid-Range,existing_or_synced
+70,Newton,existing_or_synced
+36,Novena,existing_or_synced
+23,Orchard,existing_or_synced
+111,Outdoor Seating,existing_or_synced
+123,Premium,existing_or_synced
+31,Queenstown,existing_or_synced
+112,Reservable,existing_or_synced
+30,Rochor,existing_or_synced
+114,Takeaway,existing_or_synced
+115,Tea House,existing_or_synced
+8,Vegetarian,existing_or_synced

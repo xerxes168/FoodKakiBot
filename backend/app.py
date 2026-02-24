@@ -27,16 +27,78 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 # In-memory storage for conversations (temporary - no database)
 conversations = {}
 
+PRICE_LEVEL_TO_TAG = {
+    0: "Free",
+    1: "Budget",
+    2: "Mid-Range",
+    3: "Expensive",
+    4: "Premium",
+}
+
+PRICE_TAG_TO_LEVEL = {v: k for k, v in PRICE_LEVEL_TO_TAG.items()}
+
+PRICE_TAG_ALIASES = {
+    "Free": ["free"],
+    "Budget": ["cheap", "budget", "affordable", "economical", "low cost", "low-cost"],
+    "Mid-Range": ["mid range", "mid-range", "moderate", "reasonably priced", "not too expensive"],
+    "Expensive": ["expensive", "pricey", "high price", "high-priced"],
+    "Premium": ["premium", "luxury", "high end", "high-end", "fine dining", "very expensive"],
+}
+
+def normalize_text_for_match(text: str) -> str:
+    text = (text or "").lower()
+    text = text.replace("-", " ")
+    text = re.sub(r"[^a-z0-9$\s]", " ", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
+
+def contains_phrase(normalized_text: str, phrase: str) -> bool:
+    p = normalize_text_for_match(phrase)
+    if not p:
+        return False
+    return f" {p} " in f" {normalized_text} "
+
+def detect_canonical_price_tag(message: str) -> str | None:
+    raw = (message or "").lower()
+    normalized = normalize_text_for_match(message or "")
+
+    # Prefer explicit dollar notation, longest first.
+    dollar_map = [
+        ("$$$$", "Premium"),
+        ("$$$", "Expensive"),
+        ("$$", "Mid-Range"),
+        ("$", "Budget"),
+    ]
+    for symbol, canonical in dollar_map:
+        if re.search(rf"(?<!\$){re.escape(symbol)}(?!\$)", raw):
+            return canonical
+
+    # Then match common natural-language variants.
+    for canonical, aliases in PRICE_TAG_ALIASES.items():
+        if any(contains_phrase(normalized, alias) for alias in aliases):
+            return canonical
+
+    return None
+
 def get_all_tag_names():
     response = supabase.table("tags").select("name").execute()
     tags = [t["name"] for t in response.data]
     return tags, {t.lower() for t in tags}
 
 def extract_tags_from_message(user_message):
-    tag_names, tag_set = get_all_tag_names()
-    user_text = user_message.lower()
+    tag_names, _ = get_all_tag_names()
+    user_text = (user_message or "").lower()
 
     matched_tags = [tag for tag in tag_names if tag.lower() in user_text]
+
+    # Map "$", "$$", "mid range", etc. -> one canonical price tag if present in DB.
+    canonical_price_tag = detect_canonical_price_tag(user_message or "")
+    if canonical_price_tag:
+        tag_lookup = {t.lower(): t for t in tag_names}
+        actual_tag = tag_lookup.get(canonical_price_tag.lower())
+        if actual_tag and actual_tag not in matched_tags:
+            matched_tags.append(actual_tag)
+
     return matched_tags
 
 def fetch_food_places_by_tags(tags, limit=5):
@@ -114,8 +176,12 @@ def apply_rules_to_db(rules, limit=5):
         else:
             rules["max_price"] = 4
 
-    # Apply the max_price filter if present
-    if "max_price" in rules:
+    # Exact price level (from canonical phrases like "$$", "mid range")
+    if "price_level_exact" in rules:
+        query = query.eq("price_level", rules["price_level_exact"])
+
+    # Apply the max_price filter if present (numeric budget constraints)
+    if "max_price" in rules and "price_level_exact" not in rules:
         query = query.lte("price_level", rules["max_price"])
 
     # ----- CUISINE FILTER -----
@@ -193,10 +259,9 @@ def extract_filtering_rules(message):
 
     # 2) If no explicit number, fall back to keywords
     if "budget_amount" not in rules:
-        if "cheap" in message:
-            rules["max_price"] = 1
-        elif "budget" in message or "affordable" in message:
-            rules["max_price"] = 2  # budget but not super cheap
+        canonical_price_tag = detect_canonical_price_tag(message)
+        if canonical_price_tag in PRICE_TAG_TO_LEVEL:
+            rules["price_level_exact"] = PRICE_TAG_TO_LEVEL[canonical_price_tag]
 
     # ----- DIETARY -----
     if "halal" in message:
@@ -382,4 +447,3 @@ if __name__ == '__main__':
     print("Health check: http://localhost:5000/api/health")
     print("=" * 50)
     app.run(debug=True, port=5000)
-

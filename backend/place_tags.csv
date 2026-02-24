@@ -1,0 +1,80 @@
+place_id,tag_id,tag_name,status
+1,7,Japanese,ready
+1,109,Food Court,ready
+1,106,Dine-In,ready
+1,114,Takeaway,ready
+1,105,Delivery,ready
+1,108,Family-Friendly,ready
+1,121,Mid-Range,ready
+1,32,Downtown Core,ready
+2,103,Asian,ready
+2,107,Diner,ready
+2,7,Japanese,ready
+2,106,Dine-In,ready
+2,114,Takeaway,ready
+2,105,Delivery,ready
+2,111,Outdoor Seating,ready
+2,110,Good for Groups,ready
+2,108,Family-Friendly,ready
+2,101,Budget,ready
+2,36,Novena,ready
+3,104,Bakery,ready
+3,114,Takeaway,ready
+3,105,Delivery,ready
+3,28,Kallang,ready
+4,115,Tea House,ready
+4,114,Takeaway,ready
+4,105,Delivery,ready
+4,108,Family-Friendly,ready
+4,54,Hougang,ready
+5,29,Italian,ready
+5,106,Dine-In,ready
+5,114,Takeaway,ready
+5,105,Delivery,ready
+5,112,Reservable,ready
+5,110,Good for Groups,ready
+5,123,Premium,ready
+5,70,Newton,ready
+6,19,Cafe,ready
+6,106,Dine-In,ready
+6,114,Takeaway,ready
+6,105,Delivery,ready
+6,112,Reservable,ready
+6,111,Outdoor Seating,ready
+6,110,Good for Groups,ready
+6,108,Family-Friendly,ready
+6,121,Mid-Range,ready
+6,28,Kallang,ready
+7,10,Dessert,ready
+7,106,Dine-In,ready
+7,114,Takeaway,ready
+7,101,Budget,ready
+7,30,Rochor,ready
+8,8,Vegetarian,ready
+8,106,Dine-In,ready
+8,114,Takeaway,ready
+8,105,Delivery,ready
+8,112,Reservable,ready
+8,110,Good for Groups,ready
+8,108,Family-Friendly,ready
+8,121,Mid-Range,ready
+8,31,Queenstown,ready
+9,19,Cafe,ready
+9,106,Dine-In,ready
+9,114,Takeaway,ready
+9,105,Delivery,ready
+9,101,Budget,ready
+9,32,Downtown Core,ready
+10,18,Buffet,ready
+10,116,Ice Cream,ready
+10,19,Cafe,ready
+10,10,Dessert,ready
+10,21,Korean,ready
+10,104,Bakery,ready
+10,105,Delivery,ready
+10,114,Takeaway,ready
+10,106,Dine-In,ready
+10,110,Good for Groups,ready
+10,108,Family-Friendly,ready
+10,121,Mid-Range,ready
+10,23,Orchard,ready

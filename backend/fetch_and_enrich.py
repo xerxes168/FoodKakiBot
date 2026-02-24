@@ -24,6 +24,7 @@ Requires backend/.env with:
 
 import os
 import re
+import csv
 import requests
 from datetime import datetime
 from supabase import create_client
@@ -37,8 +38,10 @@ load_dotenv()
 SUPABASE_URL = os.environ["SUPABASE_URL"]
 SUPABASE_KEY = os.environ["SUPABASE_ANON_KEY"]
 GOOGLE_API_KEY = os.environ["GOOGLE_PLACES_API_KEY"]
+SUPABASE_WRITE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY") or SUPABASE_KEY
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+supabase_writer = create_client(SUPABASE_URL, SUPABASE_WRITE_KEY)
 
 PRICE_MAP = {
     0: "Free",
@@ -245,6 +248,7 @@ NEW_API_FIELDS = ",".join([
     "id",
     "displayName",
     "formattedAddress",
+    "addressComponents",
     "location",
     "rating",
     "userRatingCount",
@@ -370,10 +374,219 @@ def fetch_restaurants(limit=10):
         "id,gmaps_place_id,name,address,latitude,longitude,"
         "rating,user_rating_count,price_level,types,"
         "editorial_summary,gmaps_uri,website_uri"
-    )
+    ).order("id", desc=False)
     if limit is not None:
         q = q.limit(limit)
     return q.execute().data
+
+
+# ── Tag export / sync helpers ────────────────────────────────────────────────
+
+def normalize_tag_name(name: str) -> str:
+    return re.sub(r"\s+", " ", (name or "").strip()).lower()
+
+
+def parse_tag_string(value: str) -> list[str]:
+    if not value or value == "N/A":
+        return []
+    tags = []
+    for part in value.split(","):
+        t = part.strip()
+        if t and t not in ("N/A", "Unknown"):
+            tags.append(t)
+    return tags
+
+
+def tags_for_row(row: dict, add_halal_tag: bool = True, add_non_halal_tag: bool = False) -> list[str]:
+    tags = parse_tag_string(row.get("All Tags", ""))
+    halal = (row.get("Halal") or "").strip().lower()
+    if add_halal_tag and halal == "yes":
+        tags.append("Halal")
+    if add_non_halal_tag and halal == "no":
+        tags.append("Non-Halal")
+    # Deduplicate by normalized name while preserving display casing
+    out = []
+    seen = set()
+    for tag in tags:
+        norm = normalize_tag_name(tag)
+        if not norm or norm in seen:
+            continue
+        seen.add(norm)
+        out.append(tag.strip())
+    return out
+
+
+def build_tag_link_payload(rows: list[dict], add_halal_tag: bool = True, add_non_halal_tag: bool = False) -> tuple[list[str], list[dict]]:
+    all_tags: dict[str, str] = {}
+    place_tag_links: list[dict] = []
+    seen_links: set[tuple[int, str]] = set()
+
+    for row in rows:
+        place_id = row.get("DB ID")
+        if place_id is None:
+            continue
+        row_tags = tags_for_row(row, add_halal_tag=add_halal_tag, add_non_halal_tag=add_non_halal_tag)
+        for tag in row_tags:
+            norm = normalize_tag_name(tag)
+            all_tags.setdefault(norm, tag)
+            key = (place_id, norm)
+            if key in seen_links:
+                continue
+            seen_links.add(key)
+            place_tag_links.append({
+                "place_id": place_id,
+                "tag_name": all_tags[norm],
+                "tag_norm": norm,
+            })
+
+    ordered_tags = [all_tags[norm] for norm in sorted(all_tags.keys())]
+    return ordered_tags, place_tag_links
+
+
+def chunked(items: list, size: int = 200):
+    for i in range(0, len(items), size):
+        yield items[i:i + size]
+
+
+def fetch_all_tags_map() -> dict[str, dict]:
+    data = supabase.table("tags").select("id,name").execute().data or []
+    out: dict[str, dict] = {}
+    for t in data:
+        name = (t.get("name") or "").strip()
+        norm = normalize_tag_name(name)
+        if norm and norm not in out:
+            out[norm] = {"id": t.get("id"), "name": name}
+    return out
+
+
+def ensure_tags_exist(tag_names: list[str], create_missing: bool = False) -> tuple[dict[str, dict], list[str]]:
+    existing = fetch_all_tags_map()
+    missing = []
+    for name in tag_names:
+        norm = normalize_tag_name(name)
+        if norm and norm not in existing:
+            missing.append(name)
+
+    if create_missing and missing:
+        print(f"Tag sync: inserting {len(missing)} new tag(s) into Supabase...")
+        for batch in chunked(missing, 200):
+            payload = [{"name": n} for n in batch]
+            try:
+                supabase_writer.table("tags").insert(payload).execute()
+            except Exception as e:
+                print(f"  WARNING: Failed inserting tags batch ({len(batch)}): {e}")
+        existing = fetch_all_tags_map()
+        missing = [name for name in tag_names if normalize_tag_name(name) not in existing]
+
+    return existing, missing
+
+
+def fetch_existing_place_tag_pairs(place_ids: list[int]) -> set[tuple[int, int]]:
+    pairs: set[tuple[int, int]] = set()
+    if not place_ids:
+        return pairs
+
+    for batch in chunked(place_ids, 200):
+        try:
+            data = (
+                supabase.table("place_tags")
+                .select("place_id,tag_id")
+                .in_("place_id", batch)
+                .execute()
+                .data
+                or []
+            )
+        except Exception as e:
+            print(f"  WARNING: Failed reading place_tags for duplicate check: {e}")
+            return pairs
+
+        for row in data:
+            pid = row.get("place_id")
+            tid = row.get("tag_id")
+            if pid is not None and tid is not None:
+                pairs.add((pid, tid))
+    return pairs
+
+
+def write_csv(path: str, fieldnames: list[str], rows: list[dict]):
+    folder = os.path.dirname(path)
+    if folder:
+        os.makedirs(folder, exist_ok=True)
+    with open(path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+    print(f"Saved: {path}")
+
+
+def export_and_optionally_sync_tags(
+    enriched_rows: list[dict],
+    tags_csv_path: str,
+    place_tags_csv_path: str,
+    sync_to_supabase: bool = False,
+    add_halal_tag: bool = True,
+    add_non_halal_tag: bool = False,
+):
+    tag_names, place_tag_links = build_tag_link_payload(
+        enriched_rows,
+        add_halal_tag=add_halal_tag,
+        add_non_halal_tag=add_non_halal_tag,
+    )
+
+    if not tag_names:
+        print("No tags found to export.")
+        write_csv(tags_csv_path, ["id", "name", "status"], [])
+        write_csv(place_tags_csv_path, ["place_id", "tag_id", "tag_name", "status"], [])
+        return
+
+    tag_map, missing_tags = ensure_tags_exist(tag_names, create_missing=sync_to_supabase)
+
+    if missing_tags:
+        print(
+            f"Tag sync: {len(missing_tags)} tag(s) still missing in Supabase. "
+            f"{'Check RLS / use SUPABASE_SERVICE_ROLE_KEY.' if sync_to_supabase else 'Run again with --sync-tags-supabase after enabling write access.'}"
+        )
+
+    tags_csv_rows = []
+    for name in tag_names:
+        norm = normalize_tag_name(name)
+        entry = tag_map.get(norm)
+        tags_csv_rows.append({
+            "id": entry.get("id") if entry else "",
+            "name": entry.get("name") if entry else name,
+            "status": "existing_or_synced" if entry else "missing_in_db",
+        })
+
+    place_tags_csv_rows = []
+    place_tag_insert_rows = []
+    for link in place_tag_links:
+        entry = tag_map.get(link["tag_norm"])
+        tag_id = entry.get("id") if entry else None
+        status = "ready" if tag_id is not None else "missing_tag_id"
+        place_tags_csv_rows.append({
+            "place_id": link["place_id"],
+            "tag_id": tag_id if tag_id is not None else "",
+            "tag_name": link["tag_name"],
+            "status": status,
+        })
+        if tag_id is not None:
+            place_tag_insert_rows.append({"place_id": link["place_id"], "tag_id": tag_id})
+
+    if sync_to_supabase and place_tag_insert_rows:
+        existing_pairs = fetch_existing_place_tag_pairs(sorted({r["place_id"] for r in place_tag_insert_rows}))
+        to_insert = [r for r in place_tag_insert_rows if (r["place_id"], r["tag_id"]) not in existing_pairs]
+        if to_insert:
+            print(f"Place-tag sync: inserting {len(to_insert)} new link(s) into Supabase...")
+            for batch in chunked(to_insert, 500):
+                try:
+                    supabase_writer.table("place_tags").insert(batch).execute()
+                except Exception as e:
+                    print(f"  WARNING: Failed inserting place_tags batch ({len(batch)}): {e}")
+        else:
+            print("Place-tag sync: no new links to insert (all already exist).")
+
+    write_csv(tags_csv_path, ["id", "name", "status"], tags_csv_rows)
+    write_csv(place_tags_csv_path, ["place_id", "tag_id", "tag_name", "status"], place_tags_csv_rows)
 
 
 # ── Row builder ───────────────────────────────────────────────────────────────
@@ -385,6 +598,67 @@ PRICE_LEVEL_MAP_NEW = {
     "PRICE_LEVEL_EXPENSIVE": (3, "$$$ (Expensive $30-$60)"),
     "PRICE_LEVEL_VERY_EXPENSIVE": (4, "$$$$ (Very Expensive $60+)"),
 }
+
+# Canonical price tag per level. User wording variants should be normalized in app.py.
+PRICE_TAGS_BY_LEVEL = {
+    0: ["Free"],
+    1: ["Budget"],
+    2: ["Mid-Range"],
+    3: ["Expensive"],
+    4: ["Premium"],
+}
+
+
+def price_tags_from_level(price_num: int | None) -> list[str]:
+    if price_num is None:
+        return []
+    return PRICE_TAGS_BY_LEVEL.get(price_num, [])
+
+
+AREA_COMPONENT_PRIORITY = [
+    "neighborhood",
+    "sublocality_level_1",
+    "sublocality",
+    "postal_town",
+    "locality",
+    "administrative_area_level_3",
+    "administrative_area_level_2",
+]
+AREA_IGNORE_VALUES = {"singapore"}
+
+
+def extract_area_name(details: dict, fallback_address: str = "") -> str | None:
+    """
+    Try to derive a user-meaningful area from Google address components.
+    Returns values like 'Bugis', 'Tampines', 'Jurong East' (not prefixed).
+    """
+    components = details.get("addressComponents") or []
+    for wanted_type in AREA_COMPONENT_PRIORITY:
+        for comp in components:
+            types = comp.get("types") or []
+            if wanted_type not in types:
+                continue
+            name = (comp.get("longText") or comp.get("shortText") or "").strip()
+            if not name:
+                continue
+            if name.lower() in AREA_IGNORE_VALUES:
+                continue
+            return name
+
+    # Conservative fallback: use a non-country part from formatted address only if it looks like an area name.
+    # Avoid tagging generic "Singapore".
+    if fallback_address:
+        parts = [p.strip() for p in fallback_address.split(",") if p.strip()]
+        for part in reversed(parts):
+            lower = part.lower()
+            if lower in AREA_IGNORE_VALUES or lower.startswith("singapore "):
+                continue
+            if any(ch.isdigit() for ch in part):
+                continue
+            if len(part) < 3:
+                continue
+            return part
+    return None
 
 
 def build_row(r: dict, details: dict) -> dict:
@@ -433,6 +707,14 @@ def build_row(r: dict, details: dict) -> dict:
     # Tags from Google Types (dining format, venue attributes)
     google_type_tags = tags_from_google_types(types)
 
+    # Price tags (only when a price level could be resolved)
+    price_tags = price_tags_from_level(price_num)
+
+    # Area tag (from Google address components when available)
+    address_text = details.get("formattedAddress") or r.get("address") or ""
+    area_name = extract_area_name(details, fallback_address=address_text)
+    area_tags = [area_name] if area_name else []
+
     # Halal
     halal = infer_halal(name, types, editorial, reviews_text)
 
@@ -460,8 +742,8 @@ def build_row(r: dict, details: dict) -> dict:
 
     # Combine all tags (deduplicated)
     all_tags = list(dict.fromkeys(
-        [cuisine_tags] + google_type_tags + amenity_tags
-    )) if cuisine_tags != "Unknown" else list(dict.fromkeys(google_type_tags + amenity_tags))
+        [cuisine_tags] + google_type_tags + amenity_tags + price_tags + area_tags
+    )) if cuisine_tags != "Unknown" else list(dict.fromkeys(google_type_tags + amenity_tags + price_tags + area_tags))
 
     # Photos
     photos = details.get("photos") or []
@@ -482,6 +764,8 @@ def build_row(r: dict, details: dict) -> dict:
         "Cuisine Source": cuisine_source,
         "Google Type Tags": ", ".join(google_type_tags) if google_type_tags else "N/A",
         "Amenity Tags": ", ".join(amenity_tags) if amenity_tags else "N/A",
+        "Price Tags": ", ".join(price_tags) if price_tags else "N/A",
+        "Area Tag": ", ".join(area_tags) if area_tags else "N/A",
         "All Tags": ", ".join(all_tags) if all_tags else "N/A",
         "Primary Type (Raw)": details.get("primaryType") or "",
         "Primary Type (Display)": (details.get("primaryTypeDisplayName") or {}).get("text") or "",
@@ -676,6 +960,22 @@ def main():
         "--output", type=str, default="restaurant_enriched_data.xlsx",
         help="Output Excel filename (default: restaurant_enriched_data.xlsx)"
     )
+    parser.add_argument(
+        "--tags-output", type=str, default="tags.csv",
+        help="Output CSV filename for tags table rows (default: tags.csv)"
+    )
+    parser.add_argument(
+        "--place-tags-output", type=str, default="place_tags.csv",
+        help="Output CSV filename for place_tags rows (default: place_tags.csv)"
+    )
+    parser.add_argument(
+        "--sync-tags-supabase", action="store_true",
+        help="Insert missing tags and place_tags links into Supabase before exporting CSVs"
+    )
+    parser.add_argument(
+        "--add-non-halal-tag", action="store_true",
+        help="Also emit a 'Non-Halal' tag when Halal field is explicitly 'No' (off by default)"
+    )
     args = parser.parse_args()
 
     limit = args.limit if args.limit > 0 else None
@@ -700,6 +1000,17 @@ def main():
 
     print(f"\nBuilding Excel file...")
     create_excel(enriched_rows, args.output)
+
+    print("\nBuilding tag CSV exports...")
+    export_and_optionally_sync_tags(
+        enriched_rows,
+        tags_csv_path=args.tags_output,
+        place_tags_csv_path=args.place_tags_output,
+        sync_to_supabase=args.sync_tags_supabase,
+        add_halal_tag=True,
+        add_non_halal_tag=args.add_non_halal_tag,
+    )
+
     print(f"Done! -> {args.output}")
 
 
