@@ -1,80 +1,7363 @@
 place_id,tag_id,tag_name,status
-1,7,Japanese,ready
-1,109,Food Court,ready
-1,106,Dine-In,ready
-1,114,Takeaway,ready
-1,105,Delivery,ready
-1,108,Family-Friendly,ready
-1,121,Mid-Range,ready
-1,32,Downtown Core,ready
-2,103,Asian,ready
-2,107,Diner,ready
-2,7,Japanese,ready
-2,106,Dine-In,ready
-2,114,Takeaway,ready
-2,105,Delivery,ready
-2,111,Outdoor Seating,ready
-2,110,Good for Groups,ready
-2,108,Family-Friendly,ready
-2,101,Budget,ready
-2,36,Novena,ready
-3,104,Bakery,ready
-3,114,Takeaway,ready
-3,105,Delivery,ready
-3,28,Kallang,ready
-4,115,Tea House,ready
-4,114,Takeaway,ready
-4,105,Delivery,ready
-4,108,Family-Friendly,ready
-4,54,Hougang,ready
-5,29,Italian,ready
-5,106,Dine-In,ready
-5,114,Takeaway,ready
-5,105,Delivery,ready
-5,112,Reservable,ready
-5,110,Good for Groups,ready
-5,123,Premium,ready
-5,70,Newton,ready
-6,19,Cafe,ready
-6,106,Dine-In,ready
-6,114,Takeaway,ready
-6,105,Delivery,ready
-6,112,Reservable,ready
-6,111,Outdoor Seating,ready
-6,110,Good for Groups,ready
-6,108,Family-Friendly,ready
-6,121,Mid-Range,ready
-6,28,Kallang,ready
-7,10,Dessert,ready
-7,106,Dine-In,ready
-7,114,Takeaway,ready
-7,101,Budget,ready
-7,30,Rochor,ready
-8,8,Vegetarian,ready
-8,106,Dine-In,ready
-8,114,Takeaway,ready
-8,105,Delivery,ready
-8,112,Reservable,ready
-8,110,Good for Groups,ready
-8,108,Family-Friendly,ready
-8,121,Mid-Range,ready
-8,31,Queenstown,ready
-9,19,Cafe,ready
-9,106,Dine-In,ready
-9,114,Takeaway,ready
-9,105,Delivery,ready
-9,101,Budget,ready
-9,32,Downtown Core,ready
-10,18,Buffet,ready
-10,116,Ice Cream,ready
-10,19,Cafe,ready
-10,10,Dessert,ready
-10,21,Korean,ready
-10,104,Bakery,ready
-10,105,Delivery,ready
-10,114,Takeaway,ready
-10,106,Dine-In,ready
-10,110,Good for Groups,ready
-10,108,Family-Friendly,ready
-10,121,Mid-Range,ready
-10,23,Orchard,ready
+1,5,Japanese,ready
+1,48,Food Court,ready
+1,43,Dine-In,ready
+1,82,Takeaway,ready
+1,41,Delivery,ready
+1,47,Family-Friendly,ready
+1,63,Mid-Range,ready
+1,45,Downtown Core,ready
+2,44,Diner,ready
+2,23,Asian,ready
+2,5,Japanese,ready
+2,43,Dine-In,ready
+2,82,Takeaway,ready
+2,41,Delivery,ready
+2,68,Outdoor Seating,ready
+2,51,Good for Groups,ready
+2,47,Family-Friendly,ready
+2,31,Budget,ready
+2,66,Novena,ready
+3,24,Bakery,ready
+3,82,Takeaway,ready
+3,41,Delivery,ready
+3,59,Kallang,ready
+4,86,Tea House,ready
+4,82,Takeaway,ready
+4,41,Delivery,ready
+4,47,Family-Friendly,ready
+4,53,Hougang,ready
+5,56,Italian,ready
+5,43,Dine-In,ready
+5,82,Takeaway,ready
+5,41,Delivery,ready
+5,73,Reservable,ready
+5,51,Good for Groups,ready
+5,71,Premium,ready
+5,65,Newton,ready
+6,1,Cafe,ready
+6,43,Dine-In,ready
+6,82,Takeaway,ready
+6,41,Delivery,ready
+6,73,Reservable,ready
+6,68,Outdoor Seating,ready
+6,51,Good for Groups,ready
+6,47,Family-Friendly,ready
+6,63,Mid-Range,ready
+6,59,Kallang,ready
+7,20,Dessert,ready
+7,43,Dine-In,ready
+7,82,Takeaway,ready
+7,31,Budget,ready
+7,75,Rochor,ready
+8,13,Vegetarian,ready
+8,43,Dine-In,ready
+8,82,Takeaway,ready
+8,41,Delivery,ready
+8,73,Reservable,ready
+8,51,Good for Groups,ready
+8,47,Family-Friendly,ready
+8,63,Mid-Range,ready
+8,72,Queenstown,ready
+9,1,Cafe,ready
+9,43,Dine-In,ready
+9,82,Takeaway,ready
+9,41,Delivery,ready
+9,31,Budget,ready
+9,45,Downtown Core,ready
+10,1,Cafe,ready
+10,6,Buffet,ready
+10,54,Ice Cream,ready
+10,20,Dessert,ready
+10,24,Bakery,ready
+10,2,Korean,ready
+10,41,Delivery,ready
+10,82,Takeaway,ready
+10,43,Dine-In,ready
+10,51,Good for Groups,ready
+10,47,Family-Friendly,ready
+10,63,Mid-Range,ready
+10,67,Orchard,ready
+11,76,Seafood,ready
+11,23,Asian,ready
+11,38,Chinese,ready
+11,82,Takeaway,ready
+11,43,Dine-In,ready
+11,41,Delivery,ready
+11,73,Reservable,ready
+11,51,Good for Groups,ready
+11,47,Family-Friendly,ready
+11,45,Downtown Core,ready
+12,1,Cafe,ready
+12,43,Dine-In,ready
+12,82,Takeaway,ready
+12,68,Outdoor Seating,ready
+12,51,Good for Groups,ready
+12,47,Family-Friendly,ready
+12,63,Mid-Range,ready
+12,59,Kallang,ready
+13,20,Dessert,ready
+13,1,Cafe,ready
+13,10,Bubble Tea,ready
+13,43,Dine-In,ready
+13,82,Takeaway,ready
+13,47,Family-Friendly,ready
+13,31,Budget,ready
+13,75,Rochor,ready
+14,81,Sushi,ready
+14,43,Dine-In,ready
+14,82,Takeaway,ready
+14,73,Reservable,ready
+14,51,Good for Groups,ready
+14,47,Family-Friendly,ready
+14,63,Mid-Range,ready
+14,34,Bukit Panjang,ready
+15,56,Italian,ready
+15,79,Singaporean,ready
+15,43,Dine-In,ready
+15,82,Takeaway,ready
+15,41,Delivery,ready
+15,51,Good for Groups,ready
+15,47,Family-Friendly,ready
+15,31,Budget,ready
+15,69,Outram,ready
+16,5,Japanese,ready
+16,91,Western,ready
+16,56,Italian,ready
+16,43,Dine-In,ready
+16,73,Reservable,ready
+16,51,Good for Groups,ready
+16,47,Family-Friendly,ready
+16,71,Premium,ready
+16,67,Orchard,ready
+17,55,Indian,ready
+17,62,Malay,ready
+17,90,Vietnamese,ready
+17,43,Dine-In,ready
+17,82,Takeaway,ready
+17,31,Budget,ready
+17,66,Novena,ready
+18,38,Chinese,ready
+18,43,Dine-In,ready
+18,73,Reservable,ready
+18,51,Good for Groups,ready
+18,47,Family-Friendly,ready
+18,46,Expensive,ready
+18,67,Orchard,ready
+19,38,Chinese,ready
+19,91,Western,ready
+19,76,Seafood,ready
+19,43,Dine-In,ready
+19,82,Takeaway,ready
+19,41,Delivery,ready
+19,73,Reservable,ready
+19,51,Good for Groups,ready
+19,47,Family-Friendly,ready
+19,63,Mid-Range,ready
+19,59,Kallang,ready
+20,5,Japanese,ready
+20,56,Italian,ready
+20,76,Seafood,ready
+20,43,Dine-In,ready
+20,82,Takeaway,ready
+20,41,Delivery,ready
+20,73,Reservable,ready
+20,51,Good for Groups,ready
+20,71,Premium,ready
+20,69,Outram,ready
+21,13,Vegetarian,ready
+21,43,Dine-In,ready
+21,82,Takeaway,ready
+21,41,Delivery,ready
+21,31,Budget,ready
+21,59,Kallang,ready
+22,86,Tea House,ready
+22,82,Takeaway,ready
+22,41,Delivery,ready
+22,47,Family-Friendly,ready
+22,36,Bukit Timah,ready
+23,2,Korean,ready
+23,43,Dine-In,ready
+23,82,Takeaway,ready
+23,41,Delivery,ready
+23,73,Reservable,ready
+23,51,Good for Groups,ready
+23,31,Budget,ready
+23,78,Singapore River,ready
+24,91,Western,ready
+24,76,Seafood,ready
+24,79,Singaporean,ready
+24,43,Dine-In,ready
+24,82,Takeaway,ready
+24,51,Good for Groups,ready
+24,47,Family-Friendly,ready
+24,63,Mid-Range,ready
+24,57,Jurong East,ready
+25,86,Tea House,ready
+25,82,Takeaway,ready
+25,41,Delivery,ready
+25,31,Budget,ready
+25,94,Yishun,ready
+26,1,Cafe,ready
+26,54,Ice Cream,ready
+26,20,Dessert,ready
+26,43,Dine-In,ready
+26,82,Takeaway,ready
+26,47,Family-Friendly,ready
+26,31,Budget,ready
+26,67,Orchard,ready
+27,6,Buffet,ready
+27,43,Dine-In,ready
+27,73,Reservable,ready
+27,51,Good for Groups,ready
+27,47,Family-Friendly,ready
+27,46,Expensive,ready
+27,45,Downtown Core,ready
+27,18,Halal,ready
+28,79,Singaporean,ready
+28,43,Dine-In,ready
+28,82,Takeaway,ready
+28,68,Outdoor Seating,ready
+28,51,Good for Groups,ready
+28,31,Budget,ready
+28,59,Kallang,ready
+29,1,Cafe,ready
+29,29,Brazilian,ready
+29,43,Dine-In,ready
+29,82,Takeaway,ready
+29,68,Outdoor Seating,ready
+29,51,Good for Groups,ready
+29,47,Family-Friendly,ready
+29,63,Mid-Range,ready
+29,52,Holland Village,ready
+30,30,Brunch,ready
+30,43,Dine-In,ready
+30,82,Takeaway,ready
+30,73,Reservable,ready
+30,68,Outdoor Seating,ready
+30,51,Good for Groups,ready
+30,47,Family-Friendly,ready
+30,63,Mid-Range,ready
+30,25,Bandar Johor Bahru,ready
+31,92,Wine Bar,ready
+31,1,Cafe,ready
+31,30,Brunch,ready
+31,26,Bar,ready
+31,41,Delivery,ready
+31,82,Takeaway,ready
+31,43,Dine-In,ready
+31,73,Reservable,ready
+31,68,Outdoor Seating,ready
+31,51,Good for Groups,ready
+31,47,Family-Friendly,ready
+31,46,Expensive,ready
+31,85,Tanglin,ready
+32,49,French,ready
+32,43,Dine-In,ready
+32,73,Reservable,ready
+32,51,Good for Groups,ready
+32,71,Premium,ready
+32,69,Outram,ready
+33,62,Malay,ready
+33,20,Dessert,ready
+33,79,Singaporean,ready
+33,43,Dine-In,ready
+33,82,Takeaway,ready
+33,41,Delivery,ready
+33,47,Family-Friendly,ready
+33,31,Budget,ready
+33,66,Novena,ready
+33,18,Halal,ready
+34,86,Tea House,ready
+34,82,Takeaway,ready
+34,77,Serangoon,ready
+35,26,Bar,ready
+35,43,Dine-In,ready
+35,82,Takeaway,ready
+35,41,Delivery,ready
+35,73,Reservable,ready
+35,68,Outdoor Seating,ready
+35,61,Live Music,ready
+35,46,Expensive,ready
+35,33,Bukit Merah,ready
+36,38,Chinese,ready
+36,1,Cafe,ready
+36,43,Dine-In,ready
+36,82,Takeaway,ready
+36,51,Good for Groups,ready
+36,47,Family-Friendly,ready
+36,31,Budget,ready
+36,69,Outram,ready
+37,38,Chinese,ready
+37,43,Dine-In,ready
+37,82,Takeaway,ready
+37,73,Reservable,ready
+37,68,Outdoor Seating,ready
+37,51,Good for Groups,ready
+37,47,Family-Friendly,ready
+37,31,Budget,ready
+37,75,Rochor,ready
+38,86,Tea House,ready
+38,54,Ice Cream,ready
+38,20,Dessert,ready
+38,82,Takeaway,ready
+38,47,Family-Friendly,ready
+38,27,Bedok,ready
+39,38,Chinese,ready
+39,43,Dine-In,ready
+39,82,Takeaway,ready
+39,51,Good for Groups,ready
+39,47,Family-Friendly,ready
+39,31,Budget,ready
+39,59,Kallang,ready
+40,24,Bakery,ready
+40,82,Takeaway,ready
+40,31,Budget,ready
+40,64,Museum,ready
+41,1,Cafe,ready
+41,43,Dine-In,ready
+41,82,Takeaway,ready
+41,73,Reservable,ready
+41,51,Good for Groups,ready
+41,47,Family-Friendly,ready
+41,31,Budget,ready
+41,84,Tampines,ready
+41,18,Halal,ready
+42,5,Japanese,ready
+42,43,Dine-In,ready
+42,82,Takeaway,ready
+42,41,Delivery,ready
+42,47,Family-Friendly,ready
+42,31,Budget,ready
+42,72,Queenstown,ready
+43,38,Chinese,ready
+43,55,Indian,ready
+43,76,Seafood,ready
+43,43,Dine-In,ready
+43,82,Takeaway,ready
+43,41,Delivery,ready
+43,73,Reservable,ready
+43,51,Good for Groups,ready
+43,47,Family-Friendly,ready
+43,46,Expensive,ready
+43,87,Toa Payoh,ready
+44,90,Vietnamese,ready
+44,79,Singaporean,ready
+44,43,Dine-In,ready
+44,82,Takeaway,ready
+44,68,Outdoor Seating,ready
+44,31,Budget,ready
+44,27,Bedok,ready
+45,86,Tea House,ready
+45,82,Takeaway,ready
+45,41,Delivery,ready
+45,50,Geylang,ready
+46,90,Vietnamese,ready
+46,19,Mala,ready
+46,10,Bubble Tea,ready
+46,43,Dine-In,ready
+46,82,Takeaway,ready
+46,41,Delivery,ready
+46,51,Good for Groups,ready
+46,47,Family-Friendly,ready
+46,31,Budget,ready
+46,67,Orchard,ready
+47,1,Cafe,ready
+47,43,Dine-In,ready
+47,82,Takeaway,ready
+47,68,Outdoor Seating,ready
+47,51,Good for Groups,ready
+47,31,Budget,ready
+47,50,Geylang,ready
+48,38,Chinese,ready
+48,76,Seafood,ready
+48,79,Singaporean,ready
+48,43,Dine-In,ready
+48,82,Takeaway,ready
+48,47,Family-Friendly,ready
+48,31,Budget,ready
+48,40,Clementi,ready
+49,74,Restaurant,ready
+49,43,Dine-In,ready
+49,82,Takeaway,ready
+49,51,Good for Groups,ready
+49,47,Family-Friendly,ready
+49,31,Budget,ready
+49,45,Downtown Core,ready
+50,38,Chinese,ready
+50,76,Seafood,ready
+50,20,Dessert,ready
+50,43,Dine-In,ready
+50,82,Takeaway,ready
+50,68,Outdoor Seating,ready
+50,51,Good for Groups,ready
+50,47,Family-Friendly,ready
+50,31,Budget,ready
+50,85,Tanglin,ready
+51,1,Cafe,ready
+51,43,Dine-In,ready
+51,82,Takeaway,ready
+51,41,Delivery,ready
+51,73,Reservable,ready
+51,68,Outdoor Seating,ready
+51,51,Good for Groups,ready
+51,47,Family-Friendly,ready
+51,63,Mid-Range,ready
+51,53,Hougang,ready
+52,5,Japanese,ready
+52,1,Cafe,ready
+52,41,Delivery,ready
+52,45,Downtown Core,ready
+53,2,Korean,ready
+53,43,Dine-In,ready
+53,73,Reservable,ready
+53,51,Good for Groups,ready
+53,71,Premium,ready
+53,69,Outram,ready
+54,13,Vegetarian,ready
+54,89,Vegan,ready
+54,1,Cafe,ready
+54,41,Delivery,ready
+54,43,Dine-In,ready
+54,82,Takeaway,ready
+54,73,Reservable,ready
+54,68,Outdoor Seating,ready
+54,51,Good for Groups,ready
+54,47,Family-Friendly,ready
+54,63,Mid-Range,ready
+54,34,Bukit Panjang,ready
+55,5,Japanese,ready
+55,43,Dine-In,ready
+55,82,Takeaway,ready
+55,73,Reservable,ready
+55,51,Good for Groups,ready
+55,71,Premium,ready
+55,45,Downtown Core,ready
+56,24,Bakery,ready
+56,69,Outram,ready
+57,38,Chinese,ready
+57,43,Dine-In,ready
+57,82,Takeaway,ready
+57,41,Delivery,ready
+57,73,Reservable,ready
+57,51,Good for Groups,ready
+57,47,Family-Friendly,ready
+57,31,Budget,ready
+57,66,Novena,ready
+58,1,Cafe,ready
+58,43,Dine-In,ready
+58,82,Takeaway,ready
+58,41,Delivery,ready
+58,31,Budget,ready
+58,50,Geylang,ready
+59,1,Cafe,ready
+59,43,Dine-In,ready
+59,82,Takeaway,ready
+59,41,Delivery,ready
+59,73,Reservable,ready
+59,51,Good for Groups,ready
+59,47,Family-Friendly,ready
+59,63,Mid-Range,ready
+59,35,Bukit Senyum,ready
+60,20,Dessert,ready
+60,82,Takeaway,ready
+60,31,Budget,ready
+60,28,Bishan,ready
+61,1,Cafe,ready
+61,43,Dine-In,ready
+61,82,Takeaway,ready
+61,73,Reservable,ready
+61,68,Outdoor Seating,ready
+61,51,Good for Groups,ready
+61,47,Family-Friendly,ready
+61,63,Mid-Range,ready
+61,83,Taman Sentosa,ready
+62,20,Dessert,ready
+62,43,Dine-In,ready
+62,82,Takeaway,ready
+62,41,Delivery,ready
+62,63,Mid-Range,ready
+62,60,Kampong Glam,ready
+63,24,Bakery,ready
+63,43,Dine-In,ready
+63,82,Takeaway,ready
+63,31,Budget,ready
+63,69,Outram,ready
+64,38,Chinese,ready
+64,43,Dine-In,ready
+64,82,Takeaway,ready
+64,73,Reservable,ready
+64,51,Good for Groups,ready
+64,47,Family-Friendly,ready
+64,69,Outram,ready
+66,62,Malay,ready
+66,19,Mala,ready
+66,43,Dine-In,ready
+66,82,Takeaway,ready
+66,51,Good for Groups,ready
+66,47,Family-Friendly,ready
+66,31,Budget,ready
+66,50,Geylang,ready
+67,86,Tea House,ready
+67,54,Ice Cream,ready
+67,20,Dessert,ready
+67,43,Dine-In,ready
+67,82,Takeaway,ready
+67,59,Kallang,ready
+68,1,Cafe,ready
+68,88,Tourist Spot,ready
+68,67,Orchard,ready
+69,1,Cafe,ready
+69,20,Dessert,ready
+69,24,Bakery,ready
+69,43,Dine-In,ready
+69,82,Takeaway,ready
+69,41,Delivery,ready
+69,68,Outdoor Seating,ready
+69,51,Good for Groups,ready
+69,47,Family-Friendly,ready
+69,31,Budget,ready
+69,33,Bukit Merah,ready
+70,2,Korean,ready
+70,43,Dine-In,ready
+70,82,Takeaway,ready
+70,41,Delivery,ready
+70,73,Reservable,ready
+70,68,Outdoor Seating,ready
+70,51,Good for Groups,ready
+70,47,Family-Friendly,ready
+70,63,Mid-Range,ready
+70,78,Singapore River,ready
+71,91,Western,ready
+71,43,Dine-In,ready
+71,47,Family-Friendly,ready
+71,31,Budget,ready
+71,58,Jurong West,ready
+72,62,Malay,ready
+72,1,Cafe,ready
+72,79,Singaporean,ready
+72,43,Dine-In,ready
+72,82,Takeaway,ready
+72,41,Delivery,ready
+72,68,Outdoor Seating,ready
+72,51,Good for Groups,ready
+72,47,Family-Friendly,ready
+72,31,Budget,ready
+72,93,Woodlands,ready
+73,24,Bakery,ready
+73,43,Dine-In,ready
+73,82,Takeaway,ready
+73,63,Mid-Range,ready
+73,75,Rochor,ready
+74,76,Seafood,ready
+74,26,Bar,ready
+74,38,Chinese,ready
+74,43,Dine-In,ready
+74,82,Takeaway,ready
+74,41,Delivery,ready
+74,73,Reservable,ready
+74,68,Outdoor Seating,ready
+74,61,Live Music,ready
+74,51,Good for Groups,ready
+74,47,Family-Friendly,ready
+74,78,Singapore River,ready
+75,6,Buffet,ready
+75,43,Dine-In,ready
+75,82,Takeaway,ready
+75,73,Reservable,ready
+75,51,Good for Groups,ready
+75,47,Family-Friendly,ready
+75,69,Outram,ready
+75,18,Halal,ready
+76,20,Dessert,ready
+76,79,Singaporean,ready
+76,43,Dine-In,ready
+76,82,Takeaway,ready
+76,31,Budget,ready
+76,33,Bukit Merah,ready
+77,80,Steakhouse,ready
+77,43,Dine-In,ready
+77,82,Takeaway,ready
+77,41,Delivery,ready
+77,73,Reservable,ready
+77,51,Good for Groups,ready
+77,71,Premium,ready
+77,45,Downtown Core,ready
+78,91,Western,ready
+78,76,Seafood,ready
+78,79,Singaporean,ready
+78,43,Dine-In,ready
+78,82,Takeaway,ready
+78,51,Good for Groups,ready
+78,47,Family-Friendly,ready
+78,31,Budget,ready
+78,58,Jurong West,ready
+79,55,Indian,ready
+79,20,Dessert,ready
+79,79,Singaporean,ready
+79,43,Dine-In,ready
+79,82,Takeaway,ready
+79,51,Good for Groups,ready
+79,47,Family-Friendly,ready
+79,31,Budget,ready
+79,45,Downtown Core,ready
+80,5,Japanese,ready
+80,43,Dine-In,ready
+80,82,Takeaway,ready
+80,41,Delivery,ready
+80,51,Good for Groups,ready
+80,47,Family-Friendly,ready
+80,31,Budget,ready
+80,77,Serangoon,ready
+80,18,Halal,ready
+81,13,Vegetarian,ready
+81,89,Vegan,ready
+81,43,Dine-In,ready
+81,82,Takeaway,ready
+81,41,Delivery,ready
+81,51,Good for Groups,ready
+81,47,Family-Friendly,ready
+81,63,Mid-Range,ready
+81,50,Geylang,ready
+81,18,Halal,ready
+82,62,Malay,ready
+82,20,Dessert,ready
+82,43,Dine-In,ready
+82,82,Takeaway,ready
+82,51,Good for Groups,ready
+82,47,Family-Friendly,ready
+82,31,Budget,ready
+82,45,Downtown Core,ready
+83,2,Korean,ready
+83,43,Dine-In,ready
+83,82,Takeaway,ready
+83,73,Reservable,ready
+83,51,Good for Groups,ready
+83,47,Family-Friendly,ready
+83,46,Expensive,ready
+83,87,Toa Payoh,ready
+84,1,Cafe,ready
+84,20,Dessert,ready
+84,24,Bakery,ready
+84,43,Dine-In,ready
+84,82,Takeaway,ready
+84,41,Delivery,ready
+84,37,Changi,ready
+85,38,Chinese,ready
+85,43,Dine-In,ready
+85,82,Takeaway,ready
+85,73,Reservable,ready
+85,68,Outdoor Seating,ready
+85,51,Good for Groups,ready
+85,47,Family-Friendly,ready
+85,31,Budget,ready
+85,50,Geylang,ready
+86,5,Japanese,ready
+86,2,Korean,ready
+86,76,Seafood,ready
+86,43,Dine-In,ready
+86,82,Takeaway,ready
+86,51,Good for Groups,ready
+86,47,Family-Friendly,ready
+86,31,Budget,ready
+86,59,Kallang,ready
+87,76,Seafood,ready
+87,43,Dine-In,ready
+87,82,Takeaway,ready
+87,73,Reservable,ready
+87,68,Outdoor Seating,ready
+87,51,Good for Groups,ready
+87,47,Family-Friendly,ready
+87,46,Expensive,ready
+87,50,Geylang,ready
+88,86,Tea House,ready
+88,54,Ice Cream,ready
+88,20,Dessert,ready
+88,82,Takeaway,ready
+88,39,Choa Chu Kang,ready
+89,1,Cafe,ready
+89,43,Dine-In,ready
+89,82,Takeaway,ready
+89,51,Good for Groups,ready
+89,47,Family-Friendly,ready
+89,31,Budget,ready
+89,72,Queenstown,ready
+90,22,American,ready
+90,26,Bar,ready
+90,43,Dine-In,ready
+90,82,Takeaway,ready
+90,41,Delivery,ready
+90,73,Reservable,ready
+90,61,Live Music,ready
+90,51,Good for Groups,ready
+90,47,Family-Friendly,ready
+90,46,Expensive,ready
+90,67,Orchard,ready
+91,42,Dim Sum,ready
+91,43,Dine-In,ready
+91,82,Takeaway,ready
+91,51,Good for Groups,ready
+91,47,Family-Friendly,ready
+91,31,Budget,ready
+91,87,Toa Payoh,ready
+92,55,Indian,ready
+92,43,Dine-In,ready
+92,82,Takeaway,ready
+92,41,Delivery,ready
+92,73,Reservable,ready
+92,51,Good for Groups,ready
+92,47,Family-Friendly,ready
+92,31,Budget,ready
+92,75,Rochor,ready
+93,1,Cafe,ready
+93,82,Takeaway,ready
+93,51,Good for Groups,ready
+93,47,Family-Friendly,ready
+93,31,Budget,ready
+93,84,Tampines,ready
+94,6,Buffet,ready
+94,30,Brunch,ready
+94,43,Dine-In,ready
+94,73,Reservable,ready
+94,51,Good for Groups,ready
+94,47,Family-Friendly,ready
+94,71,Premium,ready
+94,67,Orchard,ready
+95,24,Bakery,ready
+95,30,Brunch,ready
+95,1,Cafe,ready
+95,43,Dine-In,ready
+95,82,Takeaway,ready
+95,78,Singapore River,ready
+96,1,Cafe,ready
+96,43,Dine-In,ready
+96,82,Takeaway,ready
+96,73,Reservable,ready
+96,68,Outdoor Seating,ready
+96,51,Good for Groups,ready
+96,63,Mid-Range,ready
+96,28,Bishan,ready
+97,24,Bakery,ready
+97,82,Takeaway,ready
+97,93,Woodlands,ready
+98,38,Chinese,ready
+98,91,Western,ready
+98,76,Seafood,ready
+98,43,Dine-In,ready
+98,82,Takeaway,ready
+98,51,Good for Groups,ready
+98,47,Family-Friendly,ready
+98,31,Budget,ready
+98,70,Pasir Ris,ready
+99,1,Cafe,ready
+99,43,Dine-In,ready
+99,82,Takeaway,ready
+99,51,Good for Groups,ready
+99,47,Family-Friendly,ready
+99,31,Budget,ready
+99,32,Bukit Batok,ready
+100,1,Cafe,ready
+100,30,Brunch,ready
+100,54,Ice Cream,ready
+100,20,Dessert,ready
+100,43,Dine-In,ready
+100,82,Takeaway,ready
+100,41,Delivery,ready
+100,73,Reservable,ready
+100,68,Outdoor Seating,ready
+100,51,Good for Groups,ready
+100,47,Family-Friendly,ready
+100,31,Budget,ready
+100,69,Outram,ready
+101,62,Malay,ready
+101,13,Vegetarian,ready
+101,19,Mala,ready
+101,43,Dine-In,ready
+101,82,Takeaway,ready
+101,51,Good for Groups,ready
+101,47,Family-Friendly,ready
+101,31,Budget,ready
+101,94,Yishun,ready
+102,38,Chinese,ready
+102,90,Vietnamese,ready
+102,56,Italian,ready
+102,43,Dine-In,ready
+102,82,Takeaway,ready
+102,41,Delivery,ready
+102,51,Good for Groups,ready
+102,47,Family-Friendly,ready
+102,31,Budget,ready
+102,59,Kallang,ready
+103,38,Chinese,ready
+103,62,Malay,ready
+103,20,Dessert,ready
+103,43,Dine-In,ready
+103,82,Takeaway,ready
+103,51,Good for Groups,ready
+103,47,Family-Friendly,ready
+103,31,Budget,ready
+103,57,Jurong East,ready
+104,5,Japanese,ready
+104,90,Vietnamese,ready
+104,76,Seafood,ready
+104,43,Dine-In,ready
+104,73,Reservable,ready
+104,51,Good for Groups,ready
+104,71,Premium,ready
+104,69,Outram,ready
+105,80,Steakhouse,ready
+105,43,Dine-In,ready
+105,82,Takeaway,ready
+105,41,Delivery,ready
+105,73,Reservable,ready
+105,51,Good for Groups,ready
+105,71,Premium,ready
+105,69,Outram,ready
+105,18,Halal,ready
+106,62,Malay,ready
+106,18,Halal,ready
+106,19,Mala,ready
+106,43,Dine-In,ready
+106,82,Takeaway,ready
+106,41,Delivery,ready
+106,51,Good for Groups,ready
+106,47,Family-Friendly,ready
+106,31,Budget,ready
+106,87,Toa Payoh,ready
+107,1,Cafe,ready
+107,43,Dine-In,ready
+107,82,Takeaway,ready
+107,51,Good for Groups,ready
+107,47,Family-Friendly,ready
+107,31,Budget,ready
+107,93,Woodlands,ready
+107,18,Halal,ready
+108,5,Japanese,ready
+108,43,Dine-In,ready
+108,82,Takeaway,ready
+108,51,Good for Groups,ready
+108,47,Family-Friendly,ready
+108,31,Budget,ready
+108,64,Museum,ready
+109,104,Fast Food,ready
+109,43,Dine-In,ready
+109,82,Takeaway,ready
+109,41,Delivery,ready
+109,51,Good for Groups,ready
+109,47,Family-Friendly,ready
+109,31,Budget,ready
+109,87,Toa Payoh,ready
+110,38,Chinese,ready
+110,88,Tourist Spot,ready
+110,43,Dine-In,ready
+110,82,Takeaway,ready
+110,41,Delivery,ready
+110,73,Reservable,ready
+110,51,Good for Groups,ready
+110,47,Family-Friendly,ready
+110,63,Mid-Range,ready
+110,59,Kallang,ready
+111,5,Japanese,ready
+111,43,Dine-In,ready
+111,73,Reservable,ready
+111,51,Good for Groups,ready
+111,47,Family-Friendly,ready
+111,63,Mid-Range,ready
+111,53,Hougang,ready
+112,38,Chinese,ready
+112,76,Seafood,ready
+112,79,Singaporean,ready
+112,43,Dine-In,ready
+112,82,Takeaway,ready
+112,51,Good for Groups,ready
+112,47,Family-Friendly,ready
+112,31,Budget,ready
+112,57,Jurong East,ready
+113,38,Chinese,ready
+113,79,Singaporean,ready
+113,43,Dine-In,ready
+113,82,Takeaway,ready
+113,47,Family-Friendly,ready
+113,31,Budget,ready
+113,59,Kallang,ready
+114,38,Chinese,ready
+114,90,Vietnamese,ready
+114,76,Seafood,ready
+114,43,Dine-In,ready
+114,82,Takeaway,ready
+114,41,Delivery,ready
+114,73,Reservable,ready
+114,68,Outdoor Seating,ready
+114,51,Good for Groups,ready
+114,47,Family-Friendly,ready
+114,63,Mid-Range,ready
+114,133,Sembawang,ready
+115,6,Buffet,ready
+115,43,Dine-In,ready
+115,73,Reservable,ready
+115,51,Good for Groups,ready
+115,47,Family-Friendly,ready
+115,46,Expensive,ready
+115,67,Orchard,ready
+115,18,Halal,ready
+116,99,Bollullos Par del Condado,ready
+117,2,Korean,ready
+117,43,Dine-In,ready
+117,73,Reservable,ready
+117,68,Outdoor Seating,ready
+117,51,Good for Groups,ready
+117,47,Family-Friendly,ready
+117,63,Mid-Range,ready
+117,69,Outram,ready
+118,23,Asian,ready
+118,98,BBQ,ready
+118,2,Korean,ready
+118,43,Dine-In,ready
+118,82,Takeaway,ready
+118,73,Reservable,ready
+118,51,Good for Groups,ready
+118,47,Family-Friendly,ready
+118,63,Mid-Range,ready
+118,69,Outram,ready
+119,147,Thai,ready
+119,1,Cafe,ready
+119,43,Dine-In,ready
+119,82,Takeaway,ready
+119,73,Reservable,ready
+119,68,Outdoor Seating,ready
+119,51,Good for Groups,ready
+119,47,Family-Friendly,ready
+119,63,Mid-Range,ready
+119,97,Ang Mo Kio,ready
+120,1,Cafe,ready
+120,43,Dine-In,ready
+120,82,Takeaway,ready
+120,41,Delivery,ready
+120,31,Budget,ready
+120,45,Downtown Core,ready
+121,86,Tea House,ready
+121,43,Dine-In,ready
+121,82,Takeaway,ready
+121,41,Delivery,ready
+121,31,Budget,ready
+121,59,Kallang,ready
+122,105,Fusion,ready
+122,23,Asian,ready
+122,43,Dine-In,ready
+122,82,Takeaway,ready
+122,41,Delivery,ready
+122,73,Reservable,ready
+122,51,Good for Groups,ready
+122,47,Family-Friendly,ready
+122,71,Premium,ready
+122,45,Downtown Core,ready
+123,1,Cafe,ready
+123,43,Dine-In,ready
+123,82,Takeaway,ready
+123,73,Reservable,ready
+123,51,Good for Groups,ready
+123,47,Family-Friendly,ready
+123,63,Mid-Range,ready
+123,52,Holland Village,ready
+124,38,Chinese,ready
+124,43,Dine-In,ready
+124,82,Takeaway,ready
+124,68,Outdoor Seating,ready
+124,51,Good for Groups,ready
+124,47,Family-Friendly,ready
+124,63,Mid-Range,ready
+124,27,Bedok,ready
+125,112,Juice,ready
+125,113,Juice Bar,ready
+125,47,Family-Friendly,ready
+125,31,Budget,ready
+125,59,Kallang,ready
+126,76,Seafood,ready
+126,20,Dessert,ready
+126,43,Dine-In,ready
+126,82,Takeaway,ready
+126,31,Budget,ready
+126,45,Downtown Core,ready
+127,1,Cafe,ready
+127,73,Reservable,ready
+127,47,Family-Friendly,ready
+127,31,Budget,ready
+127,58,Jurong West,ready
+128,1,Cafe,ready
+128,43,Dine-In,ready
+128,82,Takeaway,ready
+128,68,Outdoor Seating,ready
+128,47,Family-Friendly,ready
+128,31,Budget,ready
+128,64,Museum,ready
+129,38,Chinese,ready
+129,19,Mala,ready
+129,82,Takeaway,ready
+129,51,Good for Groups,ready
+129,31,Budget,ready
+129,67,Orchard,ready
+130,1,Cafe,ready
+130,43,Dine-In,ready
+130,82,Takeaway,ready
+130,51,Good for Groups,ready
+130,47,Family-Friendly,ready
+130,31,Budget,ready
+130,36,Bukit Timah,ready
+131,2,Korean,ready
+131,43,Dine-In,ready
+131,41,Delivery,ready
+131,73,Reservable,ready
+131,51,Good for Groups,ready
+131,47,Family-Friendly,ready
+131,69,Outram,ready
+132,20,Dessert,ready
+132,43,Dine-In,ready
+132,82,Takeaway,ready
+132,63,Mid-Range,ready
+132,78,Singapore River,ready
+133,5,Japanese,ready
+133,38,Chinese,ready
+133,55,Indian,ready
+133,43,Dine-In,ready
+133,82,Takeaway,ready
+133,41,Delivery,ready
+133,73,Reservable,ready
+133,51,Good for Groups,ready
+133,47,Family-Friendly,ready
+133,63,Mid-Range,ready
+133,65,Newton,ready
+134,62,Malay,ready
+134,79,Singaporean,ready
+134,43,Dine-In,ready
+134,82,Takeaway,ready
+134,41,Delivery,ready
+134,51,Good for Groups,ready
+134,47,Family-Friendly,ready
+134,63,Mid-Range,ready
+134,96,Alexandra,ready
+134,18,Halal,ready
+135,38,Chinese,ready
+135,91,Western,ready
+135,18,Halal,ready
+135,43,Dine-In,ready
+135,82,Takeaway,ready
+135,68,Outdoor Seating,ready
+135,51,Good for Groups,ready
+135,47,Family-Friendly,ready
+135,31,Budget,ready
+135,72,Queenstown,ready
+136,38,Chinese,ready
+136,41,Delivery,ready
+136,82,Takeaway,ready
+136,43,Dine-In,ready
+136,73,Reservable,ready
+136,68,Outdoor Seating,ready
+136,51,Good for Groups,ready
+136,63,Mid-Range,ready
+136,69,Outram,ready
+137,86,Tea House,ready
+137,43,Dine-In,ready
+137,82,Takeaway,ready
+137,41,Delivery,ready
+137,133,Sembawang,ready
+138,86,Tea House,ready
+138,82,Takeaway,ready
+138,41,Delivery,ready
+138,47,Family-Friendly,ready
+138,72,Queenstown,ready
+139,1,Cafe,ready
+139,43,Dine-In,ready
+139,82,Takeaway,ready
+139,41,Delivery,ready
+139,68,Outdoor Seating,ready
+139,51,Good for Groups,ready
+139,47,Family-Friendly,ready
+139,31,Budget,ready
+139,45,Downtown Core,ready
+139,18,Halal,ready
+140,5,Japanese,ready
+140,38,Chinese,ready
+140,55,Indian,ready
+140,43,Dine-In,ready
+140,82,Takeaway,ready
+140,73,Reservable,ready
+140,61,Live Music,ready
+140,51,Good for Groups,ready
+140,47,Family-Friendly,ready
+140,78,Singapore River,ready
+141,1,Cafe,ready
+141,43,Dine-In,ready
+141,82,Takeaway,ready
+141,68,Outdoor Seating,ready
+141,31,Budget,ready
+141,45,Downtown Core,ready
+142,2,Korean,ready
+142,43,Dine-In,ready
+142,73,Reservable,ready
+142,51,Good for Groups,ready
+142,47,Family-Friendly,ready
+142,46,Expensive,ready
+142,69,Outram,ready
+143,55,Indian,ready
+143,1,Cafe,ready
+143,43,Dine-In,ready
+143,82,Takeaway,ready
+143,41,Delivery,ready
+143,68,Outdoor Seating,ready
+143,51,Good for Groups,ready
+143,47,Family-Friendly,ready
+143,31,Budget,ready
+143,28,Bishan,ready
+143,18,Halal,ready
+144,5,Japanese,ready
+144,43,Dine-In,ready
+144,82,Takeaway,ready
+144,41,Delivery,ready
+144,51,Good for Groups,ready
+144,47,Family-Friendly,ready
+144,63,Mid-Range,ready
+144,57,Jurong East,ready
+145,129,Ramen,ready
+145,43,Dine-In,ready
+145,82,Takeaway,ready
+145,47,Family-Friendly,ready
+145,31,Budget,ready
+145,70,Pasir Ris,ready
+146,13,Vegetarian,ready
+146,43,Dine-In,ready
+146,82,Takeaway,ready
+146,68,Outdoor Seating,ready
+146,51,Good for Groups,ready
+146,47,Family-Friendly,ready
+146,31,Budget,ready
+146,64,Museum,ready
+147,1,Cafe,ready
+147,43,Dine-In,ready
+147,82,Takeaway,ready
+147,47,Family-Friendly,ready
+147,31,Budget,ready
+147,59,Kallang,ready
+148,20,Dessert,ready
+148,104,Fast Food,ready
+148,94,Yishun,ready
+149,2,Korean,ready
+149,43,Dine-In,ready
+149,82,Takeaway,ready
+149,73,Reservable,ready
+149,51,Good for Groups,ready
+149,47,Family-Friendly,ready
+149,63,Mid-Range,ready
+149,118,Marine Parade,ready
+150,20,Dessert,ready
+150,82,Takeaway,ready
+150,67,Orchard,ready
+151,62,Malay,ready
+151,76,Seafood,ready
+151,48,Food Court,ready
+151,43,Dine-In,ready
+151,82,Takeaway,ready
+151,51,Good for Groups,ready
+151,47,Family-Friendly,ready
+151,31,Budget,ready
+151,45,Downtown Core,ready
+152,13,Vegetarian,ready
+152,43,Dine-In,ready
+152,82,Takeaway,ready
+152,41,Delivery,ready
+152,47,Family-Friendly,ready
+152,31,Budget,ready
+152,93,Woodlands,ready
+153,5,Japanese,ready
+153,43,Dine-In,ready
+153,82,Takeaway,ready
+153,31,Budget,ready
+153,40,Clementi,ready
+154,56,Italian,ready
+154,1,Cafe,ready
+154,82,Takeaway,ready
+154,41,Delivery,ready
+154,24,Bakery,ready
+154,43,Dine-In,ready
+154,73,Reservable,ready
+154,51,Good for Groups,ready
+154,47,Family-Friendly,ready
+154,63,Mid-Range,ready
+154,50,Geylang,ready
+154,18,Halal,ready
+155,38,Chinese,ready
+155,20,Dessert,ready
+155,82,Takeaway,ready
+155,47,Family-Friendly,ready
+155,33,Bukit Merah,ready
+156,6,Buffet,ready
+156,43,Dine-In,ready
+156,82,Takeaway,ready
+156,73,Reservable,ready
+156,51,Good for Groups,ready
+156,47,Family-Friendly,ready
+156,63,Mid-Range,ready
+156,37,Changi,ready
+156,18,Halal,ready
+157,91,Western,ready
+157,76,Seafood,ready
+157,18,Halal,ready
+157,43,Dine-In,ready
+157,82,Takeaway,ready
+157,68,Outdoor Seating,ready
+157,51,Good for Groups,ready
+157,47,Family-Friendly,ready
+157,31,Budget,ready
+157,32,Bukit Batok,ready
+158,1,Cafe,ready
+158,30,Brunch,ready
+158,43,Dine-In,ready
+158,82,Takeaway,ready
+158,41,Delivery,ready
+158,73,Reservable,ready
+158,68,Outdoor Seating,ready
+158,51,Good for Groups,ready
+158,47,Family-Friendly,ready
+158,63,Mid-Range,ready
+158,59,Kallang,ready
+159,76,Seafood,ready
+159,20,Dessert,ready
+159,1,Cafe,ready
+159,43,Dine-In,ready
+159,82,Takeaway,ready
+159,51,Good for Groups,ready
+159,47,Family-Friendly,ready
+159,31,Budget,ready
+159,58,Jurong West,ready
+160,38,Chinese,ready
+160,43,Dine-In,ready
+160,82,Takeaway,ready
+160,41,Delivery,ready
+160,73,Reservable,ready
+160,51,Good for Groups,ready
+160,47,Family-Friendly,ready
+160,63,Mid-Range,ready
+160,133,Sembawang,ready
+161,90,Vietnamese,ready
+161,10,Bubble Tea,ready
+161,43,Dine-In,ready
+161,82,Takeaway,ready
+161,41,Delivery,ready
+161,68,Outdoor Seating,ready
+161,45,Downtown Core,ready
+162,5,Japanese,ready
+162,43,Dine-In,ready
+162,51,Good for Groups,ready
+162,47,Family-Friendly,ready
+162,63,Mid-Range,ready
+162,65,Newton,ready
+163,1,Cafe,ready
+163,43,Dine-In,ready
+163,82,Takeaway,ready
+163,41,Delivery,ready
+163,68,Outdoor Seating,ready
+163,47,Family-Friendly,ready
+163,31,Budget,ready
+163,69,Outram,ready
+164,5,Japanese,ready
+164,43,Dine-In,ready
+164,82,Takeaway,ready
+164,73,Reservable,ready
+164,51,Good for Groups,ready
+164,47,Family-Friendly,ready
+164,63,Mid-Range,ready
+164,33,Bukit Merah,ready
+165,1,Cafe,ready
+165,43,Dine-In,ready
+165,82,Takeaway,ready
+165,68,Outdoor Seating,ready
+165,51,Good for Groups,ready
+165,47,Family-Friendly,ready
+165,31,Budget,ready
+165,64,Museum,ready
+166,20,Dessert,ready
+166,43,Dine-In,ready
+166,82,Takeaway,ready
+166,67,Orchard,ready
+167,86,Tea House,ready
+167,82,Takeaway,ready
+167,41,Delivery,ready
+167,72,Queenstown,ready
+168,54,Ice Cream,ready
+168,20,Dessert,ready
+168,43,Dine-In,ready
+168,82,Takeaway,ready
+168,41,Delivery,ready
+168,47,Family-Friendly,ready
+168,63,Mid-Range,ready
+168,78,Singapore River,ready
+169,1,Cafe,ready
+169,43,Dine-In,ready
+169,82,Takeaway,ready
+169,31,Budget,ready
+169,69,Outram,ready
+170,5,Japanese,ready
+170,6,Buffet,ready
+170,43,Dine-In,ready
+170,82,Takeaway,ready
+170,73,Reservable,ready
+170,51,Good for Groups,ready
+170,47,Family-Friendly,ready
+170,45,Downtown Core,ready
+171,112,Juice,ready
+171,113,Juice Bar,ready
+171,82,Takeaway,ready
+171,51,Good for Groups,ready
+171,47,Family-Friendly,ready
+171,46,Expensive,ready
+171,78,Singapore River,ready
+172,5,Japanese,ready
+172,2,Korean,ready
+172,38,Chinese,ready
+172,43,Dine-In,ready
+172,82,Takeaway,ready
+172,41,Delivery,ready
+172,51,Good for Groups,ready
+172,31,Budget,ready
+172,36,Bukit Timah,ready
+173,24,Bakery,ready
+173,82,Takeaway,ready
+173,31,Budget,ready
+173,87,Toa Payoh,ready
+174,86,Tea House,ready
+174,82,Takeaway,ready
+174,41,Delivery,ready
+174,31,Budget,ready
+174,32,Bukit Batok,ready
+175,55,Indian,ready
+175,82,Takeaway,ready
+175,47,Family-Friendly,ready
+175,31,Budget,ready
+175,84,Tampines,ready
+176,38,Chinese,ready
+176,76,Seafood,ready
+176,79,Singaporean,ready
+176,43,Dine-In,ready
+176,82,Takeaway,ready
+176,68,Outdoor Seating,ready
+176,51,Good for Groups,ready
+176,47,Family-Friendly,ready
+176,31,Budget,ready
+176,72,Queenstown,ready
+177,1,Cafe,ready
+177,43,Dine-In,ready
+177,82,Takeaway,ready
+177,31,Budget,ready
+177,69,Outram,ready
+178,5,Japanese,ready
+178,43,Dine-In,ready
+178,82,Takeaway,ready
+178,51,Good for Groups,ready
+178,47,Family-Friendly,ready
+178,63,Mid-Range,ready
+178,58,Jurong West,ready
+179,103,Deli,ready
+179,13,Vegetarian,ready
+179,43,Dine-In,ready
+179,82,Takeaway,ready
+179,68,Outdoor Seating,ready
+179,47,Family-Friendly,ready
+179,63,Mid-Range,ready
+179,45,Downtown Core,ready
+180,91,Western,ready
+180,56,Italian,ready
+180,13,Vegetarian,ready
+180,43,Dine-In,ready
+180,82,Takeaway,ready
+180,31,Budget,ready
+180,84,Tampines,ready
+181,1,Cafe,ready
+181,43,Dine-In,ready
+181,82,Takeaway,ready
+181,68,Outdoor Seating,ready
+181,51,Good for Groups,ready
+181,47,Family-Friendly,ready
+181,31,Budget,ready
+181,58,Jurong West,ready
+182,104,Fast Food,ready
+182,119,Mediterranean,ready
+182,132,Sandwiches,ready
+182,121,Middle Eastern,ready
+182,149,Turkish,ready
+182,13,Vegetarian,ready
+182,43,Dine-In,ready
+182,82,Takeaway,ready
+182,41,Delivery,ready
+182,51,Good for Groups,ready
+182,47,Family-Friendly,ready
+182,31,Budget,ready
+182,75,Rochor,ready
+182,18,Halal,ready
+183,20,Dessert,ready
+183,82,Takeaway,ready
+183,31,Budget,ready
+183,28,Bishan,ready
+184,5,Japanese,ready
+184,43,Dine-In,ready
+184,82,Takeaway,ready
+184,41,Delivery,ready
+184,73,Reservable,ready
+184,51,Good for Groups,ready
+184,47,Family-Friendly,ready
+184,63,Mid-Range,ready
+184,39,Choa Chu Kang,ready
+185,13,Vegetarian,ready
+185,43,Dine-In,ready
+185,82,Takeaway,ready
+185,41,Delivery,ready
+185,73,Reservable,ready
+185,51,Good for Groups,ready
+185,47,Family-Friendly,ready
+185,63,Mid-Range,ready
+185,75,Rochor,ready
+186,1,Cafe,ready
+186,43,Dine-In,ready
+186,82,Takeaway,ready
+186,73,Reservable,ready
+186,51,Good for Groups,ready
+186,47,Family-Friendly,ready
+186,63,Mid-Range,ready
+186,72,Queenstown,ready
+187,13,Vegetarian,ready
+187,89,Vegan,ready
+187,43,Dine-In,ready
+187,82,Takeaway,ready
+187,41,Delivery,ready
+187,73,Reservable,ready
+187,51,Good for Groups,ready
+187,47,Family-Friendly,ready
+187,63,Mid-Range,ready
+187,59,Kallang,ready
+187,18,Halal,ready
+188,55,Indian,ready
+188,147,Thai,ready
+188,91,Western,ready
+188,43,Dine-In,ready
+188,82,Takeaway,ready
+188,41,Delivery,ready
+188,73,Reservable,ready
+188,68,Outdoor Seating,ready
+188,51,Good for Groups,ready
+188,47,Family-Friendly,ready
+188,46,Expensive,ready
+188,45,Downtown Core,ready
+189,5,Japanese,ready
+189,43,Dine-In,ready
+189,82,Takeaway,ready
+189,41,Delivery,ready
+189,47,Family-Friendly,ready
+189,31,Budget,ready
+189,45,Downtown Core,ready
+190,1,Cafe,ready
+190,47,Family-Friendly,ready
+190,85,Tanglin,ready
+191,2,Korean,ready
+191,43,Dine-In,ready
+191,73,Reservable,ready
+191,51,Good for Groups,ready
+191,71,Premium,ready
+191,67,Orchard,ready
+192,2,Korean,ready
+192,43,Dine-In,ready
+192,51,Good for Groups,ready
+192,47,Family-Friendly,ready
+192,69,Outram,ready
+193,1,Cafe,ready
+193,54,Ice Cream,ready
+193,20,Dessert,ready
+193,43,Dine-In,ready
+193,82,Takeaway,ready
+193,41,Delivery,ready
+193,73,Reservable,ready
+193,68,Outdoor Seating,ready
+193,51,Good for Groups,ready
+193,47,Family-Friendly,ready
+193,63,Mid-Range,ready
+193,84,Tampines,ready
+193,18,Halal,ready
+194,38,Chinese,ready
+194,76,Seafood,ready
+194,13,Vegetarian,ready
+194,43,Dine-In,ready
+194,82,Takeaway,ready
+194,41,Delivery,ready
+194,47,Family-Friendly,ready
+194,31,Budget,ready
+194,50,Geylang,ready
+195,38,Chinese,ready
+195,43,Dine-In,ready
+195,82,Takeaway,ready
+195,41,Delivery,ready
+195,51,Good for Groups,ready
+195,47,Family-Friendly,ready
+195,63,Mid-Range,ready
+195,50,Geylang,ready
+196,1,Cafe,ready
+196,43,Dine-In,ready
+196,82,Takeaway,ready
+196,41,Delivery,ready
+196,73,Reservable,ready
+196,51,Good for Groups,ready
+196,47,Family-Friendly,ready
+196,46,Expensive,ready
+196,143,Taman Pelangi,ready
+197,86,Tea House,ready
+197,43,Dine-In,ready
+197,82,Takeaway,ready
+197,46,Expensive,ready
+197,67,Orchard,ready
+198,86,Tea House,ready
+198,82,Takeaway,ready
+198,41,Delivery,ready
+198,63,Mid-Range,ready
+198,75,Rochor,ready
+199,38,Chinese,ready
+199,91,Western,ready
+199,76,Seafood,ready
+199,43,Dine-In,ready
+199,82,Takeaway,ready
+199,51,Good for Groups,ready
+199,47,Family-Friendly,ready
+199,31,Budget,ready
+199,58,Jurong West,ready
+200,20,Dessert,ready
+200,79,Singaporean,ready
+200,43,Dine-In,ready
+200,82,Takeaway,ready
+200,47,Family-Friendly,ready
+200,31,Budget,ready
+200,75,Rochor,ready
+201,5,Japanese,ready
+201,147,Thai,ready
+201,120,Mexican,ready
+201,43,Dine-In,ready
+201,73,Reservable,ready
+201,51,Good for Groups,ready
+201,71,Premium,ready
+201,69,Outram,ready
+202,90,Vietnamese,ready
+202,91,Western,ready
+202,56,Italian,ready
+202,43,Dine-In,ready
+202,82,Takeaway,ready
+202,41,Delivery,ready
+202,73,Reservable,ready
+202,51,Good for Groups,ready
+202,47,Family-Friendly,ready
+202,63,Mid-Range,ready
+202,58,Jurong West,ready
+203,38,Chinese,ready
+203,147,Thai,ready
+203,90,Vietnamese,ready
+203,43,Dine-In,ready
+203,82,Takeaway,ready
+203,41,Delivery,ready
+203,73,Reservable,ready
+203,68,Outdoor Seating,ready
+203,51,Good for Groups,ready
+203,47,Family-Friendly,ready
+203,31,Budget,ready
+203,78,Singapore River,ready
+204,86,Tea House,ready
+204,82,Takeaway,ready
+204,41,Delivery,ready
+204,134,Sengkang,ready
+205,2,Korean,ready
+205,43,Dine-In,ready
+205,82,Takeaway,ready
+205,41,Delivery,ready
+205,73,Reservable,ready
+205,51,Good for Groups,ready
+205,47,Family-Friendly,ready
+205,63,Mid-Range,ready
+205,67,Orchard,ready
+206,5,Japanese,ready
+206,43,Dine-In,ready
+206,82,Takeaway,ready
+206,41,Delivery,ready
+206,51,Good for Groups,ready
+206,47,Family-Friendly,ready
+206,63,Mid-Range,ready
+206,52,Holland Village,ready
+207,20,Dessert,ready
+207,54,Ice Cream,ready
+207,43,Dine-In,ready
+207,82,Takeaway,ready
+207,41,Delivery,ready
+207,93,Woodlands,ready
+207,18,Halal,ready
+208,147,Thai,ready
+208,119,Mediterranean,ready
+208,149,Turkish,ready
+208,55,Indian,ready
+208,43,Dine-In,ready
+208,82,Takeaway,ready
+208,41,Delivery,ready
+208,73,Reservable,ready
+208,51,Good for Groups,ready
+208,47,Family-Friendly,ready
+208,31,Budget,ready
+208,39,Choa Chu Kang,ready
+208,18,Halal,ready
+209,13,Vegetarian,ready
+209,43,Dine-In,ready
+209,82,Takeaway,ready
+209,41,Delivery,ready
+209,73,Reservable,ready
+209,51,Good for Groups,ready
+209,47,Family-Friendly,ready
+209,63,Mid-Range,ready
+209,66,Novena,ready
+210,24,Bakery,ready
+210,43,Dine-In,ready
+210,82,Takeaway,ready
+210,41,Delivery,ready
+210,31,Budget,ready
+210,151,芽笼,ready
+211,29,Brazilian,ready
+211,43,Dine-In,ready
+211,73,Reservable,ready
+211,68,Outdoor Seating,ready
+211,51,Good for Groups,ready
+211,47,Family-Friendly,ready
+211,78,Singapore River,ready
+212,89,Vegan,ready
+212,13,Vegetarian,ready
+212,43,Dine-In,ready
+212,82,Takeaway,ready
+212,41,Delivery,ready
+212,73,Reservable,ready
+212,68,Outdoor Seating,ready
+212,51,Good for Groups,ready
+212,47,Family-Friendly,ready
+212,63,Mid-Range,ready
+212,59,Kallang,ready
+213,2,Korean,ready
+213,91,Western,ready
+213,20,Dessert,ready
+213,82,Takeaway,ready
+213,51,Good for Groups,ready
+213,47,Family-Friendly,ready
+213,31,Budget,ready
+213,72,Queenstown,ready
+214,86,Tea House,ready
+214,43,Dine-In,ready
+214,82,Takeaway,ready
+214,41,Delivery,ready
+214,39,Choa Chu Kang,ready
+215,56,Italian,ready
+215,20,Dessert,ready
+215,1,Cafe,ready
+215,41,Delivery,ready
+215,33,Bukit Merah,ready
+216,1,Cafe,ready
+216,54,Ice Cream,ready
+216,20,Dessert,ready
+216,24,Bakery,ready
+216,43,Dine-In,ready
+216,82,Takeaway,ready
+216,41,Delivery,ready
+216,68,Outdoor Seating,ready
+216,51,Good for Groups,ready
+216,47,Family-Friendly,ready
+216,31,Budget,ready
+216,27,Bedok,ready
+217,38,Chinese,ready
+217,43,Dine-In,ready
+217,82,Takeaway,ready
+217,41,Delivery,ready
+217,51,Good for Groups,ready
+217,63,Mid-Range,ready
+217,25,Bandar Johor Bahru,ready
+218,38,Chinese,ready
+218,43,Dine-In,ready
+218,82,Takeaway,ready
+218,41,Delivery,ready
+218,51,Good for Groups,ready
+218,47,Family-Friendly,ready
+218,31,Budget,ready
+218,45,Downtown Core,ready
+219,38,Chinese,ready
+219,43,Dine-In,ready
+219,82,Takeaway,ready
+219,41,Delivery,ready
+219,73,Reservable,ready
+219,51,Good for Groups,ready
+219,47,Family-Friendly,ready
+219,31,Budget,ready
+219,50,Geylang,ready
+220,56,Italian,ready
+220,123,Nightclub,ready
+220,26,Bar,ready
+220,43,Dine-In,ready
+220,82,Takeaway,ready
+220,41,Delivery,ready
+220,73,Reservable,ready
+220,68,Outdoor Seating,ready
+220,51,Good for Groups,ready
+220,47,Family-Friendly,ready
+220,46,Expensive,ready
+220,45,Downtown Core,ready
+221,111,Indoor Playground,ready
+221,47,Family-Friendly,ready
+221,45,Downtown Core,ready
+222,86,Tea House,ready
+222,43,Dine-In,ready
+222,82,Takeaway,ready
+222,37,Changi,ready
+223,76,Seafood,ready
+223,79,Singaporean,ready
+223,43,Dine-In,ready
+223,82,Takeaway,ready
+223,51,Good for Groups,ready
+223,47,Family-Friendly,ready
+223,31,Budget,ready
+223,59,Kallang,ready
+224,1,Cafe,ready
+224,24,Bakery,ready
+224,43,Dine-In,ready
+224,82,Takeaway,ready
+224,41,Delivery,ready
+224,47,Family-Friendly,ready
+224,31,Budget,ready
+224,59,Kallang,ready
+225,90,Vietnamese,ready
+225,91,Western,ready
+225,76,Seafood,ready
+225,43,Dine-In,ready
+225,82,Takeaway,ready
+225,68,Outdoor Seating,ready
+225,51,Good for Groups,ready
+225,47,Family-Friendly,ready
+225,31,Budget,ready
+225,85,Tanglin,ready
+226,81,Sushi,ready
+226,43,Dine-In,ready
+226,82,Takeaway,ready
+226,73,Reservable,ready
+226,51,Good for Groups,ready
+226,47,Family-Friendly,ready
+226,63,Mid-Range,ready
+226,45,Downtown Core,ready
+227,1,Cafe,ready
+227,43,Dine-In,ready
+227,82,Takeaway,ready
+227,47,Family-Friendly,ready
+227,31,Budget,ready
+227,69,Outram,ready
+228,6,Buffet,ready
+228,43,Dine-In,ready
+228,82,Takeaway,ready
+228,41,Delivery,ready
+228,73,Reservable,ready
+228,51,Good for Groups,ready
+228,47,Family-Friendly,ready
+228,71,Premium,ready
+228,45,Downtown Core,ready
+229,86,Tea House,ready
+229,43,Dine-In,ready
+229,82,Takeaway,ready
+229,41,Delivery,ready
+229,97,Ang Mo Kio,ready
+230,49,French,ready
+230,43,Dine-In,ready
+230,82,Takeaway,ready
+230,41,Delivery,ready
+230,73,Reservable,ready
+230,51,Good for Groups,ready
+230,71,Premium,ready
+230,78,Singapore River,ready
+231,5,Japanese,ready
+231,76,Seafood,ready
+231,43,Dine-In,ready
+231,82,Takeaway,ready
+231,68,Outdoor Seating,ready
+231,51,Good for Groups,ready
+231,47,Family-Friendly,ready
+231,31,Budget,ready
+231,87,Toa Payoh,ready
+232,86,Tea House,ready
+232,82,Takeaway,ready
+232,41,Delivery,ready
+232,31,Budget,ready
+232,50,Geylang,ready
+233,5,Japanese,ready
+233,43,Dine-In,ready
+233,82,Takeaway,ready
+233,51,Good for Groups,ready
+233,47,Family-Friendly,ready
+233,63,Mid-Range,ready
+233,94,Yishun,ready
+234,2,Korean,ready
+234,43,Dine-In,ready
+234,73,Reservable,ready
+234,51,Good for Groups,ready
+234,47,Family-Friendly,ready
+234,63,Mid-Range,ready
+234,45,Downtown Core,ready
+235,86,Tea House,ready
+235,43,Dine-In,ready
+235,82,Takeaway,ready
+235,41,Delivery,ready
+235,57,Jurong East,ready
+236,2,Korean,ready
+236,43,Dine-In,ready
+236,82,Takeaway,ready
+236,41,Delivery,ready
+236,73,Reservable,ready
+236,51,Good for Groups,ready
+236,47,Family-Friendly,ready
+236,46,Expensive,ready
+236,69,Outram,ready
+237,5,Japanese,ready
+237,55,Indian,ready
+237,62,Malay,ready
+237,43,Dine-In,ready
+237,73,Reservable,ready
+237,68,Outdoor Seating,ready
+237,61,Live Music,ready
+237,51,Good for Groups,ready
+237,47,Family-Friendly,ready
+237,71,Premium,ready
+237,45,Downtown Core,ready
+238,38,Chinese,ready
+238,76,Seafood,ready
+238,18,Halal,ready
+238,43,Dine-In,ready
+238,82,Takeaway,ready
+238,41,Delivery,ready
+238,73,Reservable,ready
+238,51,Good for Groups,ready
+238,47,Family-Friendly,ready
+238,31,Budget,ready
+238,45,Downtown Core,ready
+239,5,Japanese,ready
+239,91,Western,ready
+239,13,Vegetarian,ready
+239,43,Dine-In,ready
+239,82,Takeaway,ready
+239,41,Delivery,ready
+239,47,Family-Friendly,ready
+239,31,Budget,ready
+239,59,Kallang,ready
+240,86,Tea House,ready
+240,82,Takeaway,ready
+240,41,Delivery,ready
+240,31,Budget,ready
+240,32,Bukit Batok,ready
+241,89,Vegan,ready
+241,13,Vegetarian,ready
+241,43,Dine-In,ready
+241,82,Takeaway,ready
+241,51,Good for Groups,ready
+241,47,Family-Friendly,ready
+241,31,Budget,ready
+241,69,Outram,ready
+242,6,Buffet,ready
+242,2,Korean,ready
+242,43,Dine-In,ready
+242,82,Takeaway,ready
+242,73,Reservable,ready
+242,51,Good for Groups,ready
+242,47,Family-Friendly,ready
+242,63,Mid-Range,ready
+242,64,Museum,ready
+243,20,Dessert,ready
+243,1,Cafe,ready
+243,79,Singaporean,ready
+243,82,Takeaway,ready
+243,41,Delivery,ready
+243,51,Good for Groups,ready
+243,47,Family-Friendly,ready
+243,31,Budget,ready
+243,33,Bukit Merah,ready
+244,1,Cafe,ready
+244,43,Dine-In,ready
+244,82,Takeaway,ready
+244,41,Delivery,ready
+244,51,Good for Groups,ready
+244,47,Family-Friendly,ready
+244,31,Budget,ready
+244,64,Museum,ready
+245,2,Korean,ready
+245,43,Dine-In,ready
+245,82,Takeaway,ready
+245,41,Delivery,ready
+245,73,Reservable,ready
+245,51,Good for Groups,ready
+245,47,Family-Friendly,ready
+245,63,Mid-Range,ready
+245,87,Toa Payoh,ready
+246,1,Cafe,ready
+246,20,Dessert,ready
+246,43,Dine-In,ready
+246,41,Delivery,ready
+246,73,Reservable,ready
+246,68,Outdoor Seating,ready
+246,51,Good for Groups,ready
+246,47,Family-Friendly,ready
+246,46,Expensive,ready
+246,27,Bedok,ready
+246,18,Halal,ready
+247,125,Pizza,ready
+247,92,Wine Bar,ready
+247,26,Bar,ready
+247,43,Dine-In,ready
+247,82,Takeaway,ready
+247,41,Delivery,ready
+247,73,Reservable,ready
+247,68,Outdoor Seating,ready
+247,51,Good for Groups,ready
+247,47,Family-Friendly,ready
+247,63,Mid-Range,ready
+247,45,Downtown Core,ready
+248,86,Tea House,ready
+248,82,Takeaway,ready
+248,41,Delivery,ready
+248,67,Orchard,ready
+249,74,Restaurant,ready
+249,82,Takeaway,ready
+249,41,Delivery,ready
+249,47,Family-Friendly,ready
+249,31,Budget,ready
+249,57,Jurong East,ready
+250,1,Cafe,ready
+250,43,Dine-In,ready
+250,82,Takeaway,ready
+250,67,Orchard,ready
+251,80,Steakhouse,ready
+251,43,Dine-In,ready
+251,82,Takeaway,ready
+251,41,Delivery,ready
+251,73,Reservable,ready
+251,68,Outdoor Seating,ready
+251,51,Good for Groups,ready
+251,47,Family-Friendly,ready
+251,63,Mid-Range,ready
+251,118,Marine Parade,ready
+252,24,Bakery,ready
+252,82,Takeaway,ready
+252,41,Delivery,ready
+252,31,Budget,ready
+252,32,Bukit Batok,ready
+253,13,Vegetarian,ready
+253,43,Dine-In,ready
+253,82,Takeaway,ready
+253,41,Delivery,ready
+253,73,Reservable,ready
+253,51,Good for Groups,ready
+253,47,Family-Friendly,ready
+253,63,Mid-Range,ready
+253,59,Kallang,ready
+254,38,Chinese,ready
+254,43,Dine-In,ready
+254,82,Takeaway,ready
+254,41,Delivery,ready
+254,73,Reservable,ready
+254,51,Good for Groups,ready
+254,47,Family-Friendly,ready
+254,46,Expensive,ready
+254,67,Orchard,ready
+255,76,Seafood,ready
+255,43,Dine-In,ready
+255,73,Reservable,ready
+255,51,Good for Groups,ready
+255,71,Premium,ready
+255,45,Downtown Core,ready
+256,38,Chinese,ready
+256,108,Hotpot / Steamboat,ready
+256,43,Dine-In,ready
+256,82,Takeaway,ready
+256,73,Reservable,ready
+256,51,Good for Groups,ready
+256,47,Family-Friendly,ready
+256,63,Mid-Range,ready
+256,65,Newton,ready
+257,20,Dessert,ready
+257,43,Dine-In,ready
+257,82,Takeaway,ready
+257,145,Taman Sri Tebrau,ready
+258,2,Korean,ready
+258,43,Dine-In,ready
+258,82,Takeaway,ready
+258,51,Good for Groups,ready
+258,47,Family-Friendly,ready
+258,31,Budget,ready
+258,84,Tampines,ready
+259,104,Fast Food,ready
+259,43,Dine-In,ready
+259,82,Takeaway,ready
+259,41,Delivery,ready
+259,51,Good for Groups,ready
+259,47,Family-Friendly,ready
+259,31,Budget,ready
+259,58,Jurong West,ready
+260,90,Vietnamese,ready
+260,43,Dine-In,ready
+260,82,Takeaway,ready
+260,51,Good for Groups,ready
+260,47,Family-Friendly,ready
+260,31,Budget,ready
+260,59,Kallang,ready
+261,2,Korean,ready
+261,43,Dine-In,ready
+261,82,Takeaway,ready
+261,41,Delivery,ready
+261,73,Reservable,ready
+261,51,Good for Groups,ready
+261,47,Family-Friendly,ready
+261,63,Mid-Range,ready
+261,45,Downtown Core,ready
+262,54,Ice Cream,ready
+262,20,Dessert,ready
+262,43,Dine-In,ready
+262,82,Takeaway,ready
+262,51,Good for Groups,ready
+262,47,Family-Friendly,ready
+262,118,Marine Parade,ready
+263,79,Singaporean,ready
+263,43,Dine-In,ready
+263,82,Takeaway,ready
+263,47,Family-Friendly,ready
+263,31,Budget,ready
+263,59,Kallang,ready
+264,86,Tea House,ready
+264,82,Takeaway,ready
+264,41,Delivery,ready
+264,66,Novena,ready
+265,1,Cafe,ready
+265,43,Dine-In,ready
+265,82,Takeaway,ready
+265,73,Reservable,ready
+265,51,Good for Groups,ready
+265,47,Family-Friendly,ready
+265,31,Budget,ready
+265,45,Downtown Core,ready
+265,18,Halal,ready
+266,5,Japanese,ready
+266,43,Dine-In,ready
+266,82,Takeaway,ready
+266,41,Delivery,ready
+266,73,Reservable,ready
+266,51,Good for Groups,ready
+266,47,Family-Friendly,ready
+266,63,Mid-Range,ready
+266,28,Bishan,ready
+267,54,Ice Cream,ready
+267,20,Dessert,ready
+267,43,Dine-In,ready
+267,82,Takeaway,ready
+267,41,Delivery,ready
+267,47,Family-Friendly,ready
+267,67,Orchard,ready
+268,86,Tea House,ready
+268,82,Takeaway,ready
+268,41,Delivery,ready
+268,84,Tampines,ready
+269,122,Moroccan,ready
+269,49,French,ready
+269,135,Spanish,ready
+269,56,Italian,ready
+269,43,Dine-In,ready
+269,82,Takeaway,ready
+269,73,Reservable,ready
+269,51,Good for Groups,ready
+269,47,Family-Friendly,ready
+269,143,Taman Pelangi,ready
+270,20,Dessert,ready
+270,82,Takeaway,ready
+270,94,Yishun,ready
+271,38,Chinese,ready
+271,43,Dine-In,ready
+271,82,Takeaway,ready
+271,41,Delivery,ready
+271,51,Good for Groups,ready
+271,47,Family-Friendly,ready
+271,31,Budget,ready
+271,45,Downtown Core,ready
+272,2,Korean,ready
+272,43,Dine-In,ready
+272,82,Takeaway,ready
+272,73,Reservable,ready
+272,51,Good for Groups,ready
+272,47,Family-Friendly,ready
+272,46,Expensive,ready
+272,67,Orchard,ready
+273,76,Seafood,ready
+273,79,Singaporean,ready
+273,43,Dine-In,ready
+273,82,Takeaway,ready
+273,51,Good for Groups,ready
+273,47,Family-Friendly,ready
+273,31,Budget,ready
+273,58,Jurong West,ready
+274,20,Dessert,ready
+274,1,Cafe,ready
+274,43,Dine-In,ready
+274,82,Takeaway,ready
+274,51,Good for Groups,ready
+274,47,Family-Friendly,ready
+274,31,Budget,ready
+274,87,Toa Payoh,ready
+275,112,Juice,ready
+275,113,Juice Bar,ready
+275,82,Takeaway,ready
+275,47,Family-Friendly,ready
+275,31,Budget,ready
+275,57,Jurong East,ready
+276,20,Dessert,ready
+276,43,Dine-In,ready
+276,82,Takeaway,ready
+276,41,Delivery,ready
+276,73,Reservable,ready
+276,45,Downtown Core,ready
+277,26,Bar,ready
+277,43,Dine-In,ready
+277,82,Takeaway,ready
+277,41,Delivery,ready
+277,73,Reservable,ready
+277,68,Outdoor Seating,ready
+277,51,Good for Groups,ready
+277,47,Family-Friendly,ready
+277,63,Mid-Range,ready
+277,72,Queenstown,ready
+278,24,Bakery,ready
+278,82,Takeaway,ready
+278,72,Queenstown,ready
+279,1,Cafe,ready
+279,43,Dine-In,ready
+279,82,Takeaway,ready
+279,73,Reservable,ready
+279,68,Outdoor Seating,ready
+279,51,Good for Groups,ready
+279,47,Family-Friendly,ready
+279,63,Mid-Range,ready
+279,75,Rochor,ready
+280,1,Cafe,ready
+280,43,Dine-In,ready
+280,82,Takeaway,ready
+280,41,Delivery,ready
+280,68,Outdoor Seating,ready
+280,51,Good for Groups,ready
+280,47,Family-Friendly,ready
+280,31,Budget,ready
+280,75,Rochor,ready
+281,129,Ramen,ready
+281,1,Cafe,ready
+281,5,Japanese,ready
+281,43,Dine-In,ready
+281,82,Takeaway,ready
+281,41,Delivery,ready
+281,73,Reservable,ready
+281,51,Good for Groups,ready
+281,47,Family-Friendly,ready
+281,31,Budget,ready
+281,94,Yishun,ready
+282,1,Cafe,ready
+282,43,Dine-In,ready
+282,82,Takeaway,ready
+282,73,Reservable,ready
+282,51,Good for Groups,ready
+282,31,Budget,ready
+282,69,Outram,ready
+283,124,Park,ready
+283,88,Tourist Spot,ready
+283,47,Family-Friendly,ready
+283,93,Woodlands,ready
+284,76,Seafood,ready
+284,13,Vegetarian,ready
+284,20,Dessert,ready
+284,82,Takeaway,ready
+284,51,Good for Groups,ready
+284,47,Family-Friendly,ready
+284,31,Budget,ready
+284,33,Bukit Merah,ready
+285,24,Bakery,ready
+285,43,Dine-In,ready
+285,82,Takeaway,ready
+285,31,Budget,ready
+285,45,Downtown Core,ready
+286,91,Western,ready
+286,82,Takeaway,ready
+286,41,Delivery,ready
+286,47,Family-Friendly,ready
+286,31,Budget,ready
+286,45,Downtown Core,ready
+287,38,Chinese,ready
+287,19,Mala,ready
+287,43,Dine-In,ready
+287,82,Takeaway,ready
+287,41,Delivery,ready
+287,51,Good for Groups,ready
+287,47,Family-Friendly,ready
+287,31,Budget,ready
+287,45,Downtown Core,ready
+288,81,Sushi,ready
+288,43,Dine-In,ready
+288,82,Takeaway,ready
+288,41,Delivery,ready
+288,51,Good for Groups,ready
+288,47,Family-Friendly,ready
+288,63,Mid-Range,ready
+288,128,Punggol Digital District,ready
+289,76,Seafood,ready
+289,79,Singaporean,ready
+289,43,Dine-In,ready
+289,82,Takeaway,ready
+289,47,Family-Friendly,ready
+289,31,Budget,ready
+289,45,Downtown Core,ready
+290,1,Cafe,ready
+290,82,Takeaway,ready
+290,31,Budget,ready
+290,69,Outram,ready
+291,90,Vietnamese,ready
+291,82,Takeaway,ready
+291,41,Delivery,ready
+291,47,Family-Friendly,ready
+291,31,Budget,ready
+291,69,Outram,ready
+292,91,Western,ready
+292,20,Dessert,ready
+292,1,Cafe,ready
+292,41,Delivery,ready
+292,63,Mid-Range,ready
+292,87,Toa Payoh,ready
+293,38,Chinese,ready
+293,43,Dine-In,ready
+293,82,Takeaway,ready
+293,41,Delivery,ready
+293,51,Good for Groups,ready
+293,47,Family-Friendly,ready
+293,31,Budget,ready
+293,97,Ang Mo Kio,ready
+294,24,Bakery,ready
+294,1,Cafe,ready
+294,43,Dine-In,ready
+294,82,Takeaway,ready
+294,41,Delivery,ready
+294,63,Mid-Range,ready
+294,78,Singapore River,ready
+295,13,Vegetarian,ready
+295,43,Dine-In,ready
+295,82,Takeaway,ready
+295,68,Outdoor Seating,ready
+295,51,Good for Groups,ready
+295,47,Family-Friendly,ready
+295,31,Budget,ready
+295,93,Woodlands,ready
+296,54,Ice Cream,ready
+296,1,Cafe,ready
+296,20,Dessert,ready
+296,43,Dine-In,ready
+296,82,Takeaway,ready
+296,41,Delivery,ready
+296,51,Good for Groups,ready
+296,47,Family-Friendly,ready
+296,59,Kallang,ready
+297,55,Indian,ready
+297,79,Singaporean,ready
+297,43,Dine-In,ready
+297,82,Takeaway,ready
+297,47,Family-Friendly,ready
+297,31,Budget,ready
+297,69,Outram,ready
+298,62,Malay,ready
+298,91,Western,ready
+298,19,Mala,ready
+298,43,Dine-In,ready
+298,82,Takeaway,ready
+298,41,Delivery,ready
+298,51,Good for Groups,ready
+298,47,Family-Friendly,ready
+298,31,Budget,ready
+298,97,Ang Mo Kio,ready
+299,1,Cafe,ready
+299,43,Dine-In,ready
+299,82,Takeaway,ready
+299,41,Delivery,ready
+299,47,Family-Friendly,ready
+299,31,Budget,ready
+299,69,Outram,ready
+299,18,Halal,ready
+300,5,Japanese,ready
+300,43,Dine-In,ready
+300,82,Takeaway,ready
+300,41,Delivery,ready
+300,73,Reservable,ready
+300,51,Good for Groups,ready
+300,47,Family-Friendly,ready
+300,63,Mid-Range,ready
+300,45,Downtown Core,ready
+300,18,Halal,ready
+301,62,Malay,ready
+301,76,Seafood,ready
+301,20,Dessert,ready
+301,43,Dine-In,ready
+301,82,Takeaway,ready
+301,31,Budget,ready
+301,94,Yishun,ready
+302,119,Mediterranean,ready
+302,89,Vegan,ready
+302,13,Vegetarian,ready
+302,43,Dine-In,ready
+302,82,Takeaway,ready
+302,41,Delivery,ready
+302,73,Reservable,ready
+302,68,Outdoor Seating,ready
+302,51,Good for Groups,ready
+302,47,Family-Friendly,ready
+302,46,Expensive,ready
+302,36,Bukit Timah,ready
+303,129,Ramen,ready
+303,43,Dine-In,ready
+303,82,Takeaway,ready
+303,47,Family-Friendly,ready
+303,31,Budget,ready
+303,84,Tampines,ready
+304,38,Chinese,ready
+304,43,Dine-In,ready
+304,82,Takeaway,ready
+304,73,Reservable,ready
+304,68,Outdoor Seating,ready
+304,51,Good for Groups,ready
+304,47,Family-Friendly,ready
+304,63,Mid-Range,ready
+304,140,Taman Iskandar,ready
+305,6,Buffet,ready
+305,43,Dine-In,ready
+305,82,Takeaway,ready
+305,41,Delivery,ready
+305,73,Reservable,ready
+305,51,Good for Groups,ready
+305,47,Family-Friendly,ready
+305,59,Kallang,ready
+305,18,Halal,ready
+306,1,Cafe,ready
+306,43,Dine-In,ready
+306,82,Takeaway,ready
+306,47,Family-Friendly,ready
+306,31,Budget,ready
+306,67,Orchard,ready
+306,18,Halal,ready
+307,1,Cafe,ready
+307,43,Dine-In,ready
+307,82,Takeaway,ready
+307,68,Outdoor Seating,ready
+307,51,Good for Groups,ready
+307,47,Family-Friendly,ready
+307,31,Budget,ready
+307,118,Marine Parade,ready
+308,38,Chinese,ready
+308,56,Italian,ready
+308,20,Dessert,ready
+308,27,Bedok,ready
+309,86,Tea House,ready
+309,82,Takeaway,ready
+309,53,Hougang,ready
+310,91,Western,ready
+310,20,Dessert,ready
+310,43,Dine-In,ready
+310,82,Takeaway,ready
+310,41,Delivery,ready
+310,31,Budget,ready
+310,45,Downtown Core,ready
+311,1,Cafe,ready
+311,43,Dine-In,ready
+311,82,Takeaway,ready
+311,73,Reservable,ready
+311,68,Outdoor Seating,ready
+311,51,Good for Groups,ready
+311,47,Family-Friendly,ready
+311,142,Taman Melodies,ready
+312,74,Restaurant,ready
+312,43,Dine-In,ready
+312,82,Takeaway,ready
+312,51,Good for Groups,ready
+312,47,Family-Friendly,ready
+312,31,Budget,ready
+312,58,Jurong West,ready
+313,86,Tea House,ready
+313,82,Takeaway,ready
+313,31,Budget,ready
+313,40,Clementi,ready
+314,13,Vegetarian,ready
+314,43,Dine-In,ready
+314,82,Takeaway,ready
+314,41,Delivery,ready
+314,73,Reservable,ready
+314,47,Family-Friendly,ready
+314,31,Budget,ready
+314,67,Orchard,ready
+315,6,Buffet,ready
+315,43,Dine-In,ready
+315,82,Takeaway,ready
+315,41,Delivery,ready
+315,73,Reservable,ready
+315,51,Good for Groups,ready
+315,47,Family-Friendly,ready
+315,63,Mid-Range,ready
+315,50,Geylang,ready
+315,18,Halal,ready
+316,6,Buffet,ready
+316,43,Dine-In,ready
+316,82,Takeaway,ready
+316,41,Delivery,ready
+316,73,Reservable,ready
+316,68,Outdoor Seating,ready
+316,51,Good for Groups,ready
+316,47,Family-Friendly,ready
+316,67,Orchard,ready
+316,18,Halal,ready
+317,55,Indian,ready
+317,62,Malay,ready
+317,76,Seafood,ready
+317,43,Dine-In,ready
+317,82,Takeaway,ready
+317,41,Delivery,ready
+317,68,Outdoor Seating,ready
+317,51,Good for Groups,ready
+317,47,Family-Friendly,ready
+317,63,Mid-Range,ready
+317,94,Yishun,ready
+317,18,Halal,ready
+318,38,Chinese,ready
+318,76,Seafood,ready
+318,18,Halal,ready
+318,43,Dine-In,ready
+318,82,Takeaway,ready
+318,51,Good for Groups,ready
+318,47,Family-Friendly,ready
+318,31,Budget,ready
+318,69,Outram,ready
+319,24,Bakery,ready
+319,82,Takeaway,ready
+319,31,Budget,ready
+319,93,Woodlands,ready
+320,38,Chinese,ready
+320,62,Malay,ready
+320,76,Seafood,ready
+320,43,Dine-In,ready
+320,82,Takeaway,ready
+320,41,Delivery,ready
+320,68,Outdoor Seating,ready
+320,51,Good for Groups,ready
+320,47,Family-Friendly,ready
+320,31,Budget,ready
+320,59,Kallang,ready
+321,1,Cafe,ready
+321,43,Dine-In,ready
+321,82,Takeaway,ready
+321,41,Delivery,ready
+321,47,Family-Friendly,ready
+321,31,Budget,ready
+321,45,Downtown Core,ready
+322,49,French,ready
+322,92,Wine Bar,ready
+322,26,Bar,ready
+322,43,Dine-In,ready
+322,82,Takeaway,ready
+322,41,Delivery,ready
+322,73,Reservable,ready
+322,68,Outdoor Seating,ready
+322,51,Good for Groups,ready
+322,47,Family-Friendly,ready
+322,72,Queenstown,ready
+323,20,Dessert,ready
+323,2,Korean,ready
+323,43,Dine-In,ready
+323,82,Takeaway,ready
+323,41,Delivery,ready
+323,51,Good for Groups,ready
+323,47,Family-Friendly,ready
+323,31,Budget,ready
+323,64,Museum,ready
+324,20,Dessert,ready
+324,89,Vegan,ready
+324,13,Vegetarian,ready
+324,43,Dine-In,ready
+324,82,Takeaway,ready
+324,41,Delivery,ready
+324,68,Outdoor Seating,ready
+324,47,Family-Friendly,ready
+324,45,Downtown Core,ready
+325,76,Seafood,ready
+325,43,Dine-In,ready
+325,82,Takeaway,ready
+325,41,Delivery,ready
+325,73,Reservable,ready
+325,51,Good for Groups,ready
+325,47,Family-Friendly,ready
+325,63,Mid-Range,ready
+325,67,Orchard,ready
+326,38,Chinese,ready
+326,48,Food Court,ready
+326,43,Dine-In,ready
+326,82,Takeaway,ready
+326,41,Delivery,ready
+326,51,Good for Groups,ready
+326,47,Family-Friendly,ready
+326,31,Budget,ready
+326,127,Punggol,ready
+327,49,French,ready
+327,92,Wine Bar,ready
+327,26,Bar,ready
+327,43,Dine-In,ready
+327,73,Reservable,ready
+327,68,Outdoor Seating,ready
+327,51,Good for Groups,ready
+327,71,Premium,ready
+327,69,Outram,ready
+328,86,Tea House,ready
+328,54,Ice Cream,ready
+328,20,Dessert,ready
+328,43,Dine-In,ready
+328,82,Takeaway,ready
+328,41,Delivery,ready
+328,69,Outram,ready
+329,86,Tea House,ready
+329,82,Takeaway,ready
+329,41,Delivery,ready
+329,94,Yishun,ready
+330,5,Japanese,ready
+330,38,Chinese,ready
+330,91,Western,ready
+330,43,Dine-In,ready
+330,82,Takeaway,ready
+330,41,Delivery,ready
+330,73,Reservable,ready
+330,51,Good for Groups,ready
+330,47,Family-Friendly,ready
+330,45,Downtown Core,ready
+331,86,Tea House,ready
+331,82,Takeaway,ready
+331,33,Bukit Merah,ready
+332,55,Indian,ready
+332,62,Malay,ready
+332,147,Thai,ready
+332,43,Dine-In,ready
+332,82,Takeaway,ready
+332,41,Delivery,ready
+332,73,Reservable,ready
+332,51,Good for Groups,ready
+332,47,Family-Friendly,ready
+332,45,Downtown Core,ready
+333,108,Hotpot / Steamboat,ready
+333,94,Yishun,ready
+334,86,Tea House,ready
+334,82,Takeaway,ready
+334,41,Delivery,ready
+334,47,Family-Friendly,ready
+334,69,Outram,ready
+335,38,Chinese,ready
+335,90,Vietnamese,ready
+335,76,Seafood,ready
+335,43,Dine-In,ready
+335,82,Takeaway,ready
+335,73,Reservable,ready
+335,68,Outdoor Seating,ready
+335,51,Good for Groups,ready
+335,47,Family-Friendly,ready
+335,72,Queenstown,ready
+336,86,Tea House,ready
+336,82,Takeaway,ready
+336,41,Delivery,ready
+336,59,Kallang,ready
+337,1,Cafe,ready
+337,43,Dine-In,ready
+337,82,Takeaway,ready
+337,41,Delivery,ready
+337,51,Good for Groups,ready
+337,47,Family-Friendly,ready
+337,63,Mid-Range,ready
+337,59,Kallang,ready
+338,2,Korean,ready
+338,43,Dine-In,ready
+338,82,Takeaway,ready
+338,41,Delivery,ready
+338,68,Outdoor Seating,ready
+338,51,Good for Groups,ready
+338,47,Family-Friendly,ready
+338,31,Budget,ready
+338,93,Woodlands,ready
+339,1,Cafe,ready
+339,82,Takeaway,ready
+339,31,Budget,ready
+339,67,Orchard,ready
+340,38,Chinese,ready
+340,147,Thai,ready
+340,19,Mala,ready
+340,43,Dine-In,ready
+340,82,Takeaway,ready
+340,41,Delivery,ready
+340,68,Outdoor Seating,ready
+340,51,Good for Groups,ready
+340,47,Family-Friendly,ready
+340,63,Mid-Range,ready
+340,50,Geylang,ready
+341,76,Seafood,ready
+341,43,Dine-In,ready
+341,82,Takeaway,ready
+341,41,Delivery,ready
+341,73,Reservable,ready
+341,51,Good for Groups,ready
+341,47,Family-Friendly,ready
+341,63,Mid-Range,ready
+341,50,Geylang,ready
+342,38,Chinese,ready
+342,43,Dine-In,ready
+342,82,Takeaway,ready
+342,41,Delivery,ready
+342,73,Reservable,ready
+342,51,Good for Groups,ready
+342,47,Family-Friendly,ready
+342,31,Budget,ready
+342,84,Tampines,ready
+343,26,Bar,ready
+343,1,Cafe,ready
+343,43,Dine-In,ready
+343,82,Takeaway,ready
+343,73,Reservable,ready
+343,51,Good for Groups,ready
+343,69,Outram,ready
+344,1,Cafe,ready
+344,43,Dine-In,ready
+344,82,Takeaway,ready
+344,41,Delivery,ready
+344,51,Good for Groups,ready
+344,47,Family-Friendly,ready
+344,63,Mid-Range,ready
+344,66,Novena,ready
+345,90,Vietnamese,ready
+345,20,Dessert,ready
+345,1,Cafe,ready
+345,67,Orchard,ready
+346,24,Bakery,ready
+346,82,Takeaway,ready
+346,93,Woodlands,ready
+347,1,Cafe,ready
+347,43,Dine-In,ready
+347,82,Takeaway,ready
+347,51,Good for Groups,ready
+347,47,Family-Friendly,ready
+347,31,Budget,ready
+347,45,Downtown Core,ready
+348,129,Ramen,ready
+348,43,Dine-In,ready
+348,82,Takeaway,ready
+348,41,Delivery,ready
+348,73,Reservable,ready
+348,68,Outdoor Seating,ready
+348,51,Good for Groups,ready
+348,47,Family-Friendly,ready
+348,63,Mid-Range,ready
+348,66,Novena,ready
+349,20,Dessert,ready
+349,88,Tourist Spot,ready
+349,47,Family-Friendly,ready
+349,59,Kallang,ready
+350,1,Cafe,ready
+350,43,Dine-In,ready
+350,82,Takeaway,ready
+350,73,Reservable,ready
+350,31,Budget,ready
+350,66,Novena,ready
+351,38,Chinese,ready
+351,90,Vietnamese,ready
+351,76,Seafood,ready
+351,43,Dine-In,ready
+351,82,Takeaway,ready
+351,47,Family-Friendly,ready
+351,31,Budget,ready
+351,45,Downtown Core,ready
+352,86,Tea House,ready
+352,1,Cafe,ready
+352,43,Dine-In,ready
+352,82,Takeaway,ready
+352,45,Downtown Core,ready
+353,20,Dessert,ready
+353,118,Marine Parade,ready
+354,38,Chinese,ready
+354,20,Dessert,ready
+354,79,Singaporean,ready
+354,43,Dine-In,ready
+354,82,Takeaway,ready
+354,51,Good for Groups,ready
+354,47,Family-Friendly,ready
+354,31,Budget,ready
+354,57,Jurong East,ready
+355,54,Ice Cream,ready
+355,1,Cafe,ready
+355,20,Dessert,ready
+355,43,Dine-In,ready
+355,82,Takeaway,ready
+355,41,Delivery,ready
+355,51,Good for Groups,ready
+355,47,Family-Friendly,ready
+355,31,Budget,ready
+355,69,Outram,ready
+356,1,Cafe,ready
+356,43,Dine-In,ready
+356,82,Takeaway,ready
+356,31,Budget,ready
+356,45,Downtown Core,ready
+356,18,Halal,ready
+357,1,Cafe,ready
+357,43,Dine-In,ready
+357,82,Takeaway,ready
+357,41,Delivery,ready
+357,31,Budget,ready
+357,45,Downtown Core,ready
+358,13,Vegetarian,ready
+358,43,Dine-In,ready
+358,82,Takeaway,ready
+358,51,Good for Groups,ready
+358,47,Family-Friendly,ready
+358,31,Budget,ready
+358,133,Sembawang,ready
+359,1,Cafe,ready
+359,75,Rochor,ready
+360,5,Japanese,ready
+360,2,Korean,ready
+360,55,Indian,ready
+360,43,Dine-In,ready
+360,82,Takeaway,ready
+360,41,Delivery,ready
+360,73,Reservable,ready
+360,51,Good for Groups,ready
+360,47,Family-Friendly,ready
+360,33,Bukit Merah,ready
+360,18,Halal,ready
+361,1,Cafe,ready
+361,26,Bar,ready
+361,43,Dine-In,ready
+361,82,Takeaway,ready
+361,31,Budget,ready
+361,45,Downtown Core,ready
+362,90,Vietnamese,ready
+362,1,Cafe,ready
+362,88,Tourist Spot,ready
+362,47,Family-Friendly,ready
+362,45,Downtown Core,ready
+363,2,Korean,ready
+363,43,Dine-In,ready
+363,82,Takeaway,ready
+363,41,Delivery,ready
+363,73,Reservable,ready
+363,68,Outdoor Seating,ready
+363,51,Good for Groups,ready
+363,47,Family-Friendly,ready
+363,27,Bedok,ready
+364,76,Seafood,ready
+364,20,Dessert,ready
+364,79,Singaporean,ready
+364,43,Dine-In,ready
+364,82,Takeaway,ready
+364,41,Delivery,ready
+364,51,Good for Groups,ready
+364,47,Family-Friendly,ready
+364,31,Budget,ready
+364,72,Queenstown,ready
+365,1,Cafe,ready
+365,43,Dine-In,ready
+365,82,Takeaway,ready
+365,41,Delivery,ready
+365,73,Reservable,ready
+365,51,Good for Groups,ready
+365,67,Orchard,ready
+366,1,Cafe,ready
+366,43,Dine-In,ready
+366,82,Takeaway,ready
+366,41,Delivery,ready
+366,73,Reservable,ready
+366,51,Good for Groups,ready
+366,47,Family-Friendly,ready
+366,31,Budget,ready
+366,87,Toa Payoh,ready
+367,6,Buffet,ready
+367,43,Dine-In,ready
+367,82,Takeaway,ready
+367,73,Reservable,ready
+367,61,Live Music,ready
+367,51,Good for Groups,ready
+367,47,Family-Friendly,ready
+367,46,Expensive,ready
+367,45,Downtown Core,ready
+367,18,Halal,ready
+368,1,Cafe,ready
+368,43,Dine-In,ready
+368,82,Takeaway,ready
+368,41,Delivery,ready
+368,73,Reservable,ready
+368,68,Outdoor Seating,ready
+368,51,Good for Groups,ready
+368,47,Family-Friendly,ready
+368,46,Expensive,ready
+368,36,Bukit Timah,ready
+369,1,Cafe,ready
+369,20,Dessert,ready
+369,24,Bakery,ready
+369,43,Dine-In,ready
+369,82,Takeaway,ready
+369,41,Delivery,ready
+369,73,Reservable,ready
+369,51,Good for Groups,ready
+369,47,Family-Friendly,ready
+369,31,Budget,ready
+369,64,Museum,ready
+370,86,Tea House,ready
+370,82,Takeaway,ready
+370,31,Budget,ready
+370,70,Pasir Ris,ready
+371,38,Chinese,ready
+371,43,Dine-In,ready
+371,82,Takeaway,ready
+371,51,Good for Groups,ready
+371,47,Family-Friendly,ready
+371,31,Budget,ready
+371,67,Orchard,ready
+372,24,Bakery,ready
+372,20,Dessert,ready
+372,43,Dine-In,ready
+372,82,Takeaway,ready
+372,65,Newton,ready
+373,86,Tea House,ready
+373,43,Dine-In,ready
+373,82,Takeaway,ready
+373,41,Delivery,ready
+373,75,Rochor,ready
+374,76,Seafood,ready
+374,43,Dine-In,ready
+374,82,Takeaway,ready
+374,41,Delivery,ready
+374,73,Reservable,ready
+374,51,Good for Groups,ready
+374,47,Family-Friendly,ready
+374,63,Mid-Range,ready
+374,115,Kampung Bahru,ready
+375,86,Tea House,ready
+375,82,Takeaway,ready
+375,41,Delivery,ready
+375,63,Mid-Range,ready
+375,40,Clementi,ready
+376,20,Dessert,ready
+376,43,Dine-In,ready
+376,82,Takeaway,ready
+376,31,Budget,ready
+376,58,Jurong West,ready
+377,79,Singaporean,ready
+377,43,Dine-In,ready
+377,82,Takeaway,ready
+377,68,Outdoor Seating,ready
+377,51,Good for Groups,ready
+377,47,Family-Friendly,ready
+377,31,Budget,ready
+377,45,Downtown Core,ready
+378,38,Chinese,ready
+378,43,Dine-In,ready
+378,82,Takeaway,ready
+378,41,Delivery,ready
+378,73,Reservable,ready
+378,51,Good for Groups,ready
+378,47,Family-Friendly,ready
+378,31,Budget,ready
+378,36,Bukit Timah,ready
+379,62,Malay,ready
+379,18,Halal,ready
+379,19,Mala,ready
+379,43,Dine-In,ready
+379,82,Takeaway,ready
+379,68,Outdoor Seating,ready
+379,51,Good for Groups,ready
+379,47,Family-Friendly,ready
+379,63,Mid-Range,ready
+379,87,Toa Payoh,ready
+380,1,Cafe,ready
+380,43,Dine-In,ready
+380,82,Takeaway,ready
+380,68,Outdoor Seating,ready
+380,51,Good for Groups,ready
+380,31,Budget,ready
+380,59,Kallang,ready
+381,86,Tea House,ready
+381,43,Dine-In,ready
+381,82,Takeaway,ready
+381,41,Delivery,ready
+381,47,Family-Friendly,ready
+381,37,Changi,ready
+382,1,Cafe,ready
+382,43,Dine-In,ready
+382,82,Takeaway,ready
+382,41,Delivery,ready
+382,47,Family-Friendly,ready
+382,31,Budget,ready
+382,67,Orchard,ready
+383,62,Malay,ready
+383,76,Seafood,ready
+383,79,Singaporean,ready
+383,43,Dine-In,ready
+383,82,Takeaway,ready
+383,51,Good for Groups,ready
+383,47,Family-Friendly,ready
+383,58,Jurong West,ready
+384,20,Dessert,ready
+384,10,Bubble Tea,ready
+384,47,Family-Friendly,ready
+384,77,Serangoon,ready
+385,38,Chinese,ready
+385,43,Dine-In,ready
+385,82,Takeaway,ready
+385,47,Family-Friendly,ready
+385,31,Budget,ready
+385,75,Rochor,ready
+386,1,Cafe,ready
+386,26,Bar,ready
+386,43,Dine-In,ready
+386,82,Takeaway,ready
+386,73,Reservable,ready
+386,68,Outdoor Seating,ready
+386,51,Good for Groups,ready
+386,47,Family-Friendly,ready
+386,63,Mid-Range,ready
+386,50,Geylang,ready
+387,108,Hotpot / Steamboat,ready
+387,43,Dine-In,ready
+387,82,Takeaway,ready
+387,41,Delivery,ready
+387,51,Good for Groups,ready
+387,47,Family-Friendly,ready
+387,31,Budget,ready
+387,45,Downtown Core,ready
+388,1,Cafe,ready
+388,82,Takeaway,ready
+388,41,Delivery,ready
+388,24,Bakery,ready
+388,20,Dessert,ready
+388,43,Dine-In,ready
+388,68,Outdoor Seating,ready
+388,51,Good for Groups,ready
+388,47,Family-Friendly,ready
+388,63,Mid-Range,ready
+388,85,Tanglin,ready
+389,38,Chinese,ready
+389,55,Indian,ready
+389,62,Malay,ready
+389,43,Dine-In,ready
+389,82,Takeaway,ready
+389,51,Good for Groups,ready
+389,47,Family-Friendly,ready
+389,31,Budget,ready
+389,69,Outram,ready
+390,91,Western,ready
+390,76,Seafood,ready
+390,1,Cafe,ready
+390,43,Dine-In,ready
+390,82,Takeaway,ready
+390,47,Family-Friendly,ready
+390,63,Mid-Range,ready
+390,138,Taman Bakti,ready
+391,38,Chinese,ready
+391,90,Vietnamese,ready
+391,20,Dessert,ready
+391,43,Dine-In,ready
+391,82,Takeaway,ready
+391,41,Delivery,ready
+391,73,Reservable,ready
+391,68,Outdoor Seating,ready
+391,51,Good for Groups,ready
+391,47,Family-Friendly,ready
+391,46,Expensive,ready
+391,69,Outram,ready
+392,55,Indian,ready
+392,62,Malay,ready
+392,43,Dine-In,ready
+392,82,Takeaway,ready
+392,51,Good for Groups,ready
+392,47,Family-Friendly,ready
+392,31,Budget,ready
+392,57,Jurong East,ready
+393,91,Western,ready
+393,118,Marine Parade,ready
+394,86,Tea House,ready
+394,82,Takeaway,ready
+394,31,Budget,ready
+394,40,Clementi,ready
+395,55,Indian,ready
+395,62,Malay,ready
+395,91,Western,ready
+395,43,Dine-In,ready
+395,82,Takeaway,ready
+395,51,Good for Groups,ready
+395,47,Family-Friendly,ready
+395,31,Budget,ready
+395,97,Ang Mo Kio,ready
+395,18,Halal,ready
+396,104,Fast Food,ready
+396,47,Family-Friendly,ready
+396,69,Outram,ready
+397,2,Korean,ready
+397,76,Seafood,ready
+397,20,Dessert,ready
+397,43,Dine-In,ready
+397,82,Takeaway,ready
+397,73,Reservable,ready
+397,51,Good for Groups,ready
+397,47,Family-Friendly,ready
+397,63,Mid-Range,ready
+397,59,Kallang,ready
+398,38,Chinese,ready
+398,41,Delivery,ready
+398,43,Dine-In,ready
+398,82,Takeaway,ready
+398,73,Reservable,ready
+398,51,Good for Groups,ready
+398,47,Family-Friendly,ready
+398,31,Budget,ready
+398,67,Orchard,ready
+399,20,Dessert,ready
+399,43,Dine-In,ready
+399,82,Takeaway,ready
+399,41,Delivery,ready
+399,47,Family-Friendly,ready
+399,31,Budget,ready
+399,69,Outram,ready
+400,1,Cafe,ready
+400,24,Bakery,ready
+400,43,Dine-In,ready
+400,82,Takeaway,ready
+400,41,Delivery,ready
+400,68,Outdoor Seating,ready
+400,31,Budget,ready
+400,45,Downtown Core,ready
+401,38,Chinese,ready
+401,43,Dine-In,ready
+401,82,Takeaway,ready
+401,51,Good for Groups,ready
+401,47,Family-Friendly,ready
+401,31,Budget,ready
+401,25,Bandar Johor Bahru,ready
+402,1,Cafe,ready
+402,20,Dessert,ready
+402,43,Dine-In,ready
+402,82,Takeaway,ready
+402,73,Reservable,ready
+402,51,Good for Groups,ready
+402,47,Family-Friendly,ready
+402,63,Mid-Range,ready
+402,69,Outram,ready
+403,5,Japanese,ready
+403,43,Dine-In,ready
+403,82,Takeaway,ready
+403,41,Delivery,ready
+403,73,Reservable,ready
+403,51,Good for Groups,ready
+403,47,Family-Friendly,ready
+403,60,Kampong Glam,ready
+403,18,Halal,ready
+404,91,Western,ready
+404,1,Cafe,ready
+404,43,Dine-In,ready
+404,82,Takeaway,ready
+404,41,Delivery,ready
+404,73,Reservable,ready
+404,51,Good for Groups,ready
+404,46,Expensive,ready
+404,67,Orchard,ready
+405,129,Ramen,ready
+405,43,Dine-In,ready
+405,82,Takeaway,ready
+405,51,Good for Groups,ready
+405,63,Mid-Range,ready
+405,45,Downtown Core,ready
+406,38,Chinese,ready
+406,91,Western,ready
+406,56,Italian,ready
+406,43,Dine-In,ready
+406,82,Takeaway,ready
+406,73,Reservable,ready
+406,51,Good for Groups,ready
+406,47,Family-Friendly,ready
+406,46,Expensive,ready
+406,25,Bandar Johor Bahru,ready
+407,55,Indian,ready
+407,20,Dessert,ready
+407,82,Takeaway,ready
+407,41,Delivery,ready
+407,47,Family-Friendly,ready
+407,31,Budget,ready
+407,32,Bukit Batok,ready
+408,102,Burgers,ready
+408,22,American,ready
+408,43,Dine-In,ready
+408,82,Takeaway,ready
+408,41,Delivery,ready
+408,51,Good for Groups,ready
+408,47,Family-Friendly,ready
+408,63,Mid-Range,ready
+408,59,Kallang,ready
+408,18,Halal,ready
+409,38,Chinese,ready
+409,76,Seafood,ready
+409,13,Vegetarian,ready
+409,45,Downtown Core,ready
+410,86,Tea House,ready
+410,82,Takeaway,ready
+410,45,Downtown Core,ready
+411,86,Tea House,ready
+411,82,Takeaway,ready
+411,41,Delivery,ready
+411,31,Budget,ready
+411,33,Bukit Merah,ready
+412,24,Bakery,ready
+412,20,Dessert,ready
+412,43,Dine-In,ready
+412,82,Takeaway,ready
+412,41,Delivery,ready
+412,63,Mid-Range,ready
+412,28,Bishan,ready
+413,86,Tea House,ready
+413,82,Takeaway,ready
+413,47,Family-Friendly,ready
+413,45,Downtown Core,ready
+414,1,Cafe,ready
+414,47,Family-Friendly,ready
+414,118,Marine Parade,ready
+415,62,Malay,ready
+415,76,Seafood,ready
+415,82,Takeaway,ready
+415,47,Family-Friendly,ready
+415,31,Budget,ready
+415,59,Kallang,ready
+416,5,Japanese,ready
+416,43,Dine-In,ready
+416,82,Takeaway,ready
+416,41,Delivery,ready
+416,51,Good for Groups,ready
+416,47,Family-Friendly,ready
+416,31,Budget,ready
+416,93,Woodlands,ready
+417,1,Cafe,ready
+417,43,Dine-In,ready
+417,82,Takeaway,ready
+417,41,Delivery,ready
+417,51,Good for Groups,ready
+417,47,Family-Friendly,ready
+417,31,Budget,ready
+417,45,Downtown Core,ready
+418,56,Italian,ready
+418,6,Buffet,ready
+418,43,Dine-In,ready
+418,41,Delivery,ready
+418,73,Reservable,ready
+418,51,Good for Groups,ready
+418,47,Family-Friendly,ready
+418,45,Downtown Core,ready
+419,1,Cafe,ready
+419,43,Dine-In,ready
+419,82,Takeaway,ready
+419,47,Family-Friendly,ready
+419,31,Budget,ready
+419,94,Yishun,ready
+419,18,Halal,ready
+420,38,Chinese,ready
+420,43,Dine-In,ready
+420,82,Takeaway,ready
+420,41,Delivery,ready
+420,73,Reservable,ready
+420,51,Good for Groups,ready
+420,47,Family-Friendly,ready
+420,63,Mid-Range,ready
+420,25,Bandar Johor Bahru,ready
+420,18,Halal,ready
+421,121,Middle Eastern,ready
+421,43,Dine-In,ready
+421,82,Takeaway,ready
+421,41,Delivery,ready
+421,73,Reservable,ready
+421,68,Outdoor Seating,ready
+421,51,Good for Groups,ready
+421,47,Family-Friendly,ready
+421,63,Mid-Range,ready
+421,117,Larkin,ready
+422,49,French,ready
+422,43,Dine-In,ready
+422,82,Takeaway,ready
+422,73,Reservable,ready
+422,68,Outdoor Seating,ready
+422,51,Good for Groups,ready
+422,47,Family-Friendly,ready
+422,63,Mid-Range,ready
+422,67,Orchard,ready
+423,5,Japanese,ready
+423,76,Seafood,ready
+423,82,Takeaway,ready
+423,47,Family-Friendly,ready
+423,63,Mid-Range,ready
+423,93,Woodlands,ready
+424,74,Restaurant,ready
+424,43,Dine-In,ready
+424,82,Takeaway,ready
+424,51,Good for Groups,ready
+424,47,Family-Friendly,ready
+424,31,Budget,ready
+424,72,Queenstown,ready
+425,86,Tea House,ready
+425,82,Takeaway,ready
+425,41,Delivery,ready
+425,87,Toa Payoh,ready
+426,136,Taiwanese,ready
+426,86,Tea House,ready
+426,82,Takeaway,ready
+426,41,Delivery,ready
+426,47,Family-Friendly,ready
+426,31,Budget,ready
+426,50,Geylang,ready
+427,2,Korean,ready
+427,43,Dine-In,ready
+427,82,Takeaway,ready
+427,73,Reservable,ready
+427,51,Good for Groups,ready
+427,47,Family-Friendly,ready
+427,63,Mid-Range,ready
+427,36,Bukit Timah,ready
+428,1,Cafe,ready
+428,43,Dine-In,ready
+428,82,Takeaway,ready
+428,73,Reservable,ready
+428,68,Outdoor Seating,ready
+428,47,Family-Friendly,ready
+428,63,Mid-Range,ready
+428,64,Museum,ready
+429,86,Tea House,ready
+429,82,Takeaway,ready
+429,41,Delivery,ready
+429,47,Family-Friendly,ready
+429,28,Bishan,ready
+430,5,Japanese,ready
+430,43,Dine-In,ready
+430,82,Takeaway,ready
+430,41,Delivery,ready
+430,73,Reservable,ready
+430,51,Good for Groups,ready
+430,47,Family-Friendly,ready
+430,63,Mid-Range,ready
+430,28,Bishan,ready
+431,56,Italian,ready
+431,43,Dine-In,ready
+431,82,Takeaway,ready
+431,41,Delivery,ready
+431,73,Reservable,ready
+431,51,Good for Groups,ready
+431,47,Family-Friendly,ready
+431,63,Mid-Range,ready
+431,58,Jurong West,ready
+431,18,Halal,ready
+432,86,Tea House,ready
+432,82,Takeaway,ready
+432,41,Delivery,ready
+432,45,Downtown Core,ready
+433,90,Vietnamese,ready
+433,20,Dessert,ready
+433,82,Takeaway,ready
+433,41,Delivery,ready
+433,61,Live Music,ready
+433,47,Family-Friendly,ready
+433,67,Orchard,ready
+434,1,Cafe,ready
+434,43,Dine-In,ready
+434,82,Takeaway,ready
+434,68,Outdoor Seating,ready
+434,51,Good for Groups,ready
+434,63,Mid-Range,ready
+434,118,Marine Parade,ready
+435,13,Vegetarian,ready
+435,43,Dine-In,ready
+435,82,Takeaway,ready
+435,51,Good for Groups,ready
+435,47,Family-Friendly,ready
+435,31,Budget,ready
+435,57,Jurong East,ready
+436,38,Chinese,ready
+436,43,Dine-In,ready
+436,82,Takeaway,ready
+436,41,Delivery,ready
+436,51,Good for Groups,ready
+436,47,Family-Friendly,ready
+436,31,Budget,ready
+436,69,Outram,ready
+437,5,Japanese,ready
+437,55,Indian,ready
+437,90,Vietnamese,ready
+437,43,Dine-In,ready
+437,82,Takeaway,ready
+437,41,Delivery,ready
+437,47,Family-Friendly,ready
+437,63,Mid-Range,ready
+437,69,Outram,ready
+438,38,Chinese,ready
+438,55,Indian,ready
+438,18,Halal,ready
+438,43,Dine-In,ready
+438,82,Takeaway,ready
+438,41,Delivery,ready
+438,51,Good for Groups,ready
+438,31,Budget,ready
+438,75,Rochor,ready
+439,5,Japanese,ready
+439,43,Dine-In,ready
+439,82,Takeaway,ready
+439,41,Delivery,ready
+439,73,Reservable,ready
+439,47,Family-Friendly,ready
+439,59,Kallang,ready
+440,90,Vietnamese,ready
+440,43,Dine-In,ready
+440,82,Takeaway,ready
+440,47,Family-Friendly,ready
+440,31,Budget,ready
+440,58,Jurong West,ready
+441,55,Indian,ready
+441,43,Dine-In,ready
+441,82,Takeaway,ready
+441,41,Delivery,ready
+441,51,Good for Groups,ready
+441,47,Family-Friendly,ready
+441,63,Mid-Range,ready
+441,75,Rochor,ready
+442,55,Indian,ready
+442,62,Malay,ready
+442,19,Mala,ready
+442,43,Dine-In,ready
+442,82,Takeaway,ready
+442,51,Good for Groups,ready
+442,47,Family-Friendly,ready
+442,31,Budget,ready
+442,58,Jurong West,ready
+443,129,Ramen,ready
+443,43,Dine-In,ready
+443,82,Takeaway,ready
+443,41,Delivery,ready
+443,51,Good for Groups,ready
+443,47,Family-Friendly,ready
+443,31,Budget,ready
+443,97,Ang Mo Kio,ready
+444,86,Tea House,ready
+444,82,Takeaway,ready
+444,41,Delivery,ready
+444,72,Queenstown,ready
+445,20,Dessert,ready
+445,79,Singaporean,ready
+445,43,Dine-In,ready
+445,82,Takeaway,ready
+445,41,Delivery,ready
+445,73,Reservable,ready
+445,51,Good for Groups,ready
+445,47,Family-Friendly,ready
+445,31,Budget,ready
+445,69,Outram,ready
+446,2,Korean,ready
+446,43,Dine-In,ready
+446,82,Takeaway,ready
+446,41,Delivery,ready
+446,73,Reservable,ready
+446,68,Outdoor Seating,ready
+446,51,Good for Groups,ready
+446,47,Family-Friendly,ready
+446,36,Bukit Timah,ready
+447,81,Sushi,ready
+447,43,Dine-In,ready
+447,82,Takeaway,ready
+447,41,Delivery,ready
+447,73,Reservable,ready
+447,51,Good for Groups,ready
+447,47,Family-Friendly,ready
+447,63,Mid-Range,ready
+447,118,Marine Parade,ready
+448,5,Japanese,ready
+448,62,Malay,ready
+448,91,Western,ready
+448,43,Dine-In,ready
+448,73,Reservable,ready
+448,51,Good for Groups,ready
+448,47,Family-Friendly,ready
+448,63,Mid-Range,ready
+448,75,Rochor,ready
+449,5,Japanese,ready
+449,43,Dine-In,ready
+449,82,Takeaway,ready
+449,41,Delivery,ready
+449,73,Reservable,ready
+449,51,Good for Groups,ready
+449,47,Family-Friendly,ready
+449,63,Mid-Range,ready
+449,77,Serangoon,ready
+450,1,Cafe,ready
+450,43,Dine-In,ready
+450,82,Takeaway,ready
+450,68,Outdoor Seating,ready
+450,47,Family-Friendly,ready
+450,31,Budget,ready
+450,69,Outram,ready
+451,55,Indian,ready
+451,43,Dine-In,ready
+451,82,Takeaway,ready
+451,51,Good for Groups,ready
+451,47,Family-Friendly,ready
+451,31,Budget,ready
+451,45,Downtown Core,ready
+452,20,Dessert,ready
+452,24,Bakery,ready
+452,43,Dine-In,ready
+452,82,Takeaway,ready
+452,47,Family-Friendly,ready
+452,67,Orchard,ready
+453,1,Cafe,ready
+453,43,Dine-In,ready
+453,82,Takeaway,ready
+453,41,Delivery,ready
+453,73,Reservable,ready
+453,51,Good for Groups,ready
+453,47,Family-Friendly,ready
+453,63,Mid-Range,ready
+453,142,Taman Melodies,ready
+454,86,Tea House,ready
+454,82,Takeaway,ready
+454,84,Tampines,ready
+455,20,Dessert,ready
+455,82,Takeaway,ready
+455,31,Budget,ready
+455,59,Kallang,ready
+456,129,Ramen,ready
+456,43,Dine-In,ready
+456,82,Takeaway,ready
+456,41,Delivery,ready
+456,51,Good for Groups,ready
+456,47,Family-Friendly,ready
+456,63,Mid-Range,ready
+456,67,Orchard,ready
+457,76,Seafood,ready
+457,43,Dine-In,ready
+457,82,Takeaway,ready
+457,73,Reservable,ready
+457,68,Outdoor Seating,ready
+457,51,Good for Groups,ready
+457,47,Family-Friendly,ready
+457,63,Mid-Range,ready
+457,27,Bedok,ready
+458,86,Tea House,ready
+458,82,Takeaway,ready
+458,50,Geylang,ready
+459,38,Chinese,ready
+459,43,Dine-In,ready
+459,82,Takeaway,ready
+459,51,Good for Groups,ready
+459,31,Budget,ready
+459,33,Bukit Merah,ready
+460,2,Korean,ready
+460,43,Dine-In,ready
+460,82,Takeaway,ready
+460,41,Delivery,ready
+460,73,Reservable,ready
+460,68,Outdoor Seating,ready
+460,51,Good for Groups,ready
+460,47,Family-Friendly,ready
+460,63,Mid-Range,ready
+460,33,Bukit Merah,ready
+461,24,Bakery,ready
+461,82,Takeaway,ready
+461,31,Budget,ready
+461,39,Choa Chu Kang,ready
+462,107,Hawaiian,ready
+462,43,Dine-In,ready
+462,82,Takeaway,ready
+462,41,Delivery,ready
+462,51,Good for Groups,ready
+462,47,Family-Friendly,ready
+462,31,Budget,ready
+462,93,Woodlands,ready
+463,2,Korean,ready
+463,43,Dine-In,ready
+463,82,Takeaway,ready
+463,41,Delivery,ready
+463,73,Reservable,ready
+463,68,Outdoor Seating,ready
+463,51,Good for Groups,ready
+463,36,Bukit Timah,ready
+464,5,Japanese,ready
+464,43,Dine-In,ready
+464,73,Reservable,ready
+464,68,Outdoor Seating,ready
+464,51,Good for Groups,ready
+464,63,Mid-Range,ready
+464,78,Singapore River,ready
+465,13,Vegetarian,ready
+465,89,Vegan,ready
+465,82,Takeaway,ready
+465,43,Dine-In,ready
+465,73,Reservable,ready
+465,51,Good for Groups,ready
+465,47,Family-Friendly,ready
+465,63,Mid-Range,ready
+465,50,Geylang,ready
+466,86,Tea House,ready
+466,82,Takeaway,ready
+466,41,Delivery,ready
+466,133,Sembawang,ready
+467,120,Mexican,ready
+467,104,Fast Food,ready
+467,41,Delivery,ready
+467,82,Takeaway,ready
+467,43,Dine-In,ready
+467,51,Good for Groups,ready
+467,47,Family-Friendly,ready
+467,63,Mid-Range,ready
+467,84,Tampines,ready
+468,38,Chinese,ready
+468,13,Vegetarian,ready
+468,79,Singaporean,ready
+468,43,Dine-In,ready
+468,82,Takeaway,ready
+468,51,Good for Groups,ready
+468,47,Family-Friendly,ready
+468,31,Budget,ready
+468,32,Bukit Batok,ready
+469,86,Tea House,ready
+469,82,Takeaway,ready
+469,41,Delivery,ready
+469,47,Family-Friendly,ready
+469,39,Choa Chu Kang,ready
+470,91,Western,ready
+470,76,Seafood,ready
+470,79,Singaporean,ready
+470,43,Dine-In,ready
+470,82,Takeaway,ready
+470,51,Good for Groups,ready
+470,47,Family-Friendly,ready
+470,31,Budget,ready
+470,72,Queenstown,ready
+471,10,Bubble Tea,ready
+471,82,Takeaway,ready
+471,94,Yishun,ready
+472,1,Cafe,ready
+472,43,Dine-In,ready
+472,82,Takeaway,ready
+472,73,Reservable,ready
+472,68,Outdoor Seating,ready
+472,31,Budget,ready
+472,45,Downtown Core,ready
+473,5,Japanese,ready
+473,2,Korean,ready
+473,91,Western,ready
+473,43,Dine-In,ready
+473,41,Delivery,ready
+473,73,Reservable,ready
+473,71,Premium,ready
+473,130,River Valley,ready
+474,45,Downtown Core,ready
+475,1,Cafe,ready
+475,26,Bar,ready
+475,82,Takeaway,ready
+475,41,Delivery,ready
+475,43,Dine-In,ready
+475,73,Reservable,ready
+475,68,Outdoor Seating,ready
+475,51,Good for Groups,ready
+475,47,Family-Friendly,ready
+475,63,Mid-Range,ready
+475,36,Bukit Timah,ready
+476,89,Vegan,ready
+476,104,Fast Food,ready
+476,13,Vegetarian,ready
+476,43,Dine-In,ready
+476,82,Takeaway,ready
+476,41,Delivery,ready
+476,68,Outdoor Seating,ready
+476,51,Good for Groups,ready
+476,47,Family-Friendly,ready
+476,63,Mid-Range,ready
+476,27,Bedok,ready
+477,1,Cafe,ready
+477,43,Dine-In,ready
+477,82,Takeaway,ready
+477,41,Delivery,ready
+477,73,Reservable,ready
+477,51,Good for Groups,ready
+477,47,Family-Friendly,ready
+477,63,Mid-Range,ready
+477,93,Woodlands,ready
+477,18,Halal,ready
+478,76,Seafood,ready
+478,20,Dessert,ready
+478,79,Singaporean,ready
+478,82,Takeaway,ready
+478,68,Outdoor Seating,ready
+478,47,Family-Friendly,ready
+478,31,Budget,ready
+478,59,Kallang,ready
+479,90,Vietnamese,ready
+479,43,Dine-In,ready
+479,82,Takeaway,ready
+479,41,Delivery,ready
+479,47,Family-Friendly,ready
+479,31,Budget,ready
+479,45,Downtown Core,ready
+480,1,Cafe,ready
+480,43,Dine-In,ready
+480,82,Takeaway,ready
+480,47,Family-Friendly,ready
+480,31,Budget,ready
+480,45,Downtown Core,ready
+481,38,Chinese,ready
+481,43,Dine-In,ready
+481,82,Takeaway,ready
+481,41,Delivery,ready
+481,73,Reservable,ready
+481,68,Outdoor Seating,ready
+481,51,Good for Groups,ready
+481,47,Family-Friendly,ready
+481,63,Mid-Range,ready
+481,94,Yishun,ready
+482,2,Korean,ready
+482,43,Dine-In,ready
+482,82,Takeaway,ready
+482,41,Delivery,ready
+482,73,Reservable,ready
+482,51,Good for Groups,ready
+482,47,Family-Friendly,ready
+482,59,Kallang,ready
+483,81,Sushi,ready
+483,43,Dine-In,ready
+483,82,Takeaway,ready
+483,41,Delivery,ready
+483,51,Good for Groups,ready
+483,47,Family-Friendly,ready
+483,63,Mid-Range,ready
+483,84,Tampines,ready
+484,74,Restaurant,ready
+484,43,Dine-In,ready
+484,82,Takeaway,ready
+484,51,Good for Groups,ready
+484,47,Family-Friendly,ready
+484,31,Budget,ready
+484,45,Downtown Core,ready
+485,86,Tea House,ready
+485,82,Takeaway,ready
+485,41,Delivery,ready
+485,100,Boon Lay,ready
+486,38,Chinese,ready
+486,1,Cafe,ready
+486,43,Dine-In,ready
+486,82,Takeaway,ready
+486,51,Good for Groups,ready
+486,47,Family-Friendly,ready
+486,31,Budget,ready
+486,28,Bishan,ready
+487,24,Bakery,ready
+487,43,Dine-In,ready
+487,82,Takeaway,ready
+487,41,Delivery,ready
+487,31,Budget,ready
+487,75,Rochor,ready
+488,105,Fusion,ready
+488,1,Cafe,ready
+488,43,Dine-In,ready
+488,82,Takeaway,ready
+488,73,Reservable,ready
+488,68,Outdoor Seating,ready
+488,51,Good for Groups,ready
+488,47,Family-Friendly,ready
+488,63,Mid-Range,ready
+488,57,Jurong East,ready
+489,90,Vietnamese,ready
+489,76,Seafood,ready
+489,79,Singaporean,ready
+489,43,Dine-In,ready
+489,82,Takeaway,ready
+489,51,Good for Groups,ready
+489,47,Family-Friendly,ready
+489,31,Budget,ready
+489,58,Jurong West,ready
+490,90,Vietnamese,ready
+490,43,Dine-In,ready
+490,82,Takeaway,ready
+490,41,Delivery,ready
+490,68,Outdoor Seating,ready
+490,51,Good for Groups,ready
+490,47,Family-Friendly,ready
+490,31,Budget,ready
+490,50,Geylang,ready
+491,1,Cafe,ready
+491,43,Dine-In,ready
+491,82,Takeaway,ready
+491,68,Outdoor Seating,ready
+491,51,Good for Groups,ready
+491,47,Family-Friendly,ready
+491,31,Budget,ready
+491,45,Downtown Core,ready
+492,1,Cafe,ready
+492,43,Dine-In,ready
+492,82,Takeaway,ready
+492,41,Delivery,ready
+492,68,Outdoor Seating,ready
+492,47,Family-Friendly,ready
+492,31,Budget,ready
+492,45,Downtown Core,ready
+493,1,Cafe,ready
+493,43,Dine-In,ready
+493,82,Takeaway,ready
+493,41,Delivery,ready
+493,68,Outdoor Seating,ready
+493,51,Good for Groups,ready
+493,47,Family-Friendly,ready
+493,63,Mid-Range,ready
+493,72,Queenstown,ready
+494,81,Sushi,ready
+494,43,Dine-In,ready
+494,82,Takeaway,ready
+494,51,Good for Groups,ready
+494,47,Family-Friendly,ready
+494,31,Budget,ready
+494,53,Hougang,ready
+495,62,Malay,ready
+495,13,Vegetarian,ready
+495,79,Singaporean,ready
+495,43,Dine-In,ready
+495,82,Takeaway,ready
+495,68,Outdoor Seating,ready
+495,51,Good for Groups,ready
+495,47,Family-Friendly,ready
+495,31,Budget,ready
+495,93,Woodlands,ready
+496,2,Korean,ready
+496,43,Dine-In,ready
+496,82,Takeaway,ready
+496,51,Good for Groups,ready
+496,47,Family-Friendly,ready
+496,63,Mid-Range,ready
+496,72,Queenstown,ready
+497,90,Vietnamese,ready
+497,10,Bubble Tea,ready
+497,82,Takeaway,ready
+497,84,Tampines,ready
+498,86,Tea House,ready
+498,43,Dine-In,ready
+498,82,Takeaway,ready
+498,87,Toa Payoh,ready
+499,1,Cafe,ready
+499,43,Dine-In,ready
+499,82,Takeaway,ready
+499,73,Reservable,ready
+499,51,Good for Groups,ready
+499,47,Family-Friendly,ready
+499,31,Budget,ready
+499,75,Rochor,ready
+500,38,Chinese,ready
+500,76,Seafood,ready
+500,20,Dessert,ready
+500,48,Food Court,ready
+500,43,Dine-In,ready
+500,82,Takeaway,ready
+500,41,Delivery,ready
+500,51,Good for Groups,ready
+500,47,Family-Friendly,ready
+500,31,Budget,ready
+500,118,Marine Parade,ready
+501,55,Indian,ready
+501,62,Malay,ready
+501,19,Mala,ready
+501,43,Dine-In,ready
+501,82,Takeaway,ready
+501,41,Delivery,ready
+501,68,Outdoor Seating,ready
+501,51,Good for Groups,ready
+501,47,Family-Friendly,ready
+501,63,Mid-Range,ready
+501,139,Taman Dato Onn,ready
+502,49,French,ready
+502,43,Dine-In,ready
+502,73,Reservable,ready
+502,51,Good for Groups,ready
+502,71,Premium,ready
+502,130,River Valley,ready
+503,91,Western,ready
+503,76,Seafood,ready
+503,79,Singaporean,ready
+503,82,Takeaway,ready
+503,51,Good for Groups,ready
+503,47,Family-Friendly,ready
+503,31,Budget,ready
+503,50,Geylang,ready
+504,6,Buffet,ready
+504,43,Dine-In,ready
+504,73,Reservable,ready
+504,51,Good for Groups,ready
+504,47,Family-Friendly,ready
+504,46,Expensive,ready
+504,69,Outram,ready
+505,38,Chinese,ready
+505,90,Vietnamese,ready
+505,19,Mala,ready
+505,43,Dine-In,ready
+505,82,Takeaway,ready
+505,51,Good for Groups,ready
+505,47,Family-Friendly,ready
+505,31,Budget,ready
+505,50,Geylang,ready
+506,120,Mexican,ready
+506,13,Vegetarian,ready
+506,18,Halal,ready
+506,82,Takeaway,ready
+506,43,Dine-In,ready
+506,41,Delivery,ready
+506,31,Budget,ready
+506,66,Novena,ready
+507,86,Tea House,ready
+507,82,Takeaway,ready
+507,47,Family-Friendly,ready
+507,106,HarbourFront,ready
+508,38,Chinese,ready
+508,43,Dine-In,ready
+508,82,Takeaway,ready
+508,41,Delivery,ready
+508,73,Reservable,ready
+508,68,Outdoor Seating,ready
+508,51,Good for Groups,ready
+508,47,Family-Friendly,ready
+508,63,Mid-Range,ready
+508,50,Geylang,ready
+509,5,Japanese,ready
+509,43,Dine-In,ready
+509,82,Takeaway,ready
+509,41,Delivery,ready
+509,73,Reservable,ready
+509,51,Good for Groups,ready
+509,47,Family-Friendly,ready
+509,63,Mid-Range,ready
+509,65,Newton,ready
+510,2,Korean,ready
+510,43,Dine-In,ready
+510,82,Takeaway,ready
+510,41,Delivery,ready
+510,73,Reservable,ready
+510,68,Outdoor Seating,ready
+510,51,Good for Groups,ready
+510,47,Family-Friendly,ready
+510,31,Budget,ready
+510,32,Bukit Batok,ready
+511,38,Chinese,ready
+511,76,Seafood,ready
+511,19,Mala,ready
+511,43,Dine-In,ready
+511,82,Takeaway,ready
+511,73,Reservable,ready
+511,51,Good for Groups,ready
+511,47,Family-Friendly,ready
+511,31,Budget,ready
+511,72,Queenstown,ready
+512,149,Turkish,ready
+512,104,Fast Food,ready
+512,82,Takeaway,ready
+512,41,Delivery,ready
+512,73,Reservable,ready
+512,47,Family-Friendly,ready
+512,31,Budget,ready
+512,75,Rochor,ready
+512,18,Halal,ready
+513,13,Vegetarian,ready
+513,43,Dine-In,ready
+513,82,Takeaway,ready
+513,51,Good for Groups,ready
+513,47,Family-Friendly,ready
+513,31,Budget,ready
+513,69,Outram,ready
+514,5,Japanese,ready
+514,2,Korean,ready
+514,90,Vietnamese,ready
+514,43,Dine-In,ready
+514,82,Takeaway,ready
+514,73,Reservable,ready
+514,68,Outdoor Seating,ready
+514,51,Good for Groups,ready
+514,47,Family-Friendly,ready
+514,31,Budget,ready
+514,50,Geylang,ready
+515,86,Tea House,ready
+515,43,Dine-In,ready
+515,82,Takeaway,ready
+515,41,Delivery,ready
+515,67,Orchard,ready
+516,1,Cafe,ready
+516,43,Dine-In,ready
+516,82,Takeaway,ready
+516,73,Reservable,ready
+516,51,Good for Groups,ready
+516,47,Family-Friendly,ready
+516,63,Mid-Range,ready
+516,69,Outram,ready
+517,86,Tea House,ready
+517,82,Takeaway,ready
+517,134,Sengkang,ready
+518,86,Tea House,ready
+518,43,Dine-In,ready
+518,82,Takeaway,ready
+518,41,Delivery,ready
+518,47,Family-Friendly,ready
+518,64,Museum,ready
+519,49,French,ready
+519,43,Dine-In,ready
+519,82,Takeaway,ready
+519,73,Reservable,ready
+519,68,Outdoor Seating,ready
+519,47,Family-Friendly,ready
+519,63,Mid-Range,ready
+519,36,Bukit Timah,ready
+520,129,Ramen,ready
+520,43,Dine-In,ready
+520,82,Takeaway,ready
+520,51,Good for Groups,ready
+520,63,Mid-Range,ready
+520,57,Jurong East,ready
+521,24,Bakery,ready
+521,43,Dine-In,ready
+521,82,Takeaway,ready
+521,41,Delivery,ready
+521,31,Budget,ready
+521,69,Outram,ready
+522,1,Cafe,ready
+522,43,Dine-In,ready
+522,82,Takeaway,ready
+522,68,Outdoor Seating,ready
+522,51,Good for Groups,ready
+522,47,Family-Friendly,ready
+522,63,Mid-Range,ready
+522,142,Taman Melodies,ready
+523,38,Chinese,ready
+523,62,Malay,ready
+523,91,Western,ready
+523,43,Dine-In,ready
+523,82,Takeaway,ready
+523,68,Outdoor Seating,ready
+523,51,Good for Groups,ready
+523,47,Family-Friendly,ready
+523,31,Budget,ready
+523,87,Toa Payoh,ready
+524,1,Cafe,ready
+524,43,Dine-In,ready
+524,82,Takeaway,ready
+524,41,Delivery,ready
+524,73,Reservable,ready
+524,68,Outdoor Seating,ready
+524,51,Good for Groups,ready
+524,63,Mid-Range,ready
+524,84,Tampines,ready
+525,6,Buffet,ready
+525,43,Dine-In,ready
+525,82,Takeaway,ready
+525,41,Delivery,ready
+525,73,Reservable,ready
+525,51,Good for Groups,ready
+525,47,Family-Friendly,ready
+525,63,Mid-Range,ready
+525,133,Sembawang,ready
+526,38,Chinese,ready
+526,48,Food Court,ready
+526,43,Dine-In,ready
+526,82,Takeaway,ready
+526,41,Delivery,ready
+526,47,Family-Friendly,ready
+526,31,Budget,ready
+526,45,Downtown Core,ready
+527,86,Tea House,ready
+527,54,Ice Cream,ready
+527,20,Dessert,ready
+527,82,Takeaway,ready
+527,34,Bukit Panjang,ready
+528,86,Tea House,ready
+528,82,Takeaway,ready
+528,41,Delivery,ready
+528,31,Budget,ready
+528,59,Kallang,ready
+529,1,Cafe,ready
+529,24,Bakery,ready
+529,82,Takeaway,ready
+529,41,Delivery,ready
+529,68,Outdoor Seating,ready
+529,47,Family-Friendly,ready
+529,63,Mid-Range,ready
+529,59,Kallang,ready
+530,38,Chinese,ready
+530,91,Western,ready
+530,20,Dessert,ready
+530,43,Dine-In,ready
+530,82,Takeaway,ready
+530,68,Outdoor Seating,ready
+530,47,Family-Friendly,ready
+530,31,Budget,ready
+530,57,Jurong East,ready
+531,55,Indian,ready
+531,43,Dine-In,ready
+531,82,Takeaway,ready
+531,41,Delivery,ready
+531,68,Outdoor Seating,ready
+531,51,Good for Groups,ready
+531,47,Family-Friendly,ready
+531,63,Mid-Range,ready
+531,75,Rochor,ready
+532,86,Tea House,ready
+532,82,Takeaway,ready
+532,41,Delivery,ready
+532,70,Pasir Ris,ready
+533,38,Chinese,ready
+533,91,Western,ready
+533,76,Seafood,ready
+533,43,Dine-In,ready
+533,82,Takeaway,ready
+533,73,Reservable,ready
+533,68,Outdoor Seating,ready
+533,51,Good for Groups,ready
+533,47,Family-Friendly,ready
+533,63,Mid-Range,ready
+533,69,Outram,ready
+534,20,Dessert,ready
+534,82,Takeaway,ready
+534,41,Delivery,ready
+534,45,Downtown Core,ready
+535,86,Tea House,ready
+535,82,Takeaway,ready
+535,41,Delivery,ready
+535,31,Budget,ready
+535,93,Woodlands,ready
+536,38,Chinese,ready
+536,55,Indian,ready
+536,76,Seafood,ready
+536,43,Dine-In,ready
+536,82,Takeaway,ready
+536,51,Good for Groups,ready
+536,47,Family-Friendly,ready
+536,31,Budget,ready
+536,75,Rochor,ready
+537,90,Vietnamese,ready
+537,18,Halal,ready
+537,79,Singaporean,ready
+537,43,Dine-In,ready
+537,82,Takeaway,ready
+537,41,Delivery,ready
+537,51,Good for Groups,ready
+537,47,Family-Friendly,ready
+537,63,Mid-Range,ready
+537,87,Toa Payoh,ready
+538,62,Malay,ready
+538,76,Seafood,ready
+538,13,Vegetarian,ready
+538,82,Takeaway,ready
+538,47,Family-Friendly,ready
+538,31,Budget,ready
+538,84,Tampines,ready
+539,24,Bakery,ready
+539,82,Takeaway,ready
+539,41,Delivery,ready
+539,31,Budget,ready
+539,69,Outram,ready
+540,1,Cafe,ready
+540,43,Dine-In,ready
+540,82,Takeaway,ready
+540,27,Bedok,ready
+541,1,Cafe,ready
+541,43,Dine-In,ready
+541,82,Takeaway,ready
+541,51,Good for Groups,ready
+541,47,Family-Friendly,ready
+541,31,Budget,ready
+541,67,Orchard,ready
+542,13,Vegetarian,ready
+542,89,Vegan,ready
+542,20,Dessert,ready
+542,43,Dine-In,ready
+542,82,Takeaway,ready
+542,51,Good for Groups,ready
+542,47,Family-Friendly,ready
+542,31,Budget,ready
+542,94,Yishun,ready
+543,2,Korean,ready
+543,43,Dine-In,ready
+543,82,Takeaway,ready
+543,51,Good for Groups,ready
+543,47,Family-Friendly,ready
+543,63,Mid-Range,ready
+543,28,Bishan,ready
+544,76,Seafood,ready
+544,43,Dine-In,ready
+544,82,Takeaway,ready
+544,41,Delivery,ready
+544,73,Reservable,ready
+544,68,Outdoor Seating,ready
+544,51,Good for Groups,ready
+544,47,Family-Friendly,ready
+544,50,Geylang,ready
+545,110,Indonesian,ready
+545,43,Dine-In,ready
+545,82,Takeaway,ready
+545,41,Delivery,ready
+545,73,Reservable,ready
+545,51,Good for Groups,ready
+545,47,Family-Friendly,ready
+545,63,Mid-Range,ready
+545,78,Singapore River,ready
+545,18,Halal,ready
+546,20,Dessert,ready
+546,65,Newton,ready
+547,5,Japanese,ready
+547,38,Chinese,ready
+547,76,Seafood,ready
+547,43,Dine-In,ready
+547,82,Takeaway,ready
+547,41,Delivery,ready
+547,47,Family-Friendly,ready
+547,31,Budget,ready
+547,45,Downtown Core,ready
+548,147,Thai,ready
+548,6,Buffet,ready
+548,43,Dine-In,ready
+548,82,Takeaway,ready
+548,73,Reservable,ready
+548,68,Outdoor Seating,ready
+548,51,Good for Groups,ready
+548,47,Family-Friendly,ready
+548,63,Mid-Range,ready
+548,87,Toa Payoh,ready
+549,1,Cafe,ready
+549,43,Dine-In,ready
+549,82,Takeaway,ready
+549,51,Good for Groups,ready
+549,47,Family-Friendly,ready
+549,31,Budget,ready
+549,58,Jurong West,ready
+549,18,Halal,ready
+550,54,Ice Cream,ready
+550,20,Dessert,ready
+550,43,Dine-In,ready
+550,82,Takeaway,ready
+550,51,Good for Groups,ready
+550,47,Family-Friendly,ready
+550,94,Yishun,ready
+551,20,Dessert,ready
+551,1,Cafe,ready
+551,43,Dine-In,ready
+551,82,Takeaway,ready
+551,51,Good for Groups,ready
+551,47,Family-Friendly,ready
+551,31,Budget,ready
+551,69,Outram,ready
+552,5,Japanese,ready
+552,55,Indian,ready
+552,19,Mala,ready
+552,82,Takeaway,ready
+552,41,Delivery,ready
+552,31,Budget,ready
+552,45,Downtown Core,ready
+553,76,Seafood,ready
+553,43,Dine-In,ready
+553,82,Takeaway,ready
+553,41,Delivery,ready
+553,73,Reservable,ready
+553,68,Outdoor Seating,ready
+553,51,Good for Groups,ready
+553,47,Family-Friendly,ready
+553,63,Mid-Range,ready
+553,27,Bedok,ready
+554,1,Cafe,ready
+554,43,Dine-In,ready
+554,82,Takeaway,ready
+554,41,Delivery,ready
+554,68,Outdoor Seating,ready
+554,51,Good for Groups,ready
+554,47,Family-Friendly,ready
+554,31,Budget,ready
+554,75,Rochor,ready
+555,38,Chinese,ready
+555,43,Dine-In,ready
+555,41,Delivery,ready
+555,73,Reservable,ready
+555,51,Good for Groups,ready
+555,47,Family-Friendly,ready
+555,46,Expensive,ready
+555,57,Jurong East,ready
+556,54,Ice Cream,ready
+556,20,Dessert,ready
+556,82,Takeaway,ready
+556,47,Family-Friendly,ready
+556,36,Bukit Timah,ready
+557,55,Indian,ready
+557,13,Vegetarian,ready
+557,43,Dine-In,ready
+557,73,Reservable,ready
+557,51,Good for Groups,ready
+557,47,Family-Friendly,ready
+557,31,Budget,ready
+557,45,Downtown Core,ready
+558,13,Vegetarian,ready
+558,43,Dine-In,ready
+558,82,Takeaway,ready
+558,41,Delivery,ready
+558,73,Reservable,ready
+558,51,Good for Groups,ready
+558,47,Family-Friendly,ready
+558,63,Mid-Range,ready
+558,66,Novena,ready
+559,55,Indian,ready
+559,76,Seafood,ready
+559,18,Halal,ready
+559,43,Dine-In,ready
+559,82,Takeaway,ready
+559,41,Delivery,ready
+559,73,Reservable,ready
+559,51,Good for Groups,ready
+559,47,Family-Friendly,ready
+559,63,Mid-Range,ready
+559,32,Bukit Batok,ready
+560,13,Vegetarian,ready
+560,89,Vegan,ready
+560,43,Dine-In,ready
+560,82,Takeaway,ready
+560,73,Reservable,ready
+560,51,Good for Groups,ready
+560,47,Family-Friendly,ready
+560,46,Expensive,ready
+560,69,Outram,ready
+561,1,Cafe,ready
+561,43,Dine-In,ready
+561,82,Takeaway,ready
+561,41,Delivery,ready
+561,73,Reservable,ready
+561,51,Good for Groups,ready
+561,47,Family-Friendly,ready
+561,36,Bukit Timah,ready
+562,1,Cafe,ready
+562,41,Delivery,ready
+562,87,Toa Payoh,ready
+563,2,Korean,ready
+563,43,Dine-In,ready
+563,82,Takeaway,ready
+563,41,Delivery,ready
+563,73,Reservable,ready
+563,51,Good for Groups,ready
+563,47,Family-Friendly,ready
+563,63,Mid-Range,ready
+563,66,Novena,ready
+564,1,Cafe,ready
+564,82,Takeaway,ready
+564,68,Outdoor Seating,ready
+564,31,Budget,ready
+564,59,Kallang,ready
+565,26,Bar,ready
+565,43,Dine-In,ready
+565,82,Takeaway,ready
+565,73,Reservable,ready
+565,68,Outdoor Seating,ready
+565,51,Good for Groups,ready
+565,47,Family-Friendly,ready
+565,31,Budget,ready
+565,70,Pasir Ris,ready
+566,24,Bakery,ready
+566,87,Toa Payoh,ready
+567,120,Mexican,ready
+567,43,Dine-In,ready
+567,82,Takeaway,ready
+567,73,Reservable,ready
+567,68,Outdoor Seating,ready
+567,61,Live Music,ready
+567,51,Good for Groups,ready
+567,78,Singapore River,ready
+568,86,Tea House,ready
+568,82,Takeaway,ready
+568,41,Delivery,ready
+568,47,Family-Friendly,ready
+568,94,Yishun,ready
+569,5,Japanese,ready
+569,2,Korean,ready
+569,90,Vietnamese,ready
+569,43,Dine-In,ready
+569,82,Takeaway,ready
+569,41,Delivery,ready
+569,51,Good for Groups,ready
+569,47,Family-Friendly,ready
+569,31,Budget,ready
+569,57,Jurong East,ready
+570,38,Chinese,ready
+570,62,Malay,ready
+570,76,Seafood,ready
+570,43,Dine-In,ready
+570,82,Takeaway,ready
+570,31,Budget,ready
+570,72,Queenstown,ready
+571,1,Cafe,ready
+571,30,Brunch,ready
+571,20,Dessert,ready
+571,43,Dine-In,ready
+571,82,Takeaway,ready
+571,51,Good for Groups,ready
+571,47,Family-Friendly,ready
+571,31,Budget,ready
+571,27,Bedok,ready
+572,38,Chinese,ready
+572,43,Dine-In,ready
+572,82,Takeaway,ready
+572,41,Delivery,ready
+572,73,Reservable,ready
+572,51,Good for Groups,ready
+572,47,Family-Friendly,ready
+572,63,Mid-Range,ready
+572,130,River Valley,ready
+573,62,Malay,ready
+573,91,Western,ready
+573,76,Seafood,ready
+573,43,Dine-In,ready
+573,82,Takeaway,ready
+573,41,Delivery,ready
+573,51,Good for Groups,ready
+573,47,Family-Friendly,ready
+573,31,Budget,ready
+573,65,Newton,ready
+573,18,Halal,ready
+574,1,Cafe,ready
+574,43,Dine-In,ready
+574,82,Takeaway,ready
+574,41,Delivery,ready
+574,73,Reservable,ready
+574,68,Outdoor Seating,ready
+574,51,Good for Groups,ready
+574,47,Family-Friendly,ready
+574,63,Mid-Range,ready
+574,72,Queenstown,ready
+575,20,Dessert,ready
+575,82,Takeaway,ready
+575,31,Budget,ready
+575,72,Queenstown,ready
+576,86,Tea House,ready
+576,109,In Mall,ready
+576,82,Takeaway,ready
+576,43,Dine-In,ready
+576,47,Family-Friendly,ready
+576,39,Choa Chu Kang,ready
+577,1,Cafe,ready
+577,43,Dine-In,ready
+577,82,Takeaway,ready
+577,51,Good for Groups,ready
+577,31,Budget,ready
+577,75,Rochor,ready
+578,1,Cafe,ready
+578,43,Dine-In,ready
+578,82,Takeaway,ready
+578,41,Delivery,ready
+578,68,Outdoor Seating,ready
+578,51,Good for Groups,ready
+578,47,Family-Friendly,ready
+578,63,Mid-Range,ready
+578,36,Bukit Timah,ready
+579,20,Dessert,ready
+579,43,Dine-In,ready
+579,82,Takeaway,ready
+579,47,Family-Friendly,ready
+579,31,Budget,ready
+579,59,Kallang,ready
+580,1,Cafe,ready
+580,43,Dine-In,ready
+580,82,Takeaway,ready
+580,41,Delivery,ready
+580,73,Reservable,ready
+580,51,Good for Groups,ready
+580,47,Family-Friendly,ready
+580,63,Mid-Range,ready
+580,72,Queenstown,ready
+581,2,Korean,ready
+581,43,Dine-In,ready
+581,82,Takeaway,ready
+581,73,Reservable,ready
+581,51,Good for Groups,ready
+581,47,Family-Friendly,ready
+581,71,Premium,ready
+581,67,Orchard,ready
+582,86,Tea House,ready
+582,82,Takeaway,ready
+582,41,Delivery,ready
+582,64,Museum,ready
+583,24,Bakery,ready
+583,1,Cafe,ready
+583,30,Brunch,ready
+583,43,Dine-In,ready
+583,82,Takeaway,ready
+583,41,Delivery,ready
+583,73,Reservable,ready
+583,47,Family-Friendly,ready
+583,31,Budget,ready
+583,118,Marine Parade,ready
+584,1,Cafe,ready
+584,43,Dine-In,ready
+584,82,Takeaway,ready
+584,41,Delivery,ready
+584,51,Good for Groups,ready
+584,93,Woodlands,ready
+585,90,Vietnamese,ready
+585,91,Western,ready
+585,76,Seafood,ready
+585,43,Dine-In,ready
+585,82,Takeaway,ready
+585,41,Delivery,ready
+585,73,Reservable,ready
+585,68,Outdoor Seating,ready
+585,51,Good for Groups,ready
+585,47,Family-Friendly,ready
+585,46,Expensive,ready
+585,50,Geylang,ready
+586,38,Chinese,ready
+586,43,Dine-In,ready
+586,82,Takeaway,ready
+586,51,Good for Groups,ready
+586,47,Family-Friendly,ready
+586,63,Mid-Range,ready
+586,83,Taman Sentosa,ready
+587,1,Cafe,ready
+587,43,Dine-In,ready
+587,82,Takeaway,ready
+587,51,Good for Groups,ready
+587,47,Family-Friendly,ready
+587,31,Budget,ready
+587,75,Rochor,ready
+588,55,Indian,ready
+588,20,Dessert,ready
+588,43,Dine-In,ready
+588,82,Takeaway,ready
+588,41,Delivery,ready
+588,47,Family-Friendly,ready
+588,31,Budget,ready
+588,69,Outram,ready
+589,62,Malay,ready
+589,13,Vegetarian,ready
+589,19,Mala,ready
+589,43,Dine-In,ready
+589,82,Takeaway,ready
+589,31,Budget,ready
+589,33,Bukit Merah,ready
+590,1,Cafe,ready
+590,43,Dine-In,ready
+590,82,Takeaway,ready
+590,51,Good for Groups,ready
+590,47,Family-Friendly,ready
+590,63,Mid-Range,ready
+590,59,Kallang,ready
+591,112,Juice,ready
+591,113,Juice Bar,ready
+591,82,Takeaway,ready
+591,51,Good for Groups,ready
+591,47,Family-Friendly,ready
+591,69,Outram,ready
+592,38,Chinese,ready
+592,43,Dine-In,ready
+592,82,Takeaway,ready
+592,51,Good for Groups,ready
+592,47,Family-Friendly,ready
+592,31,Budget,ready
+592,77,Serangoon,ready
+593,62,Malay,ready
+593,76,Seafood,ready
+593,20,Dessert,ready
+593,43,Dine-In,ready
+593,82,Takeaway,ready
+593,51,Good for Groups,ready
+593,47,Family-Friendly,ready
+593,31,Budget,ready
+593,53,Hougang,ready
+594,1,Cafe,ready
+594,43,Dine-In,ready
+594,82,Takeaway,ready
+594,47,Family-Friendly,ready
+594,31,Budget,ready
+594,45,Downtown Core,ready
+595,26,Bar,ready
+595,43,Dine-In,ready
+595,82,Takeaway,ready
+595,41,Delivery,ready
+595,73,Reservable,ready
+595,68,Outdoor Seating,ready
+595,51,Good for Groups,ready
+595,47,Family-Friendly,ready
+595,63,Mid-Range,ready
+595,94,Yishun,ready
+596,1,Cafe,ready
+596,43,Dine-In,ready
+596,82,Takeaway,ready
+596,41,Delivery,ready
+596,73,Reservable,ready
+596,47,Family-Friendly,ready
+596,31,Budget,ready
+596,45,Downtown Core,ready
+597,38,Chinese,ready
+597,91,Western,ready
+597,56,Italian,ready
+597,48,Food Court,ready
+597,43,Dine-In,ready
+597,82,Takeaway,ready
+597,41,Delivery,ready
+597,51,Good for Groups,ready
+597,47,Family-Friendly,ready
+597,31,Budget,ready
+597,50,Geylang,ready
+598,62,Malay,ready
+598,91,Western,ready
+598,76,Seafood,ready
+598,43,Dine-In,ready
+598,73,Reservable,ready
+598,51,Good for Groups,ready
+598,71,Premium,ready
+598,45,Downtown Core,ready
+599,6,Buffet,ready
+599,43,Dine-In,ready
+599,82,Takeaway,ready
+599,41,Delivery,ready
+599,73,Reservable,ready
+599,51,Good for Groups,ready
+599,47,Family-Friendly,ready
+599,46,Expensive,ready
+599,45,Downtown Core,ready
+599,18,Halal,ready
+600,38,Chinese,ready
+600,43,Dine-In,ready
+600,82,Takeaway,ready
+600,73,Reservable,ready
+600,51,Good for Groups,ready
+600,47,Family-Friendly,ready
+600,63,Mid-Range,ready
+600,84,Tampines,ready
+601,13,Vegetarian,ready
+601,43,Dine-In,ready
+601,73,Reservable,ready
+601,71,Premium,ready
+601,69,Outram,ready
+602,13,Vegetarian,ready
+602,43,Dine-In,ready
+602,82,Takeaway,ready
+602,41,Delivery,ready
+602,51,Good for Groups,ready
+602,47,Family-Friendly,ready
+602,31,Budget,ready
+602,133,Sembawang,ready
+603,105,Fusion,ready
+603,23,Asian,ready
+603,1,Cafe,ready
+603,26,Bar,ready
+603,43,Dine-In,ready
+603,82,Takeaway,ready
+603,73,Reservable,ready
+603,51,Good for Groups,ready
+603,47,Family-Friendly,ready
+603,46,Expensive,ready
+603,25,Bandar Johor Bahru,ready
+604,5,Japanese,ready
+604,43,Dine-In,ready
+604,82,Takeaway,ready
+604,41,Delivery,ready
+604,51,Good for Groups,ready
+604,47,Family-Friendly,ready
+604,63,Mid-Range,ready
+604,28,Bishan,ready
+605,55,Indian,ready
+605,62,Malay,ready
+605,79,Singaporean,ready
+605,43,Dine-In,ready
+605,82,Takeaway,ready
+605,41,Delivery,ready
+605,51,Good for Groups,ready
+605,47,Family-Friendly,ready
+605,31,Budget,ready
+605,67,Orchard,ready
+606,24,Bakery,ready
+606,1,Cafe,ready
+606,20,Dessert,ready
+606,43,Dine-In,ready
+606,82,Takeaway,ready
+606,41,Delivery,ready
+606,47,Family-Friendly,ready
+606,31,Budget,ready
+606,45,Downtown Core,ready
+607,1,Cafe,ready
+607,43,Dine-In,ready
+607,82,Takeaway,ready
+607,73,Reservable,ready
+607,68,Outdoor Seating,ready
+607,51,Good for Groups,ready
+607,47,Family-Friendly,ready
+607,31,Budget,ready
+607,33,Bukit Merah,ready
+608,1,Cafe,ready
+608,82,Takeaway,ready
+608,43,Dine-In,ready
+608,41,Delivery,ready
+608,51,Good for Groups,ready
+608,47,Family-Friendly,ready
+608,31,Budget,ready
+608,72,Queenstown,ready
+609,6,Buffet,ready
+609,82,Takeaway,ready
+609,43,Dine-In,ready
+609,41,Delivery,ready
+609,73,Reservable,ready
+609,51,Good for Groups,ready
+609,47,Family-Friendly,ready
+609,63,Mid-Range,ready
+609,45,Downtown Core,ready
+610,111,Indoor Playground,ready
+610,47,Family-Friendly,ready
+610,78,Singapore River,ready
+611,24,Bakery,ready
+611,82,Takeaway,ready
+611,41,Delivery,ready
+611,31,Budget,ready
+611,93,Woodlands,ready
+612,20,Dessert,ready
+612,43,Dine-In,ready
+612,82,Takeaway,ready
+612,68,Outdoor Seating,ready
+612,51,Good for Groups,ready
+612,47,Family-Friendly,ready
+612,31,Budget,ready
+612,69,Outram,ready
+613,147,Thai,ready
+613,43,Dine-In,ready
+613,82,Takeaway,ready
+613,73,Reservable,ready
+613,51,Good for Groups,ready
+613,47,Family-Friendly,ready
+613,63,Mid-Range,ready
+613,78,Singapore River,ready
+614,1,Cafe,ready
+614,43,Dine-In,ready
+614,82,Takeaway,ready
+614,68,Outdoor Seating,ready
+614,47,Family-Friendly,ready
+614,31,Budget,ready
+614,40,Clementi,ready
+615,1,Cafe,ready
+615,43,Dine-In,ready
+615,82,Takeaway,ready
+615,41,Delivery,ready
+615,68,Outdoor Seating,ready
+615,51,Good for Groups,ready
+615,47,Family-Friendly,ready
+615,63,Mid-Range,ready
+615,45,Downtown Core,ready
+616,86,Tea House,ready
+616,43,Dine-In,ready
+616,82,Takeaway,ready
+616,41,Delivery,ready
+616,45,Downtown Core,ready
+617,2,Korean,ready
+617,43,Dine-In,ready
+617,73,Reservable,ready
+617,51,Good for Groups,ready
+617,71,Premium,ready
+617,69,Outram,ready
+618,76,Seafood,ready
+618,43,Dine-In,ready
+618,82,Takeaway,ready
+618,73,Reservable,ready
+618,68,Outdoor Seating,ready
+618,51,Good for Groups,ready
+618,47,Family-Friendly,ready
+618,28,Bishan,ready
+619,104,Fast Food,ready
+619,43,Dine-In,ready
+619,82,Takeaway,ready
+619,41,Delivery,ready
+619,51,Good for Groups,ready
+619,47,Family-Friendly,ready
+619,63,Mid-Range,ready
+619,72,Queenstown,ready
+620,1,Cafe,ready
+620,43,Dine-In,ready
+620,82,Takeaway,ready
+620,73,Reservable,ready
+620,68,Outdoor Seating,ready
+620,51,Good for Groups,ready
+620,47,Family-Friendly,ready
+620,63,Mid-Range,ready
+620,28,Bishan,ready
+621,62,Malay,ready
+621,1,Cafe,ready
+621,19,Mala,ready
+621,43,Dine-In,ready
+621,82,Takeaway,ready
+621,68,Outdoor Seating,ready
+621,51,Good for Groups,ready
+621,47,Family-Friendly,ready
+621,31,Budget,ready
+621,25,Bandar Johor Bahru,ready
+621,18,Halal,ready
+622,6,Buffet,ready
+622,1,Cafe,ready
+622,43,Dine-In,ready
+622,82,Takeaway,ready
+622,41,Delivery,ready
+622,73,Reservable,ready
+622,51,Good for Groups,ready
+622,47,Family-Friendly,ready
+622,63,Mid-Range,ready
+622,69,Outram,ready
+622,18,Halal,ready
+623,2,Korean,ready
+623,43,Dine-In,ready
+623,82,Takeaway,ready
+623,41,Delivery,ready
+623,73,Reservable,ready
+623,51,Good for Groups,ready
+623,47,Family-Friendly,ready
+623,57,Jurong East,ready
+624,38,Chinese,ready
+624,43,Dine-In,ready
+624,73,Reservable,ready
+624,51,Good for Groups,ready
+624,47,Family-Friendly,ready
+624,71,Premium,ready
+624,45,Downtown Core,ready
+625,13,Vegetarian,ready
+625,43,Dine-In,ready
+625,82,Takeaway,ready
+625,51,Good for Groups,ready
+625,47,Family-Friendly,ready
+625,31,Budget,ready
+625,93,Woodlands,ready
+626,5,Japanese,ready
+626,43,Dine-In,ready
+626,73,Reservable,ready
+626,71,Premium,ready
+626,45,Downtown Core,ready
+627,95,African,ready
+627,1,Cafe,ready
+627,43,Dine-In,ready
+627,82,Takeaway,ready
+627,73,Reservable,ready
+627,68,Outdoor Seating,ready
+627,51,Good for Groups,ready
+627,47,Family-Friendly,ready
+627,69,Outram,ready
+628,38,Chinese,ready
+628,55,Indian,ready
+628,76,Seafood,ready
+628,43,Dine-In,ready
+628,82,Takeaway,ready
+628,51,Good for Groups,ready
+628,47,Family-Friendly,ready
+628,31,Budget,ready
+628,58,Jurong West,ready
+629,38,Chinese,ready
+629,43,Dine-In,ready
+629,82,Takeaway,ready
+629,41,Delivery,ready
+629,73,Reservable,ready
+629,68,Outdoor Seating,ready
+629,51,Good for Groups,ready
+629,47,Family-Friendly,ready
+629,63,Mid-Range,ready
+629,84,Tampines,ready
+630,91,Western,ready
+630,94,Yishun,ready
+631,62,Malay,ready
+631,76,Seafood,ready
+631,20,Dessert,ready
+631,43,Dine-In,ready
+631,82,Takeaway,ready
+631,51,Good for Groups,ready
+631,47,Family-Friendly,ready
+631,31,Budget,ready
+631,57,Jurong East,ready
+632,126,Playground,ready
+632,93,Woodlands,ready
+633,38,Chinese,ready
+633,76,Seafood,ready
+633,20,Dessert,ready
+633,43,Dine-In,ready
+633,73,Reservable,ready
+633,51,Good for Groups,ready
+633,71,Premium,ready
+633,69,Outram,ready
+634,55,Indian,ready
+634,76,Seafood,ready
+634,13,Vegetarian,ready
+634,43,Dine-In,ready
+634,82,Takeaway,ready
+634,51,Good for Groups,ready
+634,47,Family-Friendly,ready
+634,31,Budget,ready
+634,65,Newton,ready
+635,5,Japanese,ready
+635,43,Dine-In,ready
+635,82,Takeaway,ready
+635,51,Good for Groups,ready
+635,47,Family-Friendly,ready
+635,63,Mid-Range,ready
+635,36,Bukit Timah,ready
+636,23,Asian,ready
+636,6,Buffet,ready
+636,43,Dine-In,ready
+636,82,Takeaway,ready
+636,41,Delivery,ready
+636,73,Reservable,ready
+636,51,Good for Groups,ready
+636,47,Family-Friendly,ready
+636,63,Mid-Range,ready
+636,78,Singapore River,ready
+637,89,Vegan,ready
+637,13,Vegetarian,ready
+637,43,Dine-In,ready
+637,82,Takeaway,ready
+637,73,Reservable,ready
+637,51,Good for Groups,ready
+637,47,Family-Friendly,ready
+637,63,Mid-Range,ready
+637,130,River Valley,ready
+638,86,Tea House,ready
+638,1,Cafe,ready
+638,43,Dine-In,ready
+638,82,Takeaway,ready
+638,59,Kallang,ready
+639,91,Western,ready
+639,1,Cafe,ready
+639,19,Mala,ready
+639,43,Dine-In,ready
+639,82,Takeaway,ready
+639,50,Geylang,ready
+640,38,Chinese,ready
+640,43,Dine-In,ready
+640,82,Takeaway,ready
+640,47,Family-Friendly,ready
+640,31,Budget,ready
+640,58,Jurong West,ready
+641,24,Bakery,ready
+641,26,Bar,ready
+641,1,Cafe,ready
+641,43,Dine-In,ready
+641,82,Takeaway,ready
+641,63,Mid-Range,ready
+641,85,Tanglin,ready
+642,79,Singaporean,ready
+642,87,Toa Payoh,ready
+643,108,Hotpot / Steamboat,ready
+643,43,Dine-In,ready
+643,82,Takeaway,ready
+643,73,Reservable,ready
+643,51,Good for Groups,ready
+643,47,Family-Friendly,ready
+643,63,Mid-Range,ready
+643,94,Yishun,ready
+643,18,Halal,ready
+644,1,Cafe,ready
+644,82,Takeaway,ready
+644,43,Dine-In,ready
+644,47,Family-Friendly,ready
+644,31,Budget,ready
+644,45,Downtown Core,ready
+645,13,Vegetarian,ready
+645,18,Halal,ready
+645,82,Takeaway,ready
+645,58,Jurong West,ready
+646,1,Cafe,ready
+646,82,Takeaway,ready
+646,47,Family-Friendly,ready
+646,31,Budget,ready
+646,45,Downtown Core,ready
+647,38,Chinese,ready
+647,43,Dine-In,ready
+647,82,Takeaway,ready
+647,41,Delivery,ready
+647,51,Good for Groups,ready
+647,47,Family-Friendly,ready
+647,31,Budget,ready
+647,84,Tampines,ready
+648,13,Vegetarian,ready
+648,43,Dine-In,ready
+648,82,Takeaway,ready
+648,51,Good for Groups,ready
+648,47,Family-Friendly,ready
+648,31,Budget,ready
+648,84,Tampines,ready
+649,55,Indian,ready
+649,76,Seafood,ready
+649,43,Dine-In,ready
+649,82,Takeaway,ready
+649,41,Delivery,ready
+649,73,Reservable,ready
+649,31,Budget,ready
+649,75,Rochor,ready
+650,29,Brazilian,ready
+650,82,Takeaway,ready
+650,41,Delivery,ready
+650,51,Good for Groups,ready
+650,47,Family-Friendly,ready
+650,31,Budget,ready
+650,97,Ang Mo Kio,ready
+651,6,Buffet,ready
+651,43,Dine-In,ready
+651,82,Takeaway,ready
+651,73,Reservable,ready
+651,51,Good for Groups,ready
+651,47,Family-Friendly,ready
+651,63,Mid-Range,ready
+651,84,Tampines,ready
+651,18,Halal,ready
+652,1,Cafe,ready
+652,43,Dine-In,ready
+652,82,Takeaway,ready
+652,67,Orchard,ready
+653,90,Vietnamese,ready
+653,91,Western,ready
+653,76,Seafood,ready
+653,43,Dine-In,ready
+653,82,Takeaway,ready
+653,41,Delivery,ready
+653,68,Outdoor Seating,ready
+653,51,Good for Groups,ready
+653,47,Family-Friendly,ready
+653,31,Budget,ready
+653,65,Newton,ready
+654,26,Bar,ready
+654,43,Dine-In,ready
+654,82,Takeaway,ready
+654,41,Delivery,ready
+654,73,Reservable,ready
+654,68,Outdoor Seating,ready
+654,51,Good for Groups,ready
+654,47,Family-Friendly,ready
+654,63,Mid-Range,ready
+654,78,Singapore River,ready
+655,38,Chinese,ready
+655,91,Western,ready
+655,76,Seafood,ready
+655,43,Dine-In,ready
+655,82,Takeaway,ready
+655,31,Budget,ready
+655,58,Jurong West,ready
+656,86,Tea House,ready
+656,82,Takeaway,ready
+656,41,Delivery,ready
+656,57,Jurong East,ready
+657,5,Japanese,ready
+657,62,Malay,ready
+657,90,Vietnamese,ready
+657,43,Dine-In,ready
+657,82,Takeaway,ready
+657,73,Reservable,ready
+657,51,Good for Groups,ready
+657,47,Family-Friendly,ready
+657,63,Mid-Range,ready
+657,45,Downtown Core,ready
+658,86,Tea House,ready
+658,43,Dine-In,ready
+658,82,Takeaway,ready
+658,41,Delivery,ready
+658,47,Family-Friendly,ready
+658,34,Bukit Panjang,ready
+659,1,Cafe,ready
+659,43,Dine-In,ready
+659,82,Takeaway,ready
+659,41,Delivery,ready
+659,68,Outdoor Seating,ready
+659,51,Good for Groups,ready
+659,31,Budget,ready
+659,64,Museum,ready
+660,38,Chinese,ready
+660,43,Dine-In,ready
+660,82,Takeaway,ready
+660,73,Reservable,ready
+660,51,Good for Groups,ready
+660,47,Family-Friendly,ready
+660,63,Mid-Range,ready
+660,87,Toa Payoh,ready
+661,79,Singaporean,ready
+661,43,Dine-In,ready
+661,82,Takeaway,ready
+661,41,Delivery,ready
+661,68,Outdoor Seating,ready
+661,51,Good for Groups,ready
+661,47,Family-Friendly,ready
+661,31,Budget,ready
+661,94,Yishun,ready
+662,38,Chinese,ready
+662,90,Vietnamese,ready
+662,47,Family-Friendly,ready
+662,45,Downtown Core,ready
+663,86,Tea House,ready
+663,82,Takeaway,ready
+663,41,Delivery,ready
+663,59,Kallang,ready
+664,62,Malay,ready
+664,20,Dessert,ready
+664,43,Dine-In,ready
+664,82,Takeaway,ready
+664,51,Good for Groups,ready
+664,47,Family-Friendly,ready
+664,31,Budget,ready
+664,27,Bedok,ready
+665,38,Chinese,ready
+665,76,Seafood,ready
+665,79,Singaporean,ready
+665,43,Dine-In,ready
+665,82,Takeaway,ready
+665,47,Family-Friendly,ready
+665,31,Budget,ready
+665,58,Jurong West,ready
+666,20,Dessert,ready
+666,24,Bakery,ready
+666,41,Delivery,ready
+666,69,Outram,ready
+667,2,Korean,ready
+667,43,Dine-In,ready
+667,82,Takeaway,ready
+667,41,Delivery,ready
+667,73,Reservable,ready
+667,51,Good for Groups,ready
+667,47,Family-Friendly,ready
+667,63,Mid-Range,ready
+667,27,Bedok,ready
+668,86,Tea House,ready
+668,43,Dine-In,ready
+668,82,Takeaway,ready
+668,41,Delivery,ready
+668,67,Orchard,ready
+669,38,Chinese,ready
+669,43,Dine-In,ready
+669,82,Takeaway,ready
+669,41,Delivery,ready
+669,51,Good for Groups,ready
+669,47,Family-Friendly,ready
+669,31,Budget,ready
+669,75,Rochor,ready
+670,1,Cafe,ready
+670,43,Dine-In,ready
+670,82,Takeaway,ready
+670,47,Family-Friendly,ready
+670,31,Budget,ready
+670,70,Pasir Ris,ready
+671,55,Indian,ready
+671,79,Singaporean,ready
+671,43,Dine-In,ready
+671,82,Takeaway,ready
+671,51,Good for Groups,ready
+671,47,Family-Friendly,ready
+671,57,Jurong East,ready
+672,129,Ramen,ready
+672,43,Dine-In,ready
+672,82,Takeaway,ready
+672,41,Delivery,ready
+672,73,Reservable,ready
+672,51,Good for Groups,ready
+672,47,Family-Friendly,ready
+672,31,Budget,ready
+672,37,Changi,ready
+672,18,Halal,ready
+673,74,Restaurant,ready
+673,43,Dine-In,ready
+673,82,Takeaway,ready
+673,51,Good for Groups,ready
+673,47,Family-Friendly,ready
+673,31,Budget,ready
+673,58,Jurong West,ready
+674,1,Cafe,ready
+674,43,Dine-In,ready
+674,82,Takeaway,ready
+674,41,Delivery,ready
+674,68,Outdoor Seating,ready
+674,51,Good for Groups,ready
+674,47,Family-Friendly,ready
+674,46,Expensive,ready
+674,142,Taman Melodies,ready
+675,5,Japanese,ready
+675,43,Dine-In,ready
+675,82,Takeaway,ready
+675,41,Delivery,ready
+675,47,Family-Friendly,ready
+675,31,Budget,ready
+675,75,Rochor,ready
+676,91,Western,ready
+676,1,Cafe,ready
+676,79,Singaporean,ready
+676,43,Dine-In,ready
+676,82,Takeaway,ready
+676,51,Good for Groups,ready
+676,47,Family-Friendly,ready
+676,31,Budget,ready
+676,57,Jurong East,ready
+677,91,Western,ready
+677,56,Italian,ready
+677,1,Cafe,ready
+677,43,Dine-In,ready
+677,82,Takeaway,ready
+677,73,Reservable,ready
+677,51,Good for Groups,ready
+677,47,Family-Friendly,ready
+677,31,Budget,ready
+677,50,Geylang,ready
+678,55,Indian,ready
+678,43,Dine-In,ready
+678,82,Takeaway,ready
+678,73,Reservable,ready
+678,68,Outdoor Seating,ready
+678,51,Good for Groups,ready
+678,47,Family-Friendly,ready
+678,63,Mid-Range,ready
+678,115,Kampung Bahru,ready
+679,24,Bakery,ready
+679,43,Dine-In,ready
+679,82,Takeaway,ready
+679,41,Delivery,ready
+679,31,Budget,ready
+679,94,Yishun,ready
+680,6,Buffet,ready
+680,43,Dine-In,ready
+680,73,Reservable,ready
+680,51,Good for Groups,ready
+680,47,Family-Friendly,ready
+680,63,Mid-Range,ready
+680,130,River Valley,ready
+681,38,Chinese,ready
+681,76,Seafood,ready
+681,79,Singaporean,ready
+681,43,Dine-In,ready
+681,82,Takeaway,ready
+681,51,Good for Groups,ready
+681,47,Family-Friendly,ready
+681,31,Budget,ready
+681,40,Clementi,ready
+682,62,Malay,ready
+682,76,Seafood,ready
+682,79,Singaporean,ready
+682,43,Dine-In,ready
+682,82,Takeaway,ready
+682,51,Good for Groups,ready
+682,47,Family-Friendly,ready
+682,31,Budget,ready
+682,36,Bukit Timah,ready
+683,89,Vegan,ready
+683,1,Cafe,ready
+683,13,Vegetarian,ready
+683,43,Dine-In,ready
+683,82,Takeaway,ready
+683,41,Delivery,ready
+683,73,Reservable,ready
+683,51,Good for Groups,ready
+683,47,Family-Friendly,ready
+683,69,Outram,ready
+684,86,Tea House,ready
+684,1,Cafe,ready
+684,87,Toa Payoh,ready
+685,102,Burgers,ready
+685,43,Dine-In,ready
+685,82,Takeaway,ready
+685,41,Delivery,ready
+685,73,Reservable,ready
+685,51,Good for Groups,ready
+685,47,Family-Friendly,ready
+685,63,Mid-Range,ready
+685,25,Bandar Johor Bahru,ready
+686,20,Dessert,ready
+686,82,Takeaway,ready
+686,41,Delivery,ready
+686,31,Budget,ready
+686,58,Jurong West,ready
+687,38,Chinese,ready
+687,91,Western,ready
+687,19,Mala,ready
+687,43,Dine-In,ready
+687,82,Takeaway,ready
+687,41,Delivery,ready
+687,31,Budget,ready
+687,87,Toa Payoh,ready
+688,86,Tea House,ready
+688,82,Takeaway,ready
+688,41,Delivery,ready
+688,31,Budget,ready
+688,93,Woodlands,ready
+689,30,Brunch,ready
+689,43,Dine-In,ready
+689,82,Takeaway,ready
+689,73,Reservable,ready
+689,51,Good for Groups,ready
+689,47,Family-Friendly,ready
+689,63,Mid-Range,ready
+689,137,Taman Abad,ready
+690,20,Dessert,ready
+690,43,Dine-In,ready
+690,82,Takeaway,ready
+690,31,Budget,ready
+690,50,Geylang,ready
+691,76,Seafood,ready
+691,43,Dine-In,ready
+691,82,Takeaway,ready
+691,41,Delivery,ready
+691,73,Reservable,ready
+691,68,Outdoor Seating,ready
+691,51,Good for Groups,ready
+691,47,Family-Friendly,ready
+691,63,Mid-Range,ready
+691,84,Tampines,ready
+692,24,Bakery,ready
+692,82,Takeaway,ready
+692,31,Budget,ready
+692,27,Bedok,ready
+693,76,Seafood,ready
+693,38,Chinese,ready
+693,43,Dine-In,ready
+693,82,Takeaway,ready
+693,41,Delivery,ready
+693,73,Reservable,ready
+693,68,Outdoor Seating,ready
+693,51,Good for Groups,ready
+693,47,Family-Friendly,ready
+693,63,Mid-Range,ready
+693,50,Geylang,ready
+694,79,Singaporean,ready
+694,82,Takeaway,ready
+694,51,Good for Groups,ready
+694,47,Family-Friendly,ready
+694,57,Jurong East,ready
+695,20,Dessert,ready
+695,43,Dine-In,ready
+695,82,Takeaway,ready
+695,41,Delivery,ready
+695,63,Mid-Range,ready
+695,69,Outram,ready
+696,1,Cafe,ready
+696,43,Dine-In,ready
+696,82,Takeaway,ready
+696,41,Delivery,ready
+696,68,Outdoor Seating,ready
+696,31,Budget,ready
+696,78,Singapore River,ready
+697,13,Vegetarian,ready
+697,1,Cafe,ready
+697,19,Mala,ready
+697,43,Dine-In,ready
+697,82,Takeaway,ready
+697,41,Delivery,ready
+697,51,Good for Groups,ready
+697,31,Budget,ready
+697,33,Bukit Merah,ready
+698,1,Cafe,ready
+698,43,Dine-In,ready
+698,82,Takeaway,ready
+698,41,Delivery,ready
+698,73,Reservable,ready
+698,68,Outdoor Seating,ready
+698,51,Good for Groups,ready
+698,47,Family-Friendly,ready
+698,63,Mid-Range,ready
+698,36,Bukit Timah,ready
+699,2,Korean,ready
+699,43,Dine-In,ready
+699,82,Takeaway,ready
+699,41,Delivery,ready
+699,73,Reservable,ready
+699,51,Good for Groups,ready
+699,47,Family-Friendly,ready
+699,63,Mid-Range,ready
+699,36,Bukit Timah,ready
+700,24,Bakery,ready
+700,82,Takeaway,ready
+700,31,Budget,ready
+700,52,Holland Village,ready
+701,13,Vegetarian,ready
+701,43,Dine-In,ready
+701,82,Takeaway,ready
+701,68,Outdoor Seating,ready
+701,51,Good for Groups,ready
+701,47,Family-Friendly,ready
+701,63,Mid-Range,ready
+701,32,Bukit Batok,ready
+702,13,Vegetarian,ready
+702,43,Dine-In,ready
+702,82,Takeaway,ready
+702,73,Reservable,ready
+702,68,Outdoor Seating,ready
+702,51,Good for Groups,ready
+702,47,Family-Friendly,ready
+702,63,Mid-Range,ready
+702,84,Tampines,ready
+703,1,Cafe,ready
+703,43,Dine-In,ready
+703,82,Takeaway,ready
+703,41,Delivery,ready
+703,47,Family-Friendly,ready
+703,31,Budget,ready
+703,87,Toa Payoh,ready
+704,89,Vegan,ready
+704,13,Vegetarian,ready
+704,43,Dine-In,ready
+704,82,Takeaway,ready
+704,41,Delivery,ready
+704,73,Reservable,ready
+704,51,Good for Groups,ready
+704,47,Family-Friendly,ready
+704,63,Mid-Range,ready
+704,78,Singapore River,ready
+705,55,Indian,ready
+705,62,Malay,ready
+705,43,Dine-In,ready
+705,41,Delivery,ready
+705,51,Good for Groups,ready
+705,47,Family-Friendly,ready
+705,31,Budget,ready
+705,58,Jurong West,ready
+706,86,Tea House,ready
+706,82,Takeaway,ready
+706,41,Delivery,ready
+706,93,Woodlands,ready
+707,90,Vietnamese,ready
+707,91,Western,ready
+707,1,Cafe,ready
+707,47,Family-Friendly,ready
+707,64,Museum,ready
+708,112,Juice,ready
+708,113,Juice Bar,ready
+708,43,Dine-In,ready
+708,82,Takeaway,ready
+708,41,Delivery,ready
+708,47,Family-Friendly,ready
+708,69,Outram,ready
+709,38,Chinese,ready
+709,43,Dine-In,ready
+709,82,Takeaway,ready
+709,73,Reservable,ready
+709,51,Good for Groups,ready
+709,47,Family-Friendly,ready
+709,84,Tampines,ready
+710,90,Vietnamese,ready
+710,91,Western,ready
+710,79,Singaporean,ready
+710,47,Family-Friendly,ready
+710,87,Toa Payoh,ready
+711,86,Tea House,ready
+711,82,Takeaway,ready
+711,41,Delivery,ready
+711,47,Family-Friendly,ready
+711,93,Woodlands,ready
+712,91,Western,ready
+712,19,Mala,ready
+712,43,Dine-In,ready
+712,82,Takeaway,ready
+712,41,Delivery,ready
+712,51,Good for Groups,ready
+712,47,Family-Friendly,ready
+712,31,Budget,ready
+712,36,Bukit Timah,ready
+713,38,Chinese,ready
+713,91,Western,ready
+713,19,Mala,ready
+713,43,Dine-In,ready
+713,82,Takeaway,ready
+713,41,Delivery,ready
+713,51,Good for Groups,ready
+713,31,Budget,ready
+713,77,Serangoon,ready
+714,5,Japanese,ready
+714,91,Western,ready
+714,56,Italian,ready
+714,43,Dine-In,ready
+714,82,Takeaway,ready
+714,41,Delivery,ready
+714,73,Reservable,ready
+714,68,Outdoor Seating,ready
+714,51,Good for Groups,ready
+714,47,Family-Friendly,ready
+714,46,Expensive,ready
+714,45,Downtown Core,ready
+715,86,Tea House,ready
+715,43,Dine-In,ready
+715,82,Takeaway,ready
+715,41,Delivery,ready
+715,47,Family-Friendly,ready
+715,63,Mid-Range,ready
+715,57,Jurong East,ready
+716,91,Western,ready
+716,1,Cafe,ready
+716,43,Dine-In,ready
+716,82,Takeaway,ready
+716,31,Budget,ready
+716,39,Choa Chu Kang,ready
+717,1,Cafe,ready
+717,43,Dine-In,ready
+717,82,Takeaway,ready
+717,51,Good for Groups,ready
+717,31,Budget,ready
+717,45,Downtown Core,ready
+718,38,Chinese,ready
+718,82,Takeaway,ready
+718,41,Delivery,ready
+718,43,Dine-In,ready
+718,73,Reservable,ready
+718,51,Good for Groups,ready
+718,47,Family-Friendly,ready
+718,63,Mid-Range,ready
+718,114,Kampong Ubi,ready
+719,91,Western,ready
+719,19,Mala,ready
+719,43,Dine-In,ready
+719,82,Takeaway,ready
+719,41,Delivery,ready
+719,31,Budget,ready
+719,118,Marine Parade,ready
+720,5,Japanese,ready
+720,2,Korean,ready
+720,91,Western,ready
+720,43,Dine-In,ready
+720,82,Takeaway,ready
+720,73,Reservable,ready
+720,68,Outdoor Seating,ready
+720,51,Good for Groups,ready
+720,78,Singapore River,ready
+721,23,Asian,ready
+721,43,Dine-In,ready
+721,82,Takeaway,ready
+721,41,Delivery,ready
+721,47,Family-Friendly,ready
+721,31,Budget,ready
+721,87,Toa Payoh,ready
+722,38,Chinese,ready
+722,62,Malay,ready
+722,1,Cafe,ready
+722,43,Dine-In,ready
+722,82,Takeaway,ready
+722,47,Family-Friendly,ready
+722,31,Budget,ready
+722,36,Bukit Timah,ready
+723,1,Cafe,ready
+723,43,Dine-In,ready
+723,82,Takeaway,ready
+723,51,Good for Groups,ready
+723,47,Family-Friendly,ready
+723,63,Mid-Range,ready
+723,143,Taman Pelangi,ready
+724,1,Cafe,ready
+724,30,Brunch,ready
+724,43,Dine-In,ready
+724,82,Takeaway,ready
+724,41,Delivery,ready
+724,73,Reservable,ready
+724,51,Good for Groups,ready
+724,47,Family-Friendly,ready
+724,63,Mid-Range,ready
+724,25,Bandar Johor Bahru,ready
+725,1,Cafe,ready
+725,43,Dine-In,ready
+725,82,Takeaway,ready
+725,41,Delivery,ready
+725,73,Reservable,ready
+725,51,Good for Groups,ready
+725,47,Family-Friendly,ready
+725,63,Mid-Range,ready
+725,116,Kawasan Perindustrian Tebrau,ready
+726,98,BBQ,ready
+726,43,Dine-In,ready
+726,73,Reservable,ready
+726,51,Good for Groups,ready
+726,47,Family-Friendly,ready
+726,46,Expensive,ready
+726,85,Tanglin,ready
+727,136,Taiwanese,ready
+727,86,Tea House,ready
+727,88,Tourist Spot,ready
+727,82,Takeaway,ready
+727,41,Delivery,ready
+727,47,Family-Friendly,ready
+727,31,Budget,ready
+727,34,Bukit Panjang,ready
+728,86,Tea House,ready
+728,82,Takeaway,ready
+728,41,Delivery,ready
+728,93,Woodlands,ready
+729,76,Seafood,ready
+729,57,Jurong East,ready
+730,90,Vietnamese,ready
+730,76,Seafood,ready
+730,79,Singaporean,ready
+730,43,Dine-In,ready
+730,82,Takeaway,ready
+730,51,Good for Groups,ready
+730,47,Family-Friendly,ready
+730,31,Budget,ready
+730,58,Jurong West,ready
+731,38,Chinese,ready
+731,55,Indian,ready
+731,62,Malay,ready
+731,43,Dine-In,ready
+731,82,Takeaway,ready
+731,68,Outdoor Seating,ready
+731,51,Good for Groups,ready
+731,63,Mid-Range,ready
+731,69,Outram,ready
+732,89,Vegan,ready
+732,13,Vegetarian,ready
+732,43,Dine-In,ready
+732,82,Takeaway,ready
+732,41,Delivery,ready
+732,73,Reservable,ready
+732,51,Good for Groups,ready
+732,47,Family-Friendly,ready
+732,31,Budget,ready
+732,75,Rochor,ready
+733,6,Buffet,ready
+733,43,Dine-In,ready
+733,82,Takeaway,ready
+733,41,Delivery,ready
+733,73,Reservable,ready
+733,51,Good for Groups,ready
+733,47,Family-Friendly,ready
+733,63,Mid-Range,ready
+733,40,Clementi,ready
+734,1,Cafe,ready
+734,43,Dine-In,ready
+734,82,Takeaway,ready
+734,51,Good for Groups,ready
+734,63,Mid-Range,ready
+734,69,Outram,ready
+735,86,Tea House,ready
+735,82,Takeaway,ready
+735,41,Delivery,ready
+735,72,Queenstown,ready
+736,55,Indian,ready
+736,43,Dine-In,ready
+736,82,Takeaway,ready
+736,41,Delivery,ready
+736,68,Outdoor Seating,ready
+736,51,Good for Groups,ready
+736,47,Family-Friendly,ready
+736,31,Budget,ready
+736,50,Geylang,ready
+736,18,Halal,ready
+737,2,Korean,ready
+737,43,Dine-In,ready
+737,73,Reservable,ready
+737,51,Good for Groups,ready
+737,69,Outram,ready
+738,1,Cafe,ready
+738,43,Dine-In,ready
+738,82,Takeaway,ready
+738,41,Delivery,ready
+738,68,Outdoor Seating,ready
+738,51,Good for Groups,ready
+738,47,Family-Friendly,ready
+738,63,Mid-Range,ready
+738,33,Bukit Merah,ready
+739,20,Dessert,ready
+739,88,Tourist Spot,ready
+739,45,Downtown Core,ready
+740,55,Indian,ready
+740,91,Western,ready
+740,18,Halal,ready
+740,43,Dine-In,ready
+740,82,Takeaway,ready
+740,41,Delivery,ready
+740,51,Good for Groups,ready
+740,47,Family-Friendly,ready
+740,31,Budget,ready
+740,75,Rochor,ready
+741,5,Japanese,ready
+741,43,Dine-In,ready
+741,82,Takeaway,ready
+741,41,Delivery,ready
+741,73,Reservable,ready
+741,51,Good for Groups,ready
+741,47,Family-Friendly,ready
+741,63,Mid-Range,ready
+741,78,Singapore River,ready
+742,86,Tea House,ready
+742,54,Ice Cream,ready
+742,20,Dessert,ready
+742,82,Takeaway,ready
+742,41,Delivery,ready
+742,61,Live Music,ready
+742,47,Family-Friendly,ready
+742,28,Bishan,ready
+743,76,Seafood,ready
+743,20,Dessert,ready
+743,79,Singaporean,ready
+743,43,Dine-In,ready
+743,82,Takeaway,ready
+743,31,Budget,ready
+743,59,Kallang,ready
+744,24,Bakery,ready
+744,82,Takeaway,ready
+744,31,Budget,ready
+744,75,Rochor,ready
+745,24,Bakery,ready
+745,82,Takeaway,ready
+745,31,Budget,ready
+745,39,Choa Chu Kang,ready
+746,55,Indian,ready
+746,62,Malay,ready
+746,76,Seafood,ready
+746,43,Dine-In,ready
+746,82,Takeaway,ready
+746,41,Delivery,ready
+746,73,Reservable,ready
+746,51,Good for Groups,ready
+746,47,Family-Friendly,ready
+746,63,Mid-Range,ready
+746,25,Bandar Johor Bahru,ready
+747,86,Tea House,ready
+747,43,Dine-In,ready
+747,82,Takeaway,ready
+747,41,Delivery,ready
+747,27,Bedok,ready
+748,13,Vegetarian,ready
+748,43,Dine-In,ready
+748,82,Takeaway,ready
+748,51,Good for Groups,ready
+748,47,Family-Friendly,ready
+748,31,Budget,ready
+748,67,Orchard,ready
+749,91,Western,ready
+749,76,Seafood,ready
+749,19,Mala,ready
+749,43,Dine-In,ready
+749,82,Takeaway,ready
+749,51,Good for Groups,ready
+749,47,Family-Friendly,ready
+749,31,Budget,ready
+749,27,Bedok,ready
+750,5,Japanese,ready
+750,43,Dine-In,ready
+750,82,Takeaway,ready
+750,41,Delivery,ready
+750,73,Reservable,ready
+750,47,Family-Friendly,ready
+750,63,Mid-Range,ready
+750,52,Holland Village,ready
+751,110,Indonesian,ready
+751,43,Dine-In,ready
+751,82,Takeaway,ready
+751,41,Delivery,ready
+751,73,Reservable,ready
+751,51,Good for Groups,ready
+751,47,Family-Friendly,ready
+751,63,Mid-Range,ready
+751,69,Outram,ready
+752,108,Hotpot / Steamboat,ready
+752,43,Dine-In,ready
+752,82,Takeaway,ready
+752,41,Delivery,ready
+752,51,Good for Groups,ready
+752,47,Family-Friendly,ready
+752,31,Budget,ready
+752,64,Museum,ready
+753,55,Indian,ready
+753,62,Malay,ready
+753,76,Seafood,ready
+753,43,Dine-In,ready
+753,82,Takeaway,ready
+753,51,Good for Groups,ready
+753,47,Family-Friendly,ready
+753,31,Budget,ready
+753,66,Novena,ready
+754,38,Chinese,ready
+754,91,Western,ready
+754,76,Seafood,ready
+754,43,Dine-In,ready
+754,82,Takeaway,ready
+754,41,Delivery,ready
+754,51,Good for Groups,ready
+754,47,Family-Friendly,ready
+754,63,Mid-Range,ready
+754,25,Bandar Johor Bahru,ready
+755,62,Malay,ready
+755,56,Italian,ready
+755,20,Dessert,ready
+755,82,Takeaway,ready
+755,68,Outdoor Seating,ready
+755,47,Family-Friendly,ready
+755,63,Mid-Range,ready
+755,25,Bandar Johor Bahru,ready
+756,76,Seafood,ready
+756,82,Takeaway,ready
+756,31,Budget,ready
+756,58,Jurong West,ready
+757,86,Tea House,ready
+757,43,Dine-In,ready
+757,82,Takeaway,ready
+757,41,Delivery,ready
+757,87,Toa Payoh,ready
+758,55,Indian,ready
+758,43,Dine-In,ready
+758,82,Takeaway,ready
+758,41,Delivery,ready
+758,73,Reservable,ready
+758,68,Outdoor Seating,ready
+758,51,Good for Groups,ready
+758,47,Family-Friendly,ready
+758,31,Budget,ready
+758,75,Rochor,ready
+759,13,Vegetarian,ready
+759,43,Dine-In,ready
+759,82,Takeaway,ready
+759,41,Delivery,ready
+759,73,Reservable,ready
+759,51,Good for Groups,ready
+759,47,Family-Friendly,ready
+759,63,Mid-Range,ready
+759,59,Kallang,ready
+760,80,Steakhouse,ready
+760,26,Bar,ready
+760,43,Dine-In,ready
+760,82,Takeaway,ready
+760,41,Delivery,ready
+760,73,Reservable,ready
+760,68,Outdoor Seating,ready
+760,51,Good for Groups,ready
+760,47,Family-Friendly,ready
+760,67,Orchard,ready
+761,86,Tea House,ready
+761,82,Takeaway,ready
+761,41,Delivery,ready
+761,77,Serangoon,ready
+762,55,Indian,ready
+762,20,Dessert,ready
+762,79,Singaporean,ready
+762,43,Dine-In,ready
+762,82,Takeaway,ready
+762,41,Delivery,ready
+762,47,Family-Friendly,ready
+762,31,Budget,ready
+762,69,Outram,ready
+763,112,Juice,ready
+763,113,Juice Bar,ready
+763,82,Takeaway,ready
+763,47,Family-Friendly,ready
+763,31,Budget,ready
+763,36,Bukit Timah,ready
+764,38,Chinese,ready
+764,55,Indian,ready
+764,62,Malay,ready
+764,82,Takeaway,ready
+764,47,Family-Friendly,ready
+764,31,Budget,ready
+764,27,Bedok,ready
+765,38,Chinese,ready
+765,43,Dine-In,ready
+765,82,Takeaway,ready
+765,41,Delivery,ready
+765,73,Reservable,ready
+765,51,Good for Groups,ready
+765,47,Family-Friendly,ready
+765,63,Mid-Range,ready
+765,72,Queenstown,ready
+766,5,Japanese,ready
+766,62,Malay,ready
+766,91,Western,ready
+766,43,Dine-In,ready
+766,82,Takeaway,ready
+766,41,Delivery,ready
+766,73,Reservable,ready
+766,68,Outdoor Seating,ready
+766,51,Good for Groups,ready
+766,47,Family-Friendly,ready
+766,63,Mid-Range,ready
+766,45,Downtown Core,ready
+766,18,Halal,ready
+767,38,Chinese,ready
+767,76,Seafood,ready
+767,43,Dine-In,ready
+767,82,Takeaway,ready
+767,51,Good for Groups,ready
+767,47,Family-Friendly,ready
+767,31,Budget,ready
+767,50,Geylang,ready
+768,62,Malay,ready
+768,91,Western,ready
+768,76,Seafood,ready
+768,43,Dine-In,ready
+768,51,Good for Groups,ready
+768,47,Family-Friendly,ready
+768,31,Budget,ready
+768,58,Jurong West,ready
+769,86,Tea House,ready
+769,113,Juice Bar,ready
+769,43,Dine-In,ready
+769,82,Takeaway,ready
+769,63,Mid-Range,ready
+769,84,Tampines,ready
+770,62,Malay,ready
+770,91,Western,ready
+770,43,Dine-In,ready
+770,82,Takeaway,ready
+770,51,Good for Groups,ready
+770,47,Family-Friendly,ready
+770,31,Budget,ready
+770,50,Geylang,ready
+771,1,Cafe,ready
+771,43,Dine-In,ready
+771,82,Takeaway,ready
+771,51,Good for Groups,ready
+771,47,Family-Friendly,ready
+771,31,Budget,ready
+771,87,Toa Payoh,ready
+772,86,Tea House,ready
+772,82,Takeaway,ready
+772,41,Delivery,ready
+772,66,Novena,ready
+773,91,Western,ready
+773,78,Singapore River,ready
+774,5,Japanese,ready
+774,6,Buffet,ready
+774,43,Dine-In,ready
+774,82,Takeaway,ready
+774,73,Reservable,ready
+774,68,Outdoor Seating,ready
+774,51,Good for Groups,ready
+774,47,Family-Friendly,ready
+774,63,Mid-Range,ready
+774,87,Toa Payoh,ready
+775,55,Indian,ready
+775,43,Dine-In,ready
+775,82,Takeaway,ready
+775,41,Delivery,ready
+775,51,Good for Groups,ready
+775,47,Family-Friendly,ready
+775,31,Budget,ready
+775,87,Toa Payoh,ready
+775,18,Halal,ready
+776,1,Cafe,ready
+776,24,Bakery,ready
+776,43,Dine-In,ready
+776,82,Takeaway,ready
+776,41,Delivery,ready
+776,31,Budget,ready
+776,59,Kallang,ready
+777,55,Indian,ready
+777,62,Malay,ready
+777,19,Mala,ready
+777,43,Dine-In,ready
+777,82,Takeaway,ready
+777,68,Outdoor Seating,ready
+777,51,Good for Groups,ready
+777,47,Family-Friendly,ready
+777,31,Budget,ready
+777,115,Kampung Bahru,ready
+778,76,Seafood,ready
+778,79,Singaporean,ready
+778,43,Dine-In,ready
+778,82,Takeaway,ready
+778,51,Good for Groups,ready
+778,47,Family-Friendly,ready
+778,31,Budget,ready
+778,59,Kallang,ready
+779,20,Dessert,ready
+779,82,Takeaway,ready
+779,31,Budget,ready
+779,32,Bukit Batok,ready
+780,1,Cafe,ready
+780,43,Dine-In,ready
+780,82,Takeaway,ready
+780,41,Delivery,ready
+780,51,Good for Groups,ready
+780,47,Family-Friendly,ready
+780,31,Budget,ready
+780,36,Bukit Timah,ready
+781,86,Tea House,ready
+781,82,Takeaway,ready
+781,41,Delivery,ready
+781,47,Family-Friendly,ready
+781,84,Tampines,ready
+782,13,Vegetarian,ready
+782,41,Delivery,ready
+782,72,Queenstown,ready
+783,1,Cafe,ready
+783,24,Bakery,ready
+783,82,Takeaway,ready
+783,41,Delivery,ready
+783,47,Family-Friendly,ready
+783,31,Budget,ready
+783,118,Marine Parade,ready
+784,62,Malay,ready
+784,91,Western,ready
+784,13,Vegetarian,ready
+784,43,Dine-In,ready
+784,82,Takeaway,ready
+784,51,Good for Groups,ready
+784,47,Family-Friendly,ready
+784,31,Budget,ready
+784,50,Geylang,ready
+785,1,Cafe,ready
+785,43,Dine-In,ready
+785,82,Takeaway,ready
+785,41,Delivery,ready
+785,68,Outdoor Seating,ready
+785,47,Family-Friendly,ready
+785,31,Budget,ready
+785,36,Bukit Timah,ready
+786,76,Seafood,ready
+786,1,Cafe,ready
+786,43,Dine-In,ready
+786,82,Takeaway,ready
+786,51,Good for Groups,ready
+786,47,Family-Friendly,ready
+786,31,Budget,ready
+786,75,Rochor,ready
+787,54,Ice Cream,ready
+787,20,Dessert,ready
+787,43,Dine-In,ready
+787,82,Takeaway,ready
+787,47,Family-Friendly,ready
+787,63,Mid-Range,ready
+787,32,Bukit Batok,ready
+788,5,Japanese,ready
+788,55,Indian,ready
+788,91,Western,ready
+788,43,Dine-In,ready
+788,41,Delivery,ready
+788,73,Reservable,ready
+788,71,Premium,ready
+788,69,Outram,ready
+789,147,Thai,ready
+789,43,Dine-In,ready
+789,82,Takeaway,ready
+789,41,Delivery,ready
+789,73,Reservable,ready
+789,51,Good for Groups,ready
+789,47,Family-Friendly,ready
+789,63,Mid-Range,ready
+789,28,Bishan,ready
+790,91,Western,ready
+790,76,Seafood,ready
+790,79,Singaporean,ready
+790,43,Dine-In,ready
+790,82,Takeaway,ready
+790,51,Good for Groups,ready
+790,47,Family-Friendly,ready
+790,31,Budget,ready
+790,59,Kallang,ready
+791,38,Chinese,ready
+791,76,Seafood,ready
+791,1,Cafe,ready
+791,43,Dine-In,ready
+791,82,Takeaway,ready
+791,68,Outdoor Seating,ready
+791,51,Good for Groups,ready
+791,47,Family-Friendly,ready
+791,31,Budget,ready
+791,32,Bukit Batok,ready
+792,42,Dim Sum,ready
+792,43,Dine-In,ready
+792,82,Takeaway,ready
+792,51,Good for Groups,ready
+792,47,Family-Friendly,ready
+792,31,Budget,ready
+792,59,Kallang,ready
+793,1,Cafe,ready
+793,43,Dine-In,ready
+793,82,Takeaway,ready
+793,73,Reservable,ready
+793,47,Family-Friendly,ready
+793,63,Mid-Range,ready
+793,69,Outram,ready
+794,56,Italian,ready
+794,43,Dine-In,ready
+794,82,Takeaway,ready
+794,73,Reservable,ready
+794,68,Outdoor Seating,ready
+794,51,Good for Groups,ready
+794,47,Family-Friendly,ready
+794,25,Bandar Johor Bahru,ready
+795,105,Fusion,ready
+795,43,Dine-In,ready
+795,82,Takeaway,ready
+795,73,Reservable,ready
+795,51,Good for Groups,ready
+795,47,Family-Friendly,ready
+795,46,Expensive,ready
+795,67,Orchard,ready
+796,112,Juice,ready
+796,113,Juice Bar,ready
+796,20,Dessert,ready
+796,43,Dine-In,ready
+796,82,Takeaway,ready
+796,41,Delivery,ready
+796,47,Family-Friendly,ready
+796,31,Budget,ready
+796,36,Bukit Timah,ready
+797,24,Bakery,ready
+797,82,Takeaway,ready
+797,41,Delivery,ready
+797,31,Budget,ready
+797,33,Bukit Merah,ready
+798,38,Chinese,ready
+798,43,Dine-In,ready
+798,82,Takeaway,ready
+798,47,Family-Friendly,ready
+798,31,Budget,ready
+798,45,Downtown Core,ready
+799,23,Asian,ready
+799,43,Dine-In,ready
+799,82,Takeaway,ready
+799,41,Delivery,ready
+799,73,Reservable,ready
+799,68,Outdoor Seating,ready
+799,51,Good for Groups,ready
+799,63,Mid-Range,ready
+799,69,Outram,ready
+800,38,Chinese,ready
+800,91,Western,ready
+800,76,Seafood,ready
+800,43,Dine-In,ready
+800,82,Takeaway,ready
+800,51,Good for Groups,ready
+800,47,Family-Friendly,ready
+800,31,Budget,ready
+800,69,Outram,ready
+801,1,Cafe,ready
+801,43,Dine-In,ready
+801,82,Takeaway,ready
+801,41,Delivery,ready
+801,73,Reservable,ready
+801,68,Outdoor Seating,ready
+801,51,Good for Groups,ready
+801,47,Family-Friendly,ready
+801,63,Mid-Range,ready
+801,75,Rochor,ready
+802,105,Fusion,ready
+802,43,Dine-In,ready
+802,82,Takeaway,ready
+802,41,Delivery,ready
+802,51,Good for Groups,ready
+802,47,Family-Friendly,ready
+802,31,Budget,ready
+802,45,Downtown Core,ready
+803,86,Tea House,ready
+803,82,Takeaway,ready
+803,41,Delivery,ready
+803,87,Toa Payoh,ready
+804,56,Italian,ready
+804,20,Dessert,ready
+804,1,Cafe,ready
+804,43,Dine-In,ready
+804,82,Takeaway,ready
+804,73,Reservable,ready
+804,68,Outdoor Seating,ready
+804,51,Good for Groups,ready
+804,47,Family-Friendly,ready
+804,45,Downtown Core,ready
+805,13,Vegetarian,ready
+805,43,Dine-In,ready
+805,82,Takeaway,ready
+805,41,Delivery,ready
+805,73,Reservable,ready
+805,51,Good for Groups,ready
+805,47,Family-Friendly,ready
+805,46,Expensive,ready
+805,67,Orchard,ready
+806,76,Seafood,ready
+806,13,Vegetarian,ready
+806,79,Singaporean,ready
+806,43,Dine-In,ready
+806,82,Takeaway,ready
+806,47,Family-Friendly,ready
+806,31,Budget,ready
+806,72,Queenstown,ready
+807,38,Chinese,ready
+807,91,Western,ready
+807,76,Seafood,ready
+807,43,Dine-In,ready
+807,82,Takeaway,ready
+807,68,Outdoor Seating,ready
+807,51,Good for Groups,ready
+807,47,Family-Friendly,ready
+807,63,Mid-Range,ready
+807,130,River Valley,ready
+808,1,Cafe,ready
+808,43,Dine-In,ready
+808,82,Takeaway,ready
+808,68,Outdoor Seating,ready
+808,31,Budget,ready
+808,69,Outram,ready
+809,147,Thai,ready
+809,91,Western,ready
+809,120,Mexican,ready
+809,82,Takeaway,ready
+809,41,Delivery,ready
+809,33,Bukit Merah,ready
+810,54,Ice Cream,ready
+810,20,Dessert,ready
+810,43,Dine-In,ready
+810,82,Takeaway,ready
+810,51,Good for Groups,ready
+810,47,Family-Friendly,ready
+810,66,Novena,ready
+811,86,Tea House,ready
+811,43,Dine-In,ready
+811,82,Takeaway,ready
+811,45,Downtown Core,ready
+812,30,Brunch,ready
+812,86,Tea House,ready
+812,43,Dine-In,ready
+812,82,Takeaway,ready
+812,41,Delivery,ready
+812,73,Reservable,ready
+812,51,Good for Groups,ready
+812,47,Family-Friendly,ready
+812,63,Mid-Range,ready
+812,59,Kallang,ready
+813,76,Seafood,ready
+813,43,Dine-In,ready
+813,82,Takeaway,ready
+813,73,Reservable,ready
+813,68,Outdoor Seating,ready
+813,51,Good for Groups,ready
+813,47,Family-Friendly,ready
+813,94,Yishun,ready
+814,86,Tea House,ready
+814,82,Takeaway,ready
+814,41,Delivery,ready
+814,31,Budget,ready
+814,69,Outram,ready
+815,24,Bakery,ready
+815,1,Cafe,ready
+815,43,Dine-In,ready
+815,82,Takeaway,ready
+815,41,Delivery,ready
+815,63,Mid-Range,ready
+815,143,Taman Pelangi,ready
+816,2,Korean,ready
+816,43,Dine-In,ready
+816,73,Reservable,ready
+816,51,Good for Groups,ready
+816,47,Family-Friendly,ready
+816,69,Outram,ready
+817,79,Singaporean,ready
+817,43,Dine-In,ready
+817,82,Takeaway,ready
+817,51,Good for Groups,ready
+817,47,Family-Friendly,ready
+817,97,Ang Mo Kio,ready
+818,5,Japanese,ready
+818,62,Malay,ready
+818,91,Western,ready
+818,43,Dine-In,ready
+818,82,Takeaway,ready
+818,73,Reservable,ready
+818,51,Good for Groups,ready
+818,47,Family-Friendly,ready
+818,46,Expensive,ready
+818,69,Outram,ready
+819,111,Indoor Playground,ready
+819,47,Family-Friendly,ready
+819,59,Kallang,ready
+820,86,Tea House,ready
+820,82,Takeaway,ready
+820,41,Delivery,ready
+820,127,Punggol,ready
+821,1,Cafe,ready
+821,43,Dine-In,ready
+821,82,Takeaway,ready
+821,41,Delivery,ready
+821,51,Good for Groups,ready
+821,47,Family-Friendly,ready
+821,31,Budget,ready
+821,53,Hougang,ready
+822,56,Italian,ready
+822,6,Buffet,ready
+822,43,Dine-In,ready
+822,82,Takeaway,ready
+822,41,Delivery,ready
+822,73,Reservable,ready
+822,68,Outdoor Seating,ready
+822,51,Good for Groups,ready
+822,47,Family-Friendly,ready
+822,46,Expensive,ready
+822,67,Orchard,ready
+823,38,Chinese,ready
+823,90,Vietnamese,ready
+823,79,Singaporean,ready
+823,43,Dine-In,ready
+823,82,Takeaway,ready
+823,51,Good for Groups,ready
+823,47,Family-Friendly,ready
+823,31,Budget,ready
+823,97,Ang Mo Kio,ready
+824,90,Vietnamese,ready
+824,91,Western,ready
+824,56,Italian,ready
+824,43,Dine-In,ready
+824,82,Takeaway,ready
+824,31,Budget,ready
+824,93,Woodlands,ready
+825,5,Japanese,ready
+825,2,Korean,ready
+825,55,Indian,ready
+825,43,Dine-In,ready
+825,82,Takeaway,ready
+825,47,Family-Friendly,ready
+825,31,Budget,ready
+825,45,Downtown Core,ready
+826,74,Restaurant,ready
+826,43,Dine-In,ready
+826,82,Takeaway,ready
+826,41,Delivery,ready
+826,47,Family-Friendly,ready
+826,31,Budget,ready
+826,75,Rochor,ready
+827,13,Vegetarian,ready
+827,43,Dine-In,ready
+827,82,Takeaway,ready
+827,41,Delivery,ready
+827,73,Reservable,ready
+827,51,Good for Groups,ready
+827,47,Family-Friendly,ready
+827,46,Expensive,ready
+827,75,Rochor,ready
+828,24,Bakery,ready
+828,82,Takeaway,ready
+828,41,Delivery,ready
+828,87,Toa Payoh,ready
+829,62,Malay,ready
+829,18,Halal,ready
+829,19,Mala,ready
+829,43,Dine-In,ready
+829,82,Takeaway,ready
+829,41,Delivery,ready
+829,73,Reservable,ready
+829,68,Outdoor Seating,ready
+829,51,Good for Groups,ready
+829,47,Family-Friendly,ready
+829,31,Budget,ready
+829,94,Yishun,ready
+830,1,Cafe,ready
+830,43,Dine-In,ready
+830,82,Takeaway,ready
+830,41,Delivery,ready
+830,73,Reservable,ready
+830,51,Good for Groups,ready
+830,47,Family-Friendly,ready
+830,63,Mid-Range,ready
+830,87,Toa Payoh,ready
+831,24,Bakery,ready
+831,82,Takeaway,ready
+831,31,Budget,ready
+831,69,Outram,ready
+832,38,Chinese,ready
+832,76,Seafood,ready
+832,43,Dine-In,ready
+832,82,Takeaway,ready
+832,41,Delivery,ready
+832,73,Reservable,ready
+832,51,Good for Groups,ready
+832,47,Family-Friendly,ready
+832,63,Mid-Range,ready
+832,40,Clementi,ready
+833,86,Tea House,ready
+833,82,Takeaway,ready
+833,41,Delivery,ready
+833,31,Budget,ready
+833,58,Jurong West,ready
+834,62,Malay,ready
+834,91,Western,ready
+834,56,Italian,ready
+834,43,Dine-In,ready
+834,82,Takeaway,ready
+834,41,Delivery,ready
+834,73,Reservable,ready
+834,68,Outdoor Seating,ready
+834,51,Good for Groups,ready
+834,47,Family-Friendly,ready
+834,59,Kallang,ready
+834,18,Halal,ready
+835,2,Korean,ready
+835,43,Dine-In,ready
+835,82,Takeaway,ready
+835,41,Delivery,ready
+835,73,Reservable,ready
+835,68,Outdoor Seating,ready
+835,51,Good for Groups,ready
+835,63,Mid-Range,ready
+835,69,Outram,ready
+836,104,Fast Food,ready
+836,38,Chinese,ready
+836,43,Dine-In,ready
+836,82,Takeaway,ready
+836,41,Delivery,ready
+836,68,Outdoor Seating,ready
+836,47,Family-Friendly,ready
+836,31,Budget,ready
+836,45,Downtown Core,ready
+837,24,Bakery,ready
+837,82,Takeaway,ready
+837,31,Budget,ready
+837,59,Kallang,ready
+838,1,Cafe,ready
+838,82,Takeaway,ready
+838,47,Family-Friendly,ready
+838,31,Budget,ready
+838,53,Hougang,ready
+839,49,French,ready
+839,43,Dine-In,ready
+839,73,Reservable,ready
+839,68,Outdoor Seating,ready
+839,51,Good for Groups,ready
+839,71,Premium,ready
+839,45,Downtown Core,ready
+840,5,Japanese,ready
+840,38,Chinese,ready
+840,91,Western,ready
+840,43,Dine-In,ready
+840,82,Takeaway,ready
+840,41,Delivery,ready
+840,61,Live Music,ready
+840,51,Good for Groups,ready
+840,47,Family-Friendly,ready
+840,31,Budget,ready
+840,84,Tampines,ready
+841,2,Korean,ready
+841,43,Dine-In,ready
+841,82,Takeaway,ready
+841,41,Delivery,ready
+841,73,Reservable,ready
+841,51,Good for Groups,ready
+841,47,Family-Friendly,ready
+841,63,Mid-Range,ready
+841,45,Downtown Core,ready
+842,38,Chinese,ready
+842,43,Dine-In,ready
+842,82,Takeaway,ready
+842,73,Reservable,ready
+842,47,Family-Friendly,ready
+842,31,Budget,ready
+842,64,Museum,ready
+843,49,French,ready
+843,92,Wine Bar,ready
+843,20,Dessert,ready
+843,24,Bakery,ready
+843,26,Bar,ready
+843,43,Dine-In,ready
+843,82,Takeaway,ready
+843,41,Delivery,ready
+843,73,Reservable,ready
+843,68,Outdoor Seating,ready
+843,51,Good for Groups,ready
+843,47,Family-Friendly,ready
+843,69,Outram,ready
+844,38,Chinese,ready
+844,79,Singaporean,ready
+844,43,Dine-In,ready
+844,82,Takeaway,ready
+844,51,Good for Groups,ready
+844,47,Family-Friendly,ready
+844,31,Budget,ready
+844,72,Queenstown,ready
+845,38,Chinese,ready
+845,43,Dine-In,ready
+845,82,Takeaway,ready
+845,41,Delivery,ready
+845,51,Good for Groups,ready
+845,47,Family-Friendly,ready
+845,63,Mid-Range,ready
+845,45,Downtown Core,ready
+846,86,Tea House,ready
+846,82,Takeaway,ready
+846,63,Mid-Range,ready
+846,84,Tampines,ready
+847,5,Japanese,ready
+847,43,Dine-In,ready
+847,82,Takeaway,ready
+847,41,Delivery,ready
+847,73,Reservable,ready
+847,51,Good for Groups,ready
+847,47,Family-Friendly,ready
+847,63,Mid-Range,ready
+847,28,Bishan,ready
+848,1,Cafe,ready
+848,43,Dine-In,ready
+848,82,Takeaway,ready
+848,41,Delivery,ready
+848,73,Reservable,ready
+848,68,Outdoor Seating,ready
+848,51,Good for Groups,ready
+848,47,Family-Friendly,ready
+848,63,Mid-Range,ready
+848,33,Bukit Merah,ready
+849,38,Chinese,ready
+849,43,Dine-In,ready
+849,82,Takeaway,ready
+849,41,Delivery,ready
+849,51,Good for Groups,ready
+849,47,Family-Friendly,ready
+849,31,Budget,ready
+849,50,Geylang,ready
+850,131,Salad Shop,ready
+850,82,Takeaway,ready
+850,41,Delivery,ready
+850,31,Budget,ready
+850,50,Geylang,ready
+851,1,Cafe,ready
+851,45,Downtown Core,ready
+852,54,Ice Cream,ready
+852,24,Bakery,ready
+852,20,Dessert,ready
+852,1,Cafe,ready
+852,43,Dine-In,ready
+852,82,Takeaway,ready
+852,41,Delivery,ready
+852,51,Good for Groups,ready
+852,47,Family-Friendly,ready
+852,63,Mid-Range,ready
+852,28,Bishan,ready
+853,29,Brazilian,ready
+853,82,Takeaway,ready
+853,47,Family-Friendly,ready
+853,31,Budget,ready
+853,87,Toa Payoh,ready
+854,86,Tea House,ready
+854,43,Dine-In,ready
+854,82,Takeaway,ready
+854,84,Tampines,ready
+855,55,Indian,ready
+855,62,Malay,ready
+855,43,Dine-In,ready
+855,82,Takeaway,ready
+855,51,Good for Groups,ready
+855,47,Family-Friendly,ready
+855,31,Budget,ready
+855,45,Downtown Core,ready
+855,18,Halal,ready
+856,1,Cafe,ready
+856,30,Brunch,ready
+856,24,Bakery,ready
+856,43,Dine-In,ready
+856,82,Takeaway,ready
+856,41,Delivery,ready
+856,73,Reservable,ready
+856,68,Outdoor Seating,ready
+856,47,Family-Friendly,ready
+856,63,Mid-Range,ready
+856,75,Rochor,ready
+857,2,Korean,ready
+857,43,Dine-In,ready
+857,82,Takeaway,ready
+857,41,Delivery,ready
+857,51,Good for Groups,ready
+857,47,Family-Friendly,ready
+857,31,Budget,ready
+857,32,Bukit Batok,ready
+858,86,Tea House,ready
+858,82,Takeaway,ready
+858,41,Delivery,ready
+858,133,Sembawang,ready
+859,13,Vegetarian,ready
+859,43,Dine-In,ready
+859,82,Takeaway,ready
+859,41,Delivery,ready
+859,73,Reservable,ready
+859,51,Good for Groups,ready
+859,47,Family-Friendly,ready
+859,63,Mid-Range,ready
+859,67,Orchard,ready
+860,86,Tea House,ready
+860,43,Dine-In,ready
+860,82,Takeaway,ready
+860,41,Delivery,ready
+860,58,Jurong West,ready
+861,2,Korean,ready
+861,43,Dine-In,ready
+861,82,Takeaway,ready
+861,41,Delivery,ready
+861,51,Good for Groups,ready
+861,47,Family-Friendly,ready
+861,31,Budget,ready
+861,94,Yishun,ready
+861,18,Halal,ready
+862,126,Playground,ready
+862,33,Bukit Merah,ready
+863,38,Chinese,ready
+863,23,Asian,ready
+863,43,Dine-In,ready
+863,82,Takeaway,ready
+863,73,Reservable,ready
+863,68,Outdoor Seating,ready
+863,51,Good for Groups,ready
+863,47,Family-Friendly,ready
+863,46,Expensive,ready
+863,45,Downtown Core,ready
+864,24,Bakery,ready
+864,20,Dessert,ready
+864,43,Dine-In,ready
+864,82,Takeaway,ready
+864,41,Delivery,ready
+864,36,Bukit Timah,ready
+865,104,Fast Food,ready
+865,82,Takeaway,ready
+865,43,Dine-In,ready
+865,41,Delivery,ready
+865,73,Reservable,ready
+865,47,Family-Friendly,ready
+865,31,Budget,ready
+865,67,Orchard,ready
+866,62,Malay,ready
+866,91,Western,ready
+866,76,Seafood,ready
+866,25,Bandar Johor Bahru,ready
+867,24,Bakery,ready
+867,82,Takeaway,ready
+867,31,Budget,ready
+867,58,Jurong West,ready
+867,18,Halal,ready
+868,147,Thai,ready
+868,43,Dine-In,ready
+868,82,Takeaway,ready
+868,73,Reservable,ready
+868,68,Outdoor Seating,ready
+868,51,Good for Groups,ready
+868,47,Family-Friendly,ready
+868,63,Mid-Range,ready
+868,94,Yishun,ready
+869,86,Tea House,ready
+869,82,Takeaway,ready
+869,41,Delivery,ready
+869,134,Sengkang,ready
+870,86,Tea House,ready
+870,82,Takeaway,ready
+870,41,Delivery,ready
+870,47,Family-Friendly,ready
+870,72,Queenstown,ready
+871,89,Vegan,ready
+871,13,Vegetarian,ready
+871,82,Takeaway,ready
+871,43,Dine-In,ready
+871,41,Delivery,ready
+871,68,Outdoor Seating,ready
+871,31,Budget,ready
+871,50,Geylang,ready
+872,111,Indoor Playground,ready
+872,37,Changi,ready
+873,1,Cafe,ready
+873,43,Dine-In,ready
+873,82,Takeaway,ready
+873,41,Delivery,ready
+873,73,Reservable,ready
+873,51,Good for Groups,ready
+873,47,Family-Friendly,ready
+873,63,Mid-Range,ready
+873,137,Taman Abad,ready
+874,1,Cafe,ready
+874,43,Dine-In,ready
+874,82,Takeaway,ready
+874,41,Delivery,ready
+874,51,Good for Groups,ready
+874,47,Family-Friendly,ready
+874,31,Budget,ready
+874,27,Bedok,ready
+875,55,Indian,ready
+875,20,Dessert,ready
+875,43,Dine-In,ready
+875,82,Takeaway,ready
+875,51,Good for Groups,ready
+875,47,Family-Friendly,ready
+875,31,Budget,ready
+875,33,Bukit Merah,ready
+876,2,Korean,ready
+876,43,Dine-In,ready
+876,82,Takeaway,ready
+876,41,Delivery,ready
+876,73,Reservable,ready
+876,51,Good for Groups,ready
+876,47,Family-Friendly,ready
+876,63,Mid-Range,ready
+876,64,Museum,ready
+877,86,Tea House,ready
+877,54,Ice Cream,ready
+877,20,Dessert,ready
+877,82,Takeaway,ready
+877,41,Delivery,ready
+877,73,Reservable,ready
+877,47,Family-Friendly,ready
+877,31,Budget,ready
+877,75,Rochor,ready
+878,38,Chinese,ready
+878,43,Dine-In,ready
+878,82,Takeaway,ready
+878,51,Good for Groups,ready
+878,47,Family-Friendly,ready
+878,31,Budget,ready
+878,57,Jurong East,ready
+879,38,Chinese,ready
+879,43,Dine-In,ready
+879,82,Takeaway,ready
+879,73,Reservable,ready
+879,51,Good for Groups,ready
+879,47,Family-Friendly,ready
+879,31,Budget,ready
+879,45,Downtown Core,ready
+880,129,Ramen,ready
+880,43,Dine-In,ready
+880,82,Takeaway,ready
+880,73,Reservable,ready
+880,51,Good for Groups,ready
+880,47,Family-Friendly,ready
+880,63,Mid-Range,ready
+880,45,Downtown Core,ready
+880,18,Halal,ready
+881,1,Cafe,ready
+881,82,Takeaway,ready
+881,41,Delivery,ready
+881,68,Outdoor Seating,ready
+881,47,Family-Friendly,ready
+881,31,Budget,ready
+881,75,Rochor,ready
+882,76,Seafood,ready
+882,20,Dessert,ready
+882,79,Singaporean,ready
+882,43,Dine-In,ready
+882,82,Takeaway,ready
+882,68,Outdoor Seating,ready
+882,51,Good for Groups,ready
+882,47,Family-Friendly,ready
+882,31,Budget,ready
+882,75,Rochor,ready
+883,49,French,ready
+883,43,Dine-In,ready
+883,82,Takeaway,ready
+883,73,Reservable,ready
+883,68,Outdoor Seating,ready
+883,51,Good for Groups,ready
+883,47,Family-Friendly,ready
+883,63,Mid-Range,ready
+883,67,Orchard,ready
+884,86,Tea House,ready
+884,82,Takeaway,ready
+884,41,Delivery,ready
+884,31,Budget,ready
+884,27,Bedok,ready
+885,38,Chinese,ready
+885,43,Dine-In,ready
+885,82,Takeaway,ready
+885,41,Delivery,ready
+885,73,Reservable,ready
+885,68,Outdoor Seating,ready
+885,51,Good for Groups,ready
+885,47,Family-Friendly,ready
+885,63,Mid-Range,ready
+885,50,Geylang,ready
+886,38,Chinese,ready
+886,43,Dine-In,ready
+886,82,Takeaway,ready
+886,41,Delivery,ready
+886,73,Reservable,ready
+886,51,Good for Groups,ready
+886,47,Family-Friendly,ready
+886,63,Mid-Range,ready
+886,69,Outram,ready
+887,86,Tea House,ready
+887,82,Takeaway,ready
+887,73,Reservable,ready
+887,31,Budget,ready
+887,37,Changi,ready
+888,1,Cafe,ready
+888,82,Takeaway,ready
+888,41,Delivery,ready
+888,68,Outdoor Seating,ready
+888,31,Budget,ready
+888,75,Rochor,ready
+889,1,Cafe,ready
+889,43,Dine-In,ready
+889,82,Takeaway,ready
+889,73,Reservable,ready
+889,68,Outdoor Seating,ready
+889,51,Good for Groups,ready
+889,47,Family-Friendly,ready
+889,63,Mid-Range,ready
+889,118,Marine Parade,ready
+890,91,Western,ready
+890,1,Cafe,ready
+890,79,Singaporean,ready
+890,43,Dine-In,ready
+890,82,Takeaway,ready
+890,41,Delivery,ready
+890,51,Good for Groups,ready
+890,47,Family-Friendly,ready
+890,31,Budget,ready
+890,33,Bukit Merah,ready
+891,55,Indian,ready
+891,20,Dessert,ready
+891,104,Fast Food,ready
+891,43,Dine-In,ready
+891,82,Takeaway,ready
+891,51,Good for Groups,ready
+891,47,Family-Friendly,ready
+891,31,Budget,ready
+891,50,Geylang,ready
+892,24,Bakery,ready
+892,82,Takeaway,ready
+892,41,Delivery,ready
+892,85,Tanglin,ready
+893,1,Cafe,ready
+893,43,Dine-In,ready
+893,82,Takeaway,ready
+893,41,Delivery,ready
+893,51,Good for Groups,ready
+893,47,Family-Friendly,ready
+893,31,Budget,ready
+893,28,Bishan,ready
+894,38,Chinese,ready
+894,43,Dine-In,ready
+894,82,Takeaway,ready
+894,68,Outdoor Seating,ready
+894,51,Good for Groups,ready
+894,47,Family-Friendly,ready
+894,63,Mid-Range,ready
+894,146,Taman Stulang Laut,ready
+895,38,Chinese,ready
+895,76,Seafood,ready
+895,43,Dine-In,ready
+895,82,Takeaway,ready
+895,51,Good for Groups,ready
+895,47,Family-Friendly,ready
+895,31,Budget,ready
+895,97,Ang Mo Kio,ready
+896,5,Japanese,ready
+896,43,Dine-In,ready
+896,82,Takeaway,ready
+896,73,Reservable,ready
+896,51,Good for Groups,ready
+896,47,Family-Friendly,ready
+896,63,Mid-Range,ready
+896,93,Woodlands,ready
+897,13,Vegetarian,ready
+897,89,Vegan,ready
+897,43,Dine-In,ready
+897,82,Takeaway,ready
+897,41,Delivery,ready
+897,73,Reservable,ready
+897,68,Outdoor Seating,ready
+897,51,Good for Groups,ready
+897,47,Family-Friendly,ready
+897,63,Mid-Range,ready
+897,87,Toa Payoh,ready
+898,1,Cafe,ready
+898,82,Takeaway,ready
+898,31,Budget,ready
+898,50,Geylang,ready
+899,54,Ice Cream,ready
+899,20,Dessert,ready
+899,1,Cafe,ready
+899,43,Dine-In,ready
+899,82,Takeaway,ready
+899,47,Family-Friendly,ready
+899,69,Outram,ready
+900,13,Vegetarian,ready
+900,43,Dine-In,ready
+900,82,Takeaway,ready
+900,41,Delivery,ready
+900,73,Reservable,ready
+900,51,Good for Groups,ready
+900,47,Family-Friendly,ready
+900,63,Mid-Range,ready
+900,75,Rochor,ready
+901,86,Tea House,ready
+901,82,Takeaway,ready
+901,31,Budget,ready
+901,97,Ang Mo Kio,ready
+902,86,Tea House,ready
+902,43,Dine-In,ready
+902,82,Takeaway,ready
+902,41,Delivery,ready
+902,45,Downtown Core,ready
+903,89,Vegan,ready
+903,105,Fusion,ready
+903,30,Brunch,ready
+903,13,Vegetarian,ready
+903,43,Dine-In,ready
+903,82,Takeaway,ready
+903,41,Delivery,ready
+903,73,Reservable,ready
+903,68,Outdoor Seating,ready
+903,51,Good for Groups,ready
+903,47,Family-Friendly,ready
+903,63,Mid-Range,ready
+903,78,Singapore River,ready
+904,55,Indian,ready
+904,76,Seafood,ready
+904,20,Dessert,ready
+904,43,Dine-In,ready
+904,82,Takeaway,ready
+904,73,Reservable,ready
+904,68,Outdoor Seating,ready
+904,51,Good for Groups,ready
+904,71,Premium,ready
+904,85,Tanglin,ready
+905,1,Cafe,ready
+905,43,Dine-In,ready
+905,82,Takeaway,ready
+905,41,Delivery,ready
+905,73,Reservable,ready
+905,31,Budget,ready
+905,72,Queenstown,ready
+906,1,Cafe,ready
+906,43,Dine-In,ready
+906,82,Takeaway,ready
+906,41,Delivery,ready
+906,73,Reservable,ready
+906,68,Outdoor Seating,ready
+906,51,Good for Groups,ready
+906,47,Family-Friendly,ready
+906,63,Mid-Range,ready
+906,66,Novena,ready
+907,86,Tea House,ready
+907,43,Dine-In,ready
+907,82,Takeaway,ready
+907,41,Delivery,ready
+907,73,Reservable,ready
+907,68,Outdoor Seating,ready
+907,47,Family-Friendly,ready
+907,67,Orchard,ready
+908,5,Japanese,ready
+908,79,Singaporean,ready
+908,43,Dine-In,ready
+908,82,Takeaway,ready
+908,41,Delivery,ready
+908,73,Reservable,ready
+908,51,Good for Groups,ready
+908,47,Family-Friendly,ready
+908,63,Mid-Range,ready
+908,67,Orchard,ready
+909,38,Chinese,ready
+909,20,Dessert,ready
+909,43,Dine-In,ready
+909,82,Takeaway,ready
+909,47,Family-Friendly,ready
+909,57,Jurong East,ready
+910,24,Bakery,ready
+910,43,Dine-In,ready
+910,82,Takeaway,ready
+910,31,Budget,ready
+910,69,Outram,ready
+911,13,Vegetarian,ready
+911,24,Bakery,ready
+911,43,Dine-In,ready
+911,82,Takeaway,ready
+911,31,Budget,ready
+911,75,Rochor,ready
+912,38,Chinese,ready
+912,43,Dine-In,ready
+912,82,Takeaway,ready
+912,41,Delivery,ready
+912,73,Reservable,ready
+912,51,Good for Groups,ready
+912,47,Family-Friendly,ready
+912,63,Mid-Range,ready
+912,59,Kallang,ready
+913,20,Dessert,ready
+913,79,Singaporean,ready
+913,43,Dine-In,ready
+913,82,Takeaway,ready
+913,47,Family-Friendly,ready
+913,31,Budget,ready
+913,58,Jurong West,ready
+914,6,Buffet,ready
+914,43,Dine-In,ready
+914,73,Reservable,ready
+914,61,Live Music,ready
+914,51,Good for Groups,ready
+914,47,Family-Friendly,ready
+914,63,Mid-Range,ready
+914,67,Orchard,ready
+915,38,Chinese,ready
+915,43,Dine-In,ready
+915,82,Takeaway,ready
+915,51,Good for Groups,ready
+915,47,Family-Friendly,ready
+915,31,Budget,ready
+915,45,Downtown Core,ready
+916,1,Cafe,ready
+916,24,Bakery,ready
+916,26,Bar,ready
+916,43,Dine-In,ready
+916,82,Takeaway,ready
+916,73,Reservable,ready
+916,47,Family-Friendly,ready
+916,63,Mid-Range,ready
+916,69,Outram,ready
+917,55,Indian,ready
+917,76,Seafood,ready
+917,13,Vegetarian,ready
+917,43,Dine-In,ready
+917,82,Takeaway,ready
+917,47,Family-Friendly,ready
+917,31,Budget,ready
+917,93,Woodlands,ready
+918,1,Cafe,ready
+918,43,Dine-In,ready
+918,82,Takeaway,ready
+918,41,Delivery,ready
+918,31,Budget,ready
+918,97,Ang Mo Kio,ready
+919,91,Western,ready
+919,1,Cafe,ready
+919,79,Singaporean,ready
+919,43,Dine-In,ready
+919,82,Takeaway,ready
+919,31,Budget,ready
+919,45,Downtown Core,ready
+920,55,Indian,ready
+920,90,Vietnamese,ready
+920,82,Takeaway,ready
+920,31,Budget,ready
+920,50,Geylang,ready
+921,49,French,ready
+921,92,Wine Bar,ready
+921,26,Bar,ready
+921,43,Dine-In,ready
+921,82,Takeaway,ready
+921,73,Reservable,ready
+921,51,Good for Groups,ready
+921,47,Family-Friendly,ready
+921,46,Expensive,ready
+921,141,Taman Maju Jaya,ready
+922,86,Tea House,ready
+922,43,Dine-In,ready
+922,82,Takeaway,ready
+922,133,Sembawang,ready
+923,76,Seafood,ready
+923,43,Dine-In,ready
+923,82,Takeaway,ready
+923,41,Delivery,ready
+923,73,Reservable,ready
+923,51,Good for Groups,ready
+923,47,Family-Friendly,ready
+923,63,Mid-Range,ready
+923,58,Jurong West,ready
+924,24,Bakery,ready
+924,82,Takeaway,ready
+924,31,Budget,ready
+924,37,Changi,ready
+925,5,Japanese,ready
+925,76,Seafood,ready
+925,20,Dessert,ready
+925,43,Dine-In,ready
+925,73,Reservable,ready
+925,51,Good for Groups,ready
+925,71,Premium,ready
+925,78,Singapore River,ready
+926,24,Bakery,ready
+926,82,Takeaway,ready
+926,41,Delivery,ready
+926,31,Budget,ready
+926,45,Downtown Core,ready
+927,24,Bakery,ready
+927,82,Takeaway,ready
+927,41,Delivery,ready
+927,31,Budget,ready
+927,59,Kallang,ready
+928,76,Seafood,ready
+928,43,Dine-In,ready
+928,82,Takeaway,ready
+928,41,Delivery,ready
+928,68,Outdoor Seating,ready
+928,51,Good for Groups,ready
+928,47,Family-Friendly,ready
+928,63,Mid-Range,ready
+928,87,Toa Payoh,ready
+929,38,Chinese,ready
+929,91,Western,ready
+929,76,Seafood,ready
+929,43,Dine-In,ready
+929,82,Takeaway,ready
+929,68,Outdoor Seating,ready
+929,51,Good for Groups,ready
+929,47,Family-Friendly,ready
+929,31,Budget,ready
+929,28,Bishan,ready
+930,2,Korean,ready
+930,43,Dine-In,ready
+930,73,Reservable,ready
+930,51,Good for Groups,ready
+930,47,Family-Friendly,ready
+930,63,Mid-Range,ready
+930,45,Downtown Core,ready
+931,13,Vegetarian,ready
+931,43,Dine-In,ready
+931,82,Takeaway,ready
+931,41,Delivery,ready
+931,51,Good for Groups,ready
+931,47,Family-Friendly,ready
+931,31,Budget,ready
+931,45,Downtown Core,ready
+932,5,Japanese,ready
+932,43,Dine-In,ready
+932,82,Takeaway,ready
+932,73,Reservable,ready
+932,51,Good for Groups,ready
+932,47,Family-Friendly,ready
+932,63,Mid-Range,ready
+932,93,Woodlands,ready
+933,1,Cafe,ready
+933,43,Dine-In,ready
+933,82,Takeaway,ready
+933,51,Good for Groups,ready
+933,47,Family-Friendly,ready
+933,31,Budget,ready
+933,133,Sembawang,ready
+934,19,Mala,ready
+934,43,Dine-In,ready
+934,82,Takeaway,ready
+934,41,Delivery,ready
+934,31,Budget,ready
+934,148,Tiong Bahru,ready
+935,5,Japanese,ready
+935,43,Dine-In,ready
+935,82,Takeaway,ready
+935,73,Reservable,ready
+935,51,Good for Groups,ready
+935,47,Family-Friendly,ready
+935,67,Orchard,ready
+936,56,Italian,ready
+936,43,Dine-In,ready
+936,82,Takeaway,ready
+936,73,Reservable,ready
+936,51,Good for Groups,ready
+936,47,Family-Friendly,ready
+936,46,Expensive,ready
+936,143,Taman Pelangi,ready
+937,147,Thai,ready
+937,43,Dine-In,ready
+937,82,Takeaway,ready
+937,73,Reservable,ready
+937,68,Outdoor Seating,ready
+937,51,Good for Groups,ready
+937,47,Family-Friendly,ready
+937,63,Mid-Range,ready
+937,57,Jurong East,ready
+938,79,Singaporean,ready
+938,43,Dine-In,ready
+938,82,Takeaway,ready
+938,51,Good for Groups,ready
+938,47,Family-Friendly,ready
+938,31,Budget,ready
+938,72,Queenstown,ready
+939,38,Chinese,ready
+939,20,Dessert,ready
+939,19,Mala,ready
+939,43,Dine-In,ready
+939,82,Takeaway,ready
+939,73,Reservable,ready
+939,47,Family-Friendly,ready
+939,31,Budget,ready
+939,72,Queenstown,ready
+940,89,Vegan,ready
+940,13,Vegetarian,ready
+940,43,Dine-In,ready
+940,82,Takeaway,ready
+940,41,Delivery,ready
+940,73,Reservable,ready
+940,51,Good for Groups,ready
+940,47,Family-Friendly,ready
+940,63,Mid-Range,ready
+940,78,Singapore River,ready
+941,38,Chinese,ready
+941,43,Dine-In,ready
+941,82,Takeaway,ready
+941,68,Outdoor Seating,ready
+941,51,Good for Groups,ready
+941,47,Family-Friendly,ready
+941,31,Budget,ready
+941,36,Bukit Timah,ready
+942,112,Juice,ready
+942,13,Vegetarian,ready
+942,113,Juice Bar,ready
+942,43,Dine-In,ready
+942,82,Takeaway,ready
+942,41,Delivery,ready
+942,31,Budget,ready
+942,118,Marine Parade,ready
+943,38,Chinese,ready
+943,79,Singaporean,ready
+943,43,Dine-In,ready
+943,82,Takeaway,ready
+943,51,Good for Groups,ready
+943,47,Family-Friendly,ready
+943,63,Mid-Range,ready
+943,101,Bukit Chagar,ready
+944,126,Playground,ready
+944,28,Bishan,ready
+945,23,Asian,ready
+945,43,Dine-In,ready
+945,82,Takeaway,ready
+945,41,Delivery,ready
+945,47,Family-Friendly,ready
+945,31,Budget,ready
+945,59,Kallang,ready
+946,55,Indian,ready
+946,90,Vietnamese,ready
+946,76,Seafood,ready
+946,41,Delivery,ready
+946,43,Dine-In,ready
+946,82,Takeaway,ready
+946,73,Reservable,ready
+946,47,Family-Friendly,ready
+946,87,Toa Payoh,ready
+947,13,Vegetarian,ready
+947,43,Dine-In,ready
+947,82,Takeaway,ready
+947,68,Outdoor Seating,ready
+947,51,Good for Groups,ready
+947,47,Family-Friendly,ready
+947,31,Budget,ready
+947,58,Jurong West,ready
+948,38,Chinese,ready
+948,82,Takeaway,ready
+948,41,Delivery,ready
+948,43,Dine-In,ready
+948,73,Reservable,ready
+948,68,Outdoor Seating,ready
+948,51,Good for Groups,ready
+948,47,Family-Friendly,ready
+948,63,Mid-Range,ready
+948,33,Bukit Merah,ready
+949,86,Tea House,ready
+949,43,Dine-In,ready
+949,82,Takeaway,ready
+949,41,Delivery,ready
+949,150,市中心,ready
+950,1,Cafe,ready
+950,43,Dine-In,ready
+950,82,Takeaway,ready
+950,73,Reservable,ready
+950,51,Good for Groups,ready
+950,47,Family-Friendly,ready
+950,63,Mid-Range,ready
+950,144,Taman Seri Setanggi,ready
+951,86,Tea House,ready
+951,31,Budget,ready
+951,28,Bishan,ready
+952,24,Bakery,ready
+952,82,Takeaway,ready
+952,31,Budget,ready
+952,94,Yishun,ready
+953,91,Western,ready
+953,76,Seafood,ready
+953,20,Dessert,ready
+953,43,Dine-In,ready
+953,82,Takeaway,ready
+953,73,Reservable,ready
+953,51,Good for Groups,ready
+953,46,Expensive,ready
+953,45,Downtown Core,ready
+954,119,Mediterranean,ready
+954,26,Bar,ready
+954,43,Dine-In,ready
+954,73,Reservable,ready
+954,61,Live Music,ready
+954,51,Good for Groups,ready
+954,71,Premium,ready
+954,45,Downtown Core,ready
+954,18,Halal,ready
+955,1,Cafe,ready
+955,43,Dine-In,ready
+955,82,Takeaway,ready
+955,73,Reservable,ready
+955,68,Outdoor Seating,ready
+955,47,Family-Friendly,ready
+955,31,Budget,ready
+955,45,Downtown Core,ready
+956,5,Japanese,ready
+956,43,Dine-In,ready
+956,73,Reservable,ready
+956,71,Premium,ready
+956,67,Orchard,ready
+957,1,Cafe,ready
+957,43,Dine-In,ready
+957,82,Takeaway,ready
+957,73,Reservable,ready
+957,68,Outdoor Seating,ready
+957,51,Good for Groups,ready
+957,47,Family-Friendly,ready
+957,63,Mid-Range,ready
+957,50,Geylang,ready
+958,1,Cafe,ready
+958,26,Bar,ready
+958,43,Dine-In,ready
+958,82,Takeaway,ready
+958,41,Delivery,ready
+958,51,Good for Groups,ready
+958,31,Budget,ready
+958,78,Singapore River,ready
+959,6,Buffet,ready
+959,43,Dine-In,ready
+959,73,Reservable,ready
+959,68,Outdoor Seating,ready
+959,51,Good for Groups,ready
+959,47,Family-Friendly,ready
+959,63,Mid-Range,ready
+959,75,Rochor,ready
+959,18,Halal,ready
+960,38,Chinese,ready
+960,76,Seafood,ready
+960,79,Singaporean,ready
+960,43,Dine-In,ready
+960,82,Takeaway,ready
+960,51,Good for Groups,ready
+960,47,Family-Friendly,ready
+960,31,Budget,ready
+960,58,Jurong West,ready
+961,38,Chinese,ready
+961,91,Western,ready
+961,76,Seafood,ready
+961,43,Dine-In,ready
+961,82,Takeaway,ready
+961,51,Good for Groups,ready
+961,47,Family-Friendly,ready
+961,31,Budget,ready
+961,87,Toa Payoh,ready
+962,1,Cafe,ready
+962,43,Dine-In,ready
+962,82,Takeaway,ready
+962,41,Delivery,ready
+962,51,Good for Groups,ready
+962,47,Family-Friendly,ready
+962,31,Budget,ready
+962,148,Tiong Bahru,ready
+963,24,Bakery,ready
+963,1,Cafe,ready
+963,82,Takeaway,ready
+963,41,Delivery,ready
+963,31,Budget,ready
+963,87,Toa Payoh,ready
+964,54,Ice Cream,ready
+964,1,Cafe,ready
+964,20,Dessert,ready
+964,43,Dine-In,ready
+964,82,Takeaway,ready
+964,51,Good for Groups,ready
+964,47,Family-Friendly,ready
+964,45,Downtown Core,ready
+965,1,Cafe,ready
+965,43,Dine-In,ready
+965,82,Takeaway,ready
+965,73,Reservable,ready
+965,68,Outdoor Seating,ready
+965,51,Good for Groups,ready
+965,47,Family-Friendly,ready
+965,63,Mid-Range,ready
+965,25,Bandar Johor Bahru,ready
+966,54,Ice Cream,ready
+966,20,Dessert,ready
+966,43,Dine-In,ready
+966,82,Takeaway,ready
+966,68,Outdoor Seating,ready
+966,47,Family-Friendly,ready
+966,31,Budget,ready
+966,45,Downtown Core,ready
+967,1,Cafe,ready
+967,43,Dine-In,ready
+967,82,Takeaway,ready
+967,41,Delivery,ready
+967,51,Good for Groups,ready
+967,47,Family-Friendly,ready
+967,31,Budget,ready
+967,64,Museum,ready
+968,1,Cafe,ready
+968,43,Dine-In,ready
+968,82,Takeaway,ready
+968,41,Delivery,ready
+968,73,Reservable,ready
+968,31,Budget,ready
+968,45,Downtown Core,ready
+969,20,Dessert,ready
+969,1,Cafe,ready
+969,50,Geylang,ready
+970,1,Cafe,ready
+970,43,Dine-In,ready
+970,82,Takeaway,ready
+970,41,Delivery,ready
+970,73,Reservable,ready
+970,68,Outdoor Seating,ready
+970,51,Good for Groups,ready
+970,46,Expensive,ready
+970,45,Downtown Core,ready
+971,92,Wine Bar,ready
+971,26,Bar,ready
+971,43,Dine-In,ready
+971,73,Reservable,ready
+971,71,Premium,ready
+971,69,Outram,ready
+972,1,Cafe,ready
+972,20,Dessert,ready
+972,24,Bakery,ready
+972,5,Japanese,ready
+972,43,Dine-In,ready
+972,82,Takeaway,ready
+972,51,Good for Groups,ready
+972,47,Family-Friendly,ready
+972,63,Mid-Range,ready
+972,25,Bandar Johor Bahru,ready
+973,86,Tea House,ready
+973,43,Dine-In,ready
+973,82,Takeaway,ready
+973,41,Delivery,ready
+973,63,Mid-Range,ready
+973,72,Queenstown,ready
+974,55,Indian,ready
+974,56,Italian,ready
+974,76,Seafood,ready
+974,43,Dine-In,ready
+974,82,Takeaway,ready
+974,41,Delivery,ready
+974,68,Outdoor Seating,ready
+974,51,Good for Groups,ready
+974,47,Family-Friendly,ready
+974,63,Mid-Range,ready
+974,25,Bandar Johor Bahru,ready
+975,29,Brazilian,ready
+975,43,Dine-In,ready
+975,82,Takeaway,ready
+975,47,Family-Friendly,ready
+975,31,Budget,ready
+975,134,Sengkang,ready
+976,120,Mexican,ready
+976,43,Dine-In,ready
+976,82,Takeaway,ready
+976,41,Delivery,ready
+976,31,Budget,ready
+976,50,Geylang,ready
+977,38,Chinese,ready
+977,43,Dine-In,ready
+977,82,Takeaway,ready
+977,73,Reservable,ready
+977,68,Outdoor Seating,ready
+977,51,Good for Groups,ready
+977,47,Family-Friendly,ready
+977,63,Mid-Range,ready
+977,87,Toa Payoh,ready
+978,1,Cafe,ready
+978,43,Dine-In,ready
+978,82,Takeaway,ready
+978,31,Budget,ready
+978,45,Downtown Core,ready
+979,38,Chinese,ready
+979,43,Dine-In,ready
+979,82,Takeaway,ready
+979,73,Reservable,ready
+979,68,Outdoor Seating,ready
+979,51,Good for Groups,ready
+979,47,Family-Friendly,ready
+979,63,Mid-Range,ready
+979,66,Novena,ready
+980,38,Chinese,ready
+980,43,Dine-In,ready
+980,82,Takeaway,ready
+980,47,Family-Friendly,ready
+980,31,Budget,ready
+980,57,Jurong East,ready
+981,86,Tea House,ready
+981,82,Takeaway,ready
+981,41,Delivery,ready
+981,47,Family-Friendly,ready
+981,45,Downtown Core,ready
+982,91,Western,ready
+982,93,Woodlands,ready

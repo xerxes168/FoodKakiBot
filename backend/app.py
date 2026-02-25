@@ -138,6 +138,28 @@ def fetch_food_places_by_tags(tags, limit=5):
 
     return res.data
 
+def merge_place_results(*result_lists):
+    """Merge lists of place dicts while deduplicating by stable restaurant identity."""
+    merged = []
+    seen = set()
+
+    for result_list in result_lists:
+        for place in (result_list or []):
+            if not isinstance(place, dict):
+                continue
+            key = (
+                place.get("id"),
+                place.get("gmaps_uri"),
+                place.get("name"),
+                place.get("address"),
+            )
+            if key in seen:
+                continue
+            seen.add(key)
+            merged.append(place)
+
+    return merged
+
 def google_text_search(query: str, limit=5):
     url = "https://maps.googleapis.com/maps/api/place/textsearch/json"
     params = {"query": query, "key": PLACES_KEY}
@@ -365,8 +387,8 @@ def chat():
         else:
             food_results = []
 
-        filtered_results = apply_rules_to_db(rules)
-        food_results = list({*food_results, *filtered_results})
+        filtered_results = apply_rules_to_db(rules) or []
+        food_results = merge_place_results(food_results, filtered_results)
         # Debug
         print("FINAL FILTERED RESULTS:", food_results)
 

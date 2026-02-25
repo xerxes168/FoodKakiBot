@@ -1,32 +1,140 @@
 id,name,status
-103,Asian,existing_or_synced
-104,Bakery,existing_or_synced
-101,Budget,existing_or_synced
-18,Buffet,existing_or_synced
-19,Cafe,existing_or_synced
-105,Delivery,existing_or_synced
-10,Dessert,existing_or_synced
-106,Dine-In,existing_or_synced
-107,Diner,existing_or_synced
-32,Downtown Core,existing_or_synced
-108,Family-Friendly,existing_or_synced
-109,Food Court,existing_or_synced
-110,Good for Groups,existing_or_synced
-54,Hougang,existing_or_synced
-116,Ice Cream,existing_or_synced
-29,Italian,existing_or_synced
-7,Japanese,existing_or_synced
-28,Kallang,existing_or_synced
-21,Korean,existing_or_synced
-121,Mid-Range,existing_or_synced
-70,Newton,existing_or_synced
-36,Novena,existing_or_synced
-23,Orchard,existing_or_synced
-111,Outdoor Seating,existing_or_synced
-123,Premium,existing_or_synced
-31,Queenstown,existing_or_synced
-112,Reservable,existing_or_synced
-30,Rochor,existing_or_synced
-114,Takeaway,existing_or_synced
-115,Tea House,existing_or_synced
-8,Vegetarian,existing_or_synced
+95,African,existing_or_synced
+96,Alexandra,existing_or_synced
+22,American,existing_or_synced
+97,Ang Mo Kio,existing_or_synced
+23,Asian,existing_or_synced
+24,Bakery,existing_or_synced
+25,Bandar Johor Bahru,existing_or_synced
+26,Bar,existing_or_synced
+98,BBQ,existing_or_synced
+27,Bedok,existing_or_synced
+28,Bishan,existing_or_synced
+99,Bollullos Par del Condado,existing_or_synced
+100,Boon Lay,existing_or_synced
+29,Brazilian,existing_or_synced
+30,Brunch,existing_or_synced
+10,Bubble Tea,existing_or_synced
+31,Budget,existing_or_synced
+6,Buffet,existing_or_synced
+32,Bukit Batok,existing_or_synced
+101,Bukit Chagar,existing_or_synced
+33,Bukit Merah,existing_or_synced
+34,Bukit Panjang,existing_or_synced
+35,Bukit Senyum,existing_or_synced
+36,Bukit Timah,existing_or_synced
+102,Burgers,existing_or_synced
+1,Cafe,existing_or_synced
+37,Changi,existing_or_synced
+38,Chinese,existing_or_synced
+39,Choa Chu Kang,existing_or_synced
+40,Clementi,existing_or_synced
+103,Deli,existing_or_synced
+41,Delivery,existing_or_synced
+20,Dessert,existing_or_synced
+42,Dim Sum,existing_or_synced
+43,Dine-In,existing_or_synced
+44,Diner,existing_or_synced
+45,Downtown Core,existing_or_synced
+46,Expensive,existing_or_synced
+47,Family-Friendly,existing_or_synced
+104,Fast Food,existing_or_synced
+48,Food Court,existing_or_synced
+49,French,existing_or_synced
+105,Fusion,existing_or_synced
+50,Geylang,existing_or_synced
+51,Good for Groups,existing_or_synced
+18,Halal,existing_or_synced
+106,HarbourFront,existing_or_synced
+107,Hawaiian,existing_or_synced
+52,Holland Village,existing_or_synced
+108,Hotpot / Steamboat,existing_or_synced
+53,Hougang,existing_or_synced
+54,Ice Cream,existing_or_synced
+109,In Mall,existing_or_synced
+55,Indian,existing_or_synced
+110,Indonesian,existing_or_synced
+111,Indoor Playground,existing_or_synced
+56,Italian,existing_or_synced
+5,Japanese,existing_or_synced
+112,Juice,existing_or_synced
+113,Juice Bar,existing_or_synced
+57,Jurong East,existing_or_synced
+58,Jurong West,existing_or_synced
+59,Kallang,existing_or_synced
+60,Kampong Glam,existing_or_synced
+114,Kampong Ubi,existing_or_synced
+115,Kampung Bahru,existing_or_synced
+116,Kawasan Perindustrian Tebrau,existing_or_synced
+2,Korean,existing_or_synced
+117,Larkin,existing_or_synced
+61,Live Music,existing_or_synced
+19,Mala,existing_or_synced
+62,Malay,existing_or_synced
+118,Marine Parade,existing_or_synced
+119,Mediterranean,existing_or_synced
+120,Mexican,existing_or_synced
+63,Mid-Range,existing_or_synced
+121,Middle Eastern,existing_or_synced
+122,Moroccan,existing_or_synced
+64,Museum,existing_or_synced
+65,Newton,existing_or_synced
+123,Nightclub,existing_or_synced
+66,Novena,existing_or_synced
+67,Orchard,existing_or_synced
+68,Outdoor Seating,existing_or_synced
+69,Outram,existing_or_synced
+124,Park,existing_or_synced
+70,Pasir Ris,existing_or_synced
+125,Pizza,existing_or_synced
+126,Playground,existing_or_synced
+71,Premium,existing_or_synced
+127,Punggol,existing_or_synced
+128,Punggol Digital District,existing_or_synced
+72,Queenstown,existing_or_synced
+129,Ramen,existing_or_synced
+73,Reservable,existing_or_synced
+74,Restaurant,existing_or_synced
+130,River Valley,existing_or_synced
+75,Rochor,existing_or_synced
+131,Salad Shop,existing_or_synced
+132,Sandwiches,existing_or_synced
+76,Seafood,existing_or_synced
+133,Sembawang,existing_or_synced
+134,Sengkang,existing_or_synced
+77,Serangoon,existing_or_synced
+78,Singapore River,existing_or_synced
+79,Singaporean,existing_or_synced
+135,Spanish,existing_or_synced
+80,Steakhouse,existing_or_synced
+81,Sushi,existing_or_synced
+136,Taiwanese,existing_or_synced
+82,Takeaway,existing_or_synced
+137,Taman Abad,existing_or_synced
+138,Taman Bakti,existing_or_synced
+139,Taman Dato Onn,existing_or_synced
+140,Taman Iskandar,existing_or_synced
+141,Taman Maju Jaya,existing_or_synced
+142,Taman Melodies,existing_or_synced
+143,Taman Pelangi,existing_or_synced
+83,Taman Sentosa,existing_or_synced
+144,Taman Seri Setanggi,existing_or_synced
+145,Taman Sri Tebrau,existing_or_synced
+146,Taman Stulang Laut,existing_or_synced
+84,Tampines,existing_or_synced
+85,Tanglin,existing_or_synced
+86,Tea House,existing_or_synced
+147,Thai,existing_or_synced
+148,Tiong Bahru,existing_or_synced
+87,Toa Payoh,existing_or_synced
+88,Tourist Spot,existing_or_synced
+149,Turkish,existing_or_synced
+89,Vegan,existing_or_synced
+13,Vegetarian,existing_or_synced
+90,Vietnamese,existing_or_synced
+91,Western,existing_or_synced
+92,Wine Bar,existing_or_synced
+93,Woodlands,existing_or_synced
+94,Yishun,existing_or_synced
+150,市中心,existing_or_synced
+151,芽笼,existing_or_synced
