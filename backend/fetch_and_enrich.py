@@ -51,8 +51,6 @@ PRICE_MAP = {
     4: "$$$$ (Very Expensive $60+)",
 }
 
-# ── Places API (New) primaryType → human-readable cuisine label ───────────────
-# Full reference: https://developers.google.com/maps/documentation/places/web-service/place-types
 PRIMARY_TYPE_MAP = {
     # Specific cuisine types (New API)
     "afghani_restaurant": "Afghan",

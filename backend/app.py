@@ -10,6 +10,8 @@ import requests
 from tagging import auto_tags_from_google
 import re
 import math
+import difflib
+import json
 
 app = Flask(__name__)
 CORS(app)
@@ -45,6 +47,35 @@ PRICE_TAG_ALIASES = {
     "Expensive": ["expensive", "pricey", "high price", "high-priced"],
     "Premium": ["premium", "luxury", "high end", "high-end", "fine dining", "very expensive"],
 }
+
+IGNORED_QUERY_TAGS = {
+    "Restaurant",
+}
+
+BUDGET_TAGS = set(PRICE_LEVEL_TO_TAG.values())
+
+# Food-type tags that should count as the "cuisine" slot in strict tag mode.
+CUISINE_TAGS = {
+    "African", "American", "Asian", "Bakery", "Bar", "BBQ", "Brunch", "Bubble Tea",
+    "Buffet", "Burgers", "Cafe", "Chinese", "Deli", "Dessert", "Dim Sum", "Diner",
+    "Fast Food", "French", "Fusion", "Halal", "Hawaiian", "Hotpot / Steamboat",
+    "Ice Cream", "Indian", "Indonesian", "Italian", "Japanese", "Juice", "Juice Bar",
+    "Korean", "Mala", "Malay", "Mediterranean", "Mexican", "Middle Eastern",
+    "Moroccan", "Pizza", "Ramen", "Salad Shop", "Sandwiches", "Seafood",
+    "Singaporean", "Spanish", "Steakhouse", "Sushi", "Taiwanese", "Tea House",
+    "Thai", "Vegetarian", "Vietnamese", "Western",
+}
+
+# Tags that should not be treated as the required "location" slot.
+NON_LOCATION_TAGS = (
+    BUDGET_TAGS
+    | CUISINE_TAGS
+    | {
+        "Delivery", "Dine-In", "Takeaway", "Reservable", "Family-Friendly", "Good for Groups",
+        "Outdoor Seating", "In Mall", "Food Court", "Live Music", "Museum", "Park",
+        "Nightclub", "Indoor Playground", "Playground", "Restaurant",
+    }
+)
 
 def normalize_text_for_match(text: str) -> str:
     text = (text or "").lower()
@@ -101,19 +132,266 @@ def get_all_tag_names():
 
 def extract_tags_from_message(user_message):
     tag_names, _ = get_all_tag_names()
-    user_text = (user_message or "").lower()
+    normalized_user_text = normalize_text_for_match(user_message or "")
+    tag_lookup = {t.lower(): t for t in tag_names}
 
-    matched_tags = [tag for tag in tag_names if tag.lower() in user_text]
+    # Phrase-based matching reduces accidental partial matches.
+    matched_tags = []
+    for tag in sorted(tag_names, key=len, reverse=True):
+        if tag in IGNORED_QUERY_TAGS:
+            continue
+        if contains_phrase(normalized_user_text, tag):
+            matched_tags.append(tag)
 
     # Map "$", "$$", "mid range", etc. -> one canonical price tag if present in DB.
     canonical_price_tag = detect_canonical_price_tag(user_message or "")
     if canonical_price_tag:
-        tag_lookup = {t.lower(): t for t in tag_names}
         actual_tag = tag_lookup.get(canonical_price_tag.lower())
         if actual_tag and actual_tag not in matched_tags:
             matched_tags.append(actual_tag)
 
     return matched_tags
+
+def classify_required_tags(matched_tags):
+    """Pick one tag for each required category: cuisine, location, budget."""
+    selected = {"cuisine": None, "location": None, "budget": None}
+
+    for tag in matched_tags:
+        if selected["budget"] is None and tag in BUDGET_TAGS:
+            selected["budget"] = tag
+            continue
+        if selected["cuisine"] is None and tag in CUISINE_TAGS:
+            selected["cuisine"] = tag
+            continue
+        if selected["location"] is None and tag not in NON_LOCATION_TAGS:
+            selected["location"] = tag
+            continue
+
+    return selected
+
+def extract_location_phrase_from_message(user_message):
+    text = (user_message or "").strip()
+    if not text:
+        return None
+
+    m = re.search(r"\b(?:in|at|near)\s+([a-zA-Z0-9\s\-]+)", text, flags=re.IGNORECASE)
+    if not m:
+        return None
+
+    phrase = m.group(1).strip(" .,!?:;")
+    phrase = re.split(
+        r"\b(?:with|for|under|budget|cheap|affordable|mid-range|mid range|expensive|premium)\b",
+        phrase,
+        maxsplit=1,
+        flags=re.IGNORECASE,
+    )[0].strip(" .,!?:;")
+    return phrase or None
+
+def get_location_tags_from_all_tags(tag_names):
+    return sorted([t for t in tag_names if t not in NON_LOCATION_TAGS])
+
+def suggest_location_tags(user_message, max_items=6):
+    phrase = extract_location_phrase_from_message(user_message)
+    if not phrase:
+        return []
+
+    tag_names, _ = get_all_tag_names()
+    location_tags = get_location_tags_from_all_tags(tag_names)
+    if not location_tags:
+        return []
+
+    return difflib.get_close_matches(phrase, location_tags, n=max_items, cutoff=0.0)
+
+def parse_json_from_llm_text(text):
+    text = (text or "").strip()
+    if not text:
+        return None
+
+    fence_match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", text, flags=re.IGNORECASE)
+    candidate = fence_match.group(1).strip() if fence_match else text
+
+    try:
+        return json.loads(candidate)
+    except Exception:
+        pass
+
+    # Fallback: try to extract the first JSON object.
+    obj_match = re.search(r"\{[\s\S]*\}", text)
+    if obj_match:
+        try:
+            return json.loads(obj_match.group(0))
+        except Exception:
+            return None
+    return None
+
+def get_tag_catalog():
+    tag_names, _ = get_all_tag_names()
+    budgets = sorted([t for t in tag_names if t in BUDGET_TAGS])
+    cuisines = sorted([t for t in tag_names if t in CUISINE_TAGS])
+    locations = get_location_tags_from_all_tags(tag_names)
+    return {
+        "all": tag_names,
+        "budgets": budgets,
+        "cuisines": cuisines,
+        "locations": locations,
+    }
+
+def llm_extract_required_tags(user_message, current_selected=None):
+    """Ask the LLM to map the query to exact DB tags, then validate strictly."""
+    catalog = get_tag_catalog()
+    current_selected = current_selected or {"cuisine": None, "location": None, "budget": None}
+
+    prompt = f"""
+You map a user food request into EXACT database tags.
+
+Rules:
+- Choose at most one tag for each category: cuisine, location, budget.
+- Output ONLY JSON with keys: cuisine, location, budget.
+- Values must be exact strings from the allowed lists below, or null.
+- Do not invent tags.
+
+User message:
+{user_message}
+
+Rule-based hints (may be incomplete):
+{json.dumps(current_selected, ensure_ascii=True)}
+
+Allowed cuisine tags:
+{json.dumps(catalog["cuisines"], ensure_ascii=True)}
+
+Allowed location tags:
+{json.dumps(catalog["locations"], ensure_ascii=True)}
+
+Allowed budget tags:
+{json.dumps(catalog["budgets"], ensure_ascii=True)}
+""".strip()
+
+    try:
+        response = model.generate_content(prompt)
+        payload = parse_json_from_llm_text(getattr(response, "text", ""))
+        if not isinstance(payload, dict):
+            return None
+
+        result = {"cuisine": None, "location": None, "budget": None}
+        cuisine = payload.get("cuisine")
+        location = payload.get("location")
+        budget = payload.get("budget")
+
+        if isinstance(cuisine, str) and cuisine in catalog["cuisines"]:
+            result["cuisine"] = cuisine
+        if isinstance(location, str) and location in catalog["locations"]:
+            result["location"] = location
+        if isinstance(budget, str) and budget in catalog["budgets"]:
+            result["budget"] = budget
+        return result
+    except Exception as e:
+        print("LLM tag extraction failed:", str(e))
+        return None
+
+def merge_selected_tags(rule_selected, llm_selected):
+    merged = dict(rule_selected or {"cuisine": None, "location": None, "budget": None})
+    if not llm_selected:
+        return merged
+    for key in ("cuisine", "location", "budget"):
+        if merged.get(key) is None and llm_selected.get(key):
+            merged[key] = llm_selected[key]
+    return merged
+
+def fetch_place_tags_map(place_ids):
+    if not place_ids:
+        return {}
+    try:
+        res = supabase.table("place_tags").select("place_id, tag_name").in_("place_id", place_ids).execute()
+        tag_map = {}
+        for row in (res.data or []):
+            pid = row.get("place_id")
+            tag_name = row.get("tag_name")
+            if pid is None or not tag_name:
+                continue
+            tag_map.setdefault(pid, []).append(tag_name)
+        for pid in tag_map:
+            tag_map[pid] = sorted(set(tag_map[pid]))
+        return tag_map
+    except Exception as e:
+        print("Failed to fetch place tags for ranking:", str(e))
+        return {}
+
+def llm_rank_recommendations(user_message, required_tags, candidate_places):
+    """Rank already-validated DB candidates and return explanations. Never expands the candidate set."""
+    if not candidate_places:
+        return None
+
+    candidate_payload = [
+        {
+            "id": p.get("id"),
+            "name": p.get("name"),
+            "address": p.get("address"),
+            "tags": p.get("tags", []),
+        }
+        for p in candidate_places
+    ]
+
+    prompt = f"""
+You are ranking restaurant recommendations from a pre-filtered database result.
+All candidates already match the required constraints.
+
+Rules:
+- Use ONLY the candidates provided.
+- Do NOT invent restaurants.
+- Return ONLY JSON with this shape:
+  {{
+    "ordered_ids": [id1, id2, id3],
+    "reasons": {{
+      "id1": "short reason",
+      "id2": "short reason"
+    }}
+  }}
+- `ordered_ids` must contain only ids from the provided candidates.
+- Return up to 3 ids.
+- Keep reasons short and grounded in the provided names/tags/address only.
+
+User message:
+{user_message}
+
+Required tags:
+{json.dumps(required_tags, ensure_ascii=True)}
+
+Candidates:
+{json.dumps(candidate_payload, ensure_ascii=True)}
+""".strip()
+
+    try:
+        response = model.generate_content(prompt)
+        payload = parse_json_from_llm_text(getattr(response, "text", ""))
+        if not isinstance(payload, dict):
+            return None
+
+        valid_ids = {p.get("id") for p in candidate_places}
+        ordered_ids = []
+        for raw_id in (payload.get("ordered_ids") or []):
+            normalized = raw_id
+            if isinstance(raw_id, str) and raw_id.isdigit():
+                normalized = int(raw_id)
+            if normalized in valid_ids and normalized not in ordered_ids:
+                ordered_ids.append(normalized)
+            if len(ordered_ids) >= 3:
+                break
+
+        if not ordered_ids:
+            return None
+
+        reasons_payload = payload.get("reasons") or {}
+        reasons = {}
+        if isinstance(reasons_payload, dict):
+            for k, v in reasons_payload.items():
+                norm_k = int(k) if isinstance(k, str) and k.isdigit() else k
+                if norm_k in valid_ids and isinstance(v, str):
+                    reasons[norm_k] = v.strip()
+
+        return {"ordered_ids": ordered_ids, "reasons": reasons}
+    except Exception as e:
+        print("LLM ranking failed:", str(e))
+        return None
 
 def fetch_food_places_by_tags(tags, limit=5):
     if not tags:
@@ -159,6 +437,93 @@ def merge_place_results(*result_lists):
             merged.append(place)
 
     return merged
+
+def format_tag_only_response(matched_tags, food_results):
+    if not matched_tags:
+        return (
+            "I couldn't match your request to database tags. "
+            "Try exact tags like Dessert, Japanese, Budget, and an area tag like Rochor."
+        )
+
+    tag_list = ", ".join(matched_tags)
+    if not food_results:
+        return f"I couldn't find any restaurants in my database that match all these tags: {tag_list}."
+
+    lines = [f"Here are restaurants that match all these tags: {tag_list}"]
+    for f in food_results[:3]:
+        lines.append(
+            f"- {f['name']}\n"
+            f"  Address: {f['address']}\n"
+            f"  Google Maps: {f['gmaps_uri']}"
+        )
+    return "\n".join(lines)
+
+def format_required_tag_response(selected_tags, food_results, user_message=None):
+    missing = [k for k in ("cuisine", "location", "budget") if not selected_tags.get(k)]
+    if missing:
+        pretty = ", ".join(missing)
+        msg = (
+            "Sorry! I need at least 3 information before recommending a restaurant: cuisine, location and budget. "
+            f"I'm missing a {pretty}."
+        )
+        if "location" in missing:
+            location_phrase = extract_location_phrase_from_message(user_message or "")
+            if location_phrase:
+                msg += f" I couldn't match '{location_phrase}' to a location tag in the database."
+        return msg
+
+    required_tags = [
+        selected_tags["cuisine"],
+        selected_tags["location"],
+        selected_tags["budget"],
+    ]
+
+    if not food_results:
+        return "I couldn't find any restaurants in my database that match all 3 required tags: " + ", ".join(required_tags) + "."
+
+    lines = ["Here are restaurants that match all 3 required tags: " + ", ".join(required_tags)]
+    for f in food_results[:3]:
+        lines.append(
+            f"- {f['name']}\n"
+            f"  Address: {f['address']}\n"
+            f"  Google Maps: {f['gmaps_uri']}"
+        )
+    return "\n".join(lines)
+
+def format_llm_ranked_response(required_tags, candidate_places, ranking):
+    if not ranking or not ranking.get("ordered_ids"):
+        return None
+
+    by_id = {p.get("id"): p for p in candidate_places}
+    ordered_places = []
+    for pid in ranking["ordered_ids"]:
+        place = by_id.get(pid)
+        if place:
+            ordered_places.append(place)
+
+    # Fill remaining slots deterministically if LLM returned fewer than 3.
+    for place in candidate_places:
+        if place not in ordered_places:
+            ordered_places.append(place)
+        if len(ordered_places) >= 3:
+            break
+
+    ordered_places = ordered_places[:3]
+    reasons = ranking.get("reasons") or {}
+
+    lines = ["Here are the best matches from my database (ranked): " + ", ".join(required_tags)]
+    for place in ordered_places:
+        reason = reasons.get(place.get("id"))
+        line = (
+            f"- {place.get('name')}\n"
+            f"  Address: {place.get('address')}\n"
+            f"  Google Maps: {place.get('gmaps_uri')}"
+        )
+        if reason:
+            line += f"\n  Why: {reason}"
+        lines.append(line)
+
+    return "\n".join(lines)
 
 def google_text_search(query: str, limit=5):
     url = "https://maps.googleapis.com/maps/api/place/textsearch/json"
@@ -334,7 +699,7 @@ def chat():
     user_message = data.get('message')
     session_id = data.get('session_id')
     rules = extract_filtering_rules(user_message)
-    print("FILTERING RULES:", rules)
+    print("FILTERING RULES (debug only; chat uses tag matching):", rules)
 
     
     if not user_message or not session_id:
@@ -357,68 +722,40 @@ def chat():
         for msg in conversations[session_id][:-1]:  # Exclude current message
             context += f"{msg['role']}: {msg['content']}\n"
         
-        # Create prompt with system instruction
-        system_prompt = """You are FoodKakiBot, a helpful restaurant recommendation assistant. Help users decide where to eat based on their preferences, location, cuisine type, budget, dietary restrictions, and mood.
-
-        When making recommendations:
-        - Ask clarifying questions if needed (location, cuisine preference, budget, dietary needs)
-        - Provide 2-3 specific restaurant suggestions when you have enough information
-        - Include brief descriptions of why each restaurant is a good fit
-        - Be conversational and enthusiastic
-        - Use location context to tailor recommendations appropriately
-        - Provide locations that are only in Singapore
-        - Do not ask for personal information
-        - If the user provides location, cuisine preference, and budget, give restaurant recommendations right away without asking further questions.
-        - Always use the restaurant name, address, and Google Maps URL exactly as provided in the database context.
-        - Do NOT rewrite or paraphrase restaurant names or addresses.
-        - You MUST ONLY recommend restaurants that match ALL tags found in the database context.
-        - Make sure to ONLY recommend restaurants that are in the database, if the restaurants are not in the database, explain that no restaurants were found and don't offer any other options.
-        - If no restaurants are found in the database that match the user tags, explain that no restaurants were found.
-        - If the restaurant database context is empty, you must first state clearly that no matching restaurants were found in the database.
-        - NO CRUD operations on the database are allowed.
-
-        Keep responses concise and friendly."""
-        
         matched_tags = extract_tags_from_message(user_message)
+        selected_tags = classify_required_tags(matched_tags)
 
-        # If user mentioned at least one DB tag, but DB returns no results, do NOT allow fallback
-        if matched_tags:
-            food_results = fetch_food_places_by_tags(matched_tags)
-        else:
-            food_results = []
+        # Hybrid parsing: use LLM to fill missing required tags, but validate against DB tag lists.
+        if any(selected_tags[k] is None for k in ("cuisine", "location", "budget")):
+            llm_selected = llm_extract_required_tags(user_message, selected_tags)
+            selected_tags = merge_selected_tags(selected_tags, llm_selected)
 
-        filtered_results = apply_rules_to_db(rules) or []
-        food_results = merge_place_results(food_results, filtered_results)
+        required_tags = [selected_tags["cuisine"], selected_tags["location"], selected_tags["budget"]]
+        required_tags = [t for t in required_tags if t]
+
+        food_results = fetch_food_places_by_tags(required_tags, limit=10) if len(required_tags) == 3 else []
         # Debug
+        print("MATCHED TAGS:", matched_tags)
+        print("REQUIRED TAGS:", required_tags)
         print("FINAL FILTERED RESULTS:", food_results)
 
-        food_context = ""
-        if food_results:
-            food_context = "Here are available restaurants from the database:\n"
-            for f in food_results[:5]:
-                food_context += (
-                    f"- {f['name']}\n"
-                    f"  Address: {f['address']}\n"
-                    f"  Google Maps: {f['gmaps_uri']}\n"
-                )
+        # Strict deterministic gating: require cuisine + location + budget, and DB AND-match exactly those 3 tags.
+        assistant_message = format_required_tag_response(selected_tags, food_results, user_message)
 
-        full_prompt = f"""
-        {system_prompt}
+        # If we have valid DB matches, use the LLM only to rank/explain the candidates (never to invent places).
+        if len(required_tags) == 3 and food_results:
+            place_ids = [p.get("id") for p in food_results if p.get("id") is not None]
+            place_tags_map = fetch_place_tags_map(place_ids)
+            rank_candidates = []
+            for p in food_results:
+                p_copy = dict(p)
+                p_copy["tags"] = place_tags_map.get(p.get("id"), [])
+                rank_candidates.append(p_copy)
 
-        Restaurant database context:
-        {food_context}
-
-        Conversation history:
-        {context}
-
-        User: {user_message}
-        Assistant:
-        """
-        
-
-        # Get AI response from Gemini
-        response = model.generate_content(full_prompt)
-        assistant_message = response.text
+            ranking = llm_rank_recommendations(user_message, required_tags, rank_candidates)
+            llm_message = format_llm_ranked_response(required_tags, rank_candidates, ranking)
+            if llm_message:
+                assistant_message = llm_message
         
         # Add assistant message to history
         conversations[session_id].append({
