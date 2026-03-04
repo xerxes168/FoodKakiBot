@@ -169,6 +169,7 @@ export default function RestaurantChatbot() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string>('');
+  const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -192,6 +193,15 @@ export default function RestaurantChatbot() {
     initSession();
   }, []);
 
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+        (err) => console.warn('Geolocation unavailable:', err.message)
+      );
+    }
+  }, []);
+
   const handleSubmit = async () => {
     if (!input.trim() || loading || !sessionId) return;
 
@@ -203,8 +213,15 @@ export default function RestaurantChatbot() {
     try {
       const response = await fetch('http://localhost:5000/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMessage, session_id: sessionId }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: userMessage,
+          session_id: sessionId,
+          lat: userLocation?.lat ?? null,
+          lng: userLocation?.lng ?? null,
+        })
       });
 
       const data = await response.json();

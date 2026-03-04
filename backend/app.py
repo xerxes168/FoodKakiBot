@@ -276,6 +276,56 @@ def haversine_km(lat1, lon1, lat2, lon2):
     a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
     return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
+def geocode_location_to_latlng(location_text: str):
+    if not location_text:
+        return None
+    results, err = google_text_search(f"{location_text} Singapore", limit=1)
+    if err or not results:
+        logger.warning("Geocode failed for '%s': err=%s", location_text, err)
+        return None
+    loc = results[0]["geometry"]["location"]
+    return float(loc["lat"]), float(loc["lng"])
+
+
+def rerank_candidates_by_distance(candidates: list[dict], user_lat: float, user_lng: float, top_n_walking: int = 5):
+    enriched = []
+    no_coords = []
+    for c in candidates:
+        lat = c.get("latitude")
+        lng = c.get("longitude")
+        if lat is None or lng is None:
+            no_coords.append(c)
+            continue
+        c["distance_km"]   = round(haversine_km(user_lat, user_lng, float(lat), float(lng)), 2)
+        c["distance_mode"] = "straight-line"
+        enriched.append(c)
+
+    enriched.sort(key=lambda x: x["distance_km"])
+    top  = enriched[:top_n_walking]
+    rest = enriched[top_n_walking:]
+
+    destinations = "|".join(f"{float(c['latitude'])},{float(c['longitude'])}" for c in top)
+    try:
+        resp = requests.get(
+            "https://maps.googleapis.com/maps/api/distancematrix/json",
+            params={"origins": f"{user_lat},{user_lng}", "destinations": destinations, "mode": "walking", "key": PLACES_KEY},
+            timeout=10,
+        )
+        dm = resp.json()
+        if dm.get("status") == "OK":
+            elements = dm["rows"][0]["elements"]
+            for i, (candidate, element) in enumerate(zip(top, elements)):
+                if element.get("status") == "OK":
+                    top[i]["distance_km"]   = round(element["distance"]["value"] / 1000, 2)
+                    top[i]["distance_mode"] = "walking"
+            top.sort(key=lambda x: x["distance_km"])
+            logger.info("Walking distance rerank applied to top %d candidates", len(top))
+        else:
+            logger.warning("Distance Matrix status: %s", dm.get("status"))
+    except Exception as exc:
+        logger.warning("Distance Matrix failed, keeping Haversine order: %s", exc)
+
+    return top + rest + no_coords
 
 # ─────────────────────────────────────────────────────────────────────────────
 # RAG-powered chat endpoint
@@ -395,6 +445,28 @@ def chat():
         # Remember what we showed for potential follow-ups ("tell me more about #2")
         session["last_candidates"] = candidates
 
+        # ── Distance rerank (nearest first) ──────────────────────────────
+        user_lat = data.get("lat")
+        user_lng = data.get("lng")
+        latlng = None
+        if user_lat is not None and user_lng is not None:
+            try:
+                latlng = (float(user_lat), float(user_lng))
+            except (TypeError, ValueError):
+                latlng = None
+
+        if latlng:
+            candidates = rerank_candidates_by_distance(candidates, latlng[0], latlng[1])
+            logger.info("Distance rerank enabled (%s,%s)", latlng[0], latlng[1])
+        else:
+            user_loc = resolved.get("location")
+            fallback = geocode_location_to_latlng(user_loc)
+            if fallback:
+                candidates = rerank_candidates_by_distance(candidates, fallback[0], fallback[1])
+                logger.info("Distance rerank via geocode fallback: %s", user_loc)
+            else:
+                logger.info("Distance rerank skipped (no lat/lng)")
+
         # ── 6. Fetch tags and build grounded context ──────────────────────────
         place_ids = [p.get("id") for p in candidates if p.get("id") is not None]
         tags_map  = fetch_place_tags_map_rag(place_ids, supabase) if place_ids else {}
@@ -456,6 +528,10 @@ def chat():
                 "retrieval_strategy": strategy,
                 "candidates_found":   len(candidates),
                 "resolved_tags":      resolved,
+            "top5_distance_check": [
+                    {"name": c.get("name"), "distance_km": c.get("distance_km")}
+                    for c in candidates[:5]
+                ],
             },
         })
 
