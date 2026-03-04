@@ -14,7 +14,7 @@ Chat flow (per request):
      (NO hallucination — the prompt forbids inventing restaurants)
 """
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, redirect
 from flask_cors import CORS
 import os
 import google.generativeai as genai
@@ -420,9 +420,37 @@ def chat():
             "content": assistant_message,
             "timestamp": datetime.now().isoformat(),
         })
+        restaurants_for_ui = []
+        for c in candidates[:15]:
+            cname = c.get("name", "")
+            if cname and cname.lower() in assistant_message.lower():
+                raw_summary = c.get("editorial_summary") or ""
+                description = ""
+                if isinstance(raw_summary, dict):
+                    description = raw_summary.get("overview", "")
+                elif isinstance(raw_summary, str):
+                    try:
+                        parsed = json.loads(raw_summary)
+                        description = parsed.get("overview", raw_summary)
+                    except Exception:
+                        description = raw_summary
+                else:
+                    description = ""
+
+            restaurants_for_ui.append({
+                "name":        cname,
+                "description": description,
+                "address":     c.get("address", ""),
+                "maps_url":    c.get("gmaps_uri") or "",
+                "photo_url":   c.get("photo_url") or "",
+                "rating":        c.get("rating"),
+                "opening_hours": c.get("opening_hours"),   
+            })
+
 
         return jsonify({
             "response": assistant_message,
+            "restaurants": restaurants_for_ui,
             "debug": {
                 "required_tags":      required_tags,
                 "retrieval_strategy": strategy,
