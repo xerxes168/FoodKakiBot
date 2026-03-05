@@ -506,18 +506,16 @@ def chat():
                         description = parsed.get("overview", raw_summary)
                     except Exception:
                         description = raw_summary
-                else:
-                    description = ""
 
-            restaurants_for_ui.append({
-                "name":        cname,
-                "description": description,
-                "address":     c.get("address", ""),
-                "maps_url":    c.get("gmaps_uri") or "",
-                "photo_url":   c.get("photo_url") or "",
-                "rating":        c.get("rating"),
-                "opening_hours": c.get("opening_hours"),   
-            })
+                restaurants_for_ui.append({
+                    "name":        cname,
+                    "description": description,
+                    "address":     c.get("address", ""),
+                    "maps_url":    c.get("gmaps_uri") or "",
+                    "photo_url":   c.get("photo_url") or "",
+                    "rating":        c.get("rating"),
+                    "opening_hours": c.get("opening_hours"),   
+                })
 
 
         return jsonify({
