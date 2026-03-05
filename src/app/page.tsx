@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Utensils, Loader2, MapPin, ExternalLink, Star, Clock } from 'lucide-react';
+import { Send, Utensils, Loader2, MapPin, ExternalLink, Star, Clock, ChevronDown, ChevronUp } from 'lucide-react';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -26,6 +26,10 @@ interface Message {
   restaurants?: Restaurant[];
 }
 
+// ── Constants ─────────────────────────────────────────────────────────────────
+
+const MAX_VISIBLE = 3;
+
 // ── OpeningHoursDropdown ──────────────────────────────────────────────────────
 
 function OpeningHoursDropdown({ hours }: { hours: OpeningHours }) {
@@ -35,7 +39,6 @@ function OpeningHoursDropdown({ hours }: { hours: OpeningHours }) {
   const todayIndex = new Date().getDay();
   const todayName = days[todayIndex];
 
-  // Find today's hours from weekday_text
   const todayText = hours.weekday_text.find(t => t.startsWith(todayName));
   const todayHours = todayText ? todayText.split(': ').slice(1).join(': ') : 'Hours unavailable';
 
@@ -140,6 +143,43 @@ function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
           </a>
         )}
       </div>
+    </div>
+  );
+}
+
+// ── RestaurantList ────────────────────────────────────────────────────────────
+
+function RestaurantList({ restaurants }: { restaurants: Restaurant[] }) {
+  const [showAll, setShowAll] = useState(false);
+
+  const hasMore = restaurants.length > MAX_VISIBLE;
+  const visible = showAll ? restaurants : restaurants.slice(0, MAX_VISIBLE);
+  const hiddenCount = restaurants.length - MAX_VISIBLE;
+
+  return (
+    <div className="space-y-3">
+      {visible.map((r, i) => (
+        <RestaurantCard key={i} restaurant={r} />
+      ))}
+
+      {hasMore && (
+        <button
+          onClick={() => setShowAll(prev => !prev)}
+          className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl border border-orange-200 bg-white text-orange-500 font-semibold text-sm hover:bg-orange-50 hover:border-orange-300 transition-all duration-200 shadow-sm"
+        >
+          {showAll ? (
+            <>
+              <ChevronUp className="w-4 h-4" />
+              Show less
+            </>
+          ) : (
+            <>
+              <ChevronDown className="w-4 h-4" />
+              Show {hiddenCount} more restaurant{hiddenCount !== 1 ? 's' : ''}
+            </>
+          )}
+        </button>
+      )}
     </div>
   );
 }
@@ -292,9 +332,7 @@ export default function RestaurantChatbot() {
                       <p>{extractIntro(msg.content)}</p>
                     </div>
                   )}
-                  {msg.restaurants.map((r, i) => (
-                    <RestaurantCard key={i} restaurant={r} />
-                  ))}
+                  <RestaurantList restaurants={msg.restaurants} />
                 </div>
               ) : (
                 <div className="max-w-2xl px-4 py-3 rounded-2xl bg-white text-gray-800 shadow-sm border border-orange-100">
