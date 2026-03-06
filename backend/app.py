@@ -14,7 +14,7 @@ Chat flow (per request):
      (NO hallucination — the prompt forbids inventing restaurants)
 """
 
-from flask import Flask, request, jsonify, redirect
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
 import google.generativeai as genai
@@ -25,9 +25,9 @@ from dotenv import load_dotenv
 import requests
 import re
 import math
-import difflib
 import json
 import logging
+import urllib.parse
 
 from tagging import auto_tags_from_google
 
@@ -55,18 +55,23 @@ model = genai.GenerativeModel("gemini-2.5-flash-lite")
 # ── Supabase ───────────────────────────────────────────────────────────────────
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_ANON_KEY")
-PLACES_KEY   = os.getenv("GOOGLE_API_KEY")
-supabase     = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# ── Per-session state (keyed by session_id, never shared between sessions) ────
-# Each session stores:
-#   history        : full conversation turns [{role, content, timestamp}]
-#   tags           : last resolved {cuisine, location, budget} — carried forward
-#   last_candidates: restaurants shown in the previous turn (for follow-ups)
+# ── Google Places API key ──────────────────────────────────────────────────────
+# Prefer the dedicated Places key; fall back to the shared Gemini key.
+# The Gemini key may NOT have Places API enabled — use GOOGLE_PLACES_API_KEY
+# (or GOOGLE_MAPS_API_KEY) in your .env for Places/Maps calls.
+PLACES_KEY = (
+    os.getenv("GOOGLE_PLACES_API_KEY")
+    or os.getenv("GOOGLE_MAPS_API_KEY")
+    or os.getenv("GOOGLE_API_KEY")
+)
+
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+# ── Per-session state ─────────────────────────────────────────────────────────
 sessions: dict[str, dict] = {}
 
 def get_session(session_id: str) -> dict:
-    """Return session state, creating it if new. Sessions are fully isolated."""
     if session_id not in sessions:
         sessions[session_id] = {
             "history": [],
@@ -111,7 +116,7 @@ NON_LOCATION_TAGS = (
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Tag utilities (unchanged from original)
+# Tag utilities
 # ─────────────────────────────────────────────────────────────────────────────
 
 def normalize_text_for_match(text: str) -> str:
@@ -265,16 +270,350 @@ def merge_selected_tags(rule_selected, llm_selected):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Haversine (kept for distance-based endpoints)
+# Intent classification
+# ─────────────────────────────────────────────────────────────────────────────
+
+def classify_message_intent(user_message: str, conversation_history: list, has_last_candidates: bool) -> str:
+    """
+    Classify the user message into one of three intents:
+      - "restaurant_search"  : user wants new restaurant recommendations
+      - "followup_review"    : user is asking about quality/reviews/experience of
+                               previously shown restaurants
+      - "conversational"     : general chat, greetings, capability questions, etc.
+    """
+    history_text = ""
+    if conversation_history:
+        for turn in conversation_history[-6:]:
+            role = "User" if turn["role"] == "user" else "Assistant"
+            history_text += f"{role}: {turn['content']}\n"
+
+    prompt = f"""You are a classifier for a Singapore food recommendation chatbot.
+
+Conversation so far:
+{history_text.strip() or "(none)"}
+
+Latest user message: "{user_message}"
+
+Classify the intent as exactly one of:
+- "restaurant_search"  : user wants restaurant recommendations (mentions food + location, asks where to eat, etc.)
+- "followup_review"    : user is asking about quality, reviews, opinions, atmosphere, or experience of restaurants already recommended in this conversation (e.g. "is the food good?", "what do people think?", "is it worth it?", "how are the reviews?", "is it nice there?")
+- "conversational"     : greeting, asking what the bot can do, saying thanks, off-topic, or anything else
+
+{"Note: The bot has previously recommended restaurants in this conversation, so follow-up questions about those places are likely." if has_last_candidates else "Note: No restaurants have been recommended yet, so follow-ups about specific places are unlikely."}
+
+Reply with ONLY one of these exact strings: restaurant_search, followup_review, conversational
+""".strip()
+
+    try:
+        resp = model.generate_content(prompt)
+        answer = (getattr(resp, "text", "") or "").strip().lower()
+        if "followup_review" in answer or "follow" in answer:
+            return "followup_review"
+        if "restaurant_search" in answer or "search" in answer:
+            return "restaurant_search"
+        if "conversational" in answer:
+            return "conversational"
+        # Keyword fallback
+        review_keywords = [
+            "good", "worth", "nice", "review", "opinion", "people say", "popular",
+            "recommended", "quality", "experience", "atmosphere", "vibe",
+            "how is", "how are", "is it", "are they", "do people", "what do", "thoughts",
+        ]
+        food_keywords = ["food", "eat", "restaurant", "hungry", "cuisine", "budget", "cheap", "near", "in "]
+        msg_lower = user_message.lower()
+        if has_last_candidates and any(kw in msg_lower for kw in review_keywords):
+            return "followup_review"
+        if any(kw in msg_lower for kw in food_keywords):
+            return "restaurant_search"
+        return "conversational"
+    except Exception as e:
+        logger.warning("Intent classification failed: %s", e)
+        return "restaurant_search"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Review fetching
+# ─────────────────────────────────────────────────────────────────────────────
+
+def extract_place_id_from_uri(uri: str) -> str | None:
+    """
+    Extract a Google Place ID from a gmaps_uri string.
+    Handles formats like:
+      https://maps.google.com/?cid=123
+      https://maps.google.com/maps?q=place_id:ChIJ...
+      https://www.google.com/maps/place/.../@lat,lng,...
+    Falls back to None if no ID can be found.
+    """
+    if not uri:
+        return None
+    try:
+        parsed = urllib.parse.urlparse(uri)
+        params = urllib.parse.parse_qs(parsed.query)
+
+        # ?q=place_id:ChIJ...
+        for q_val in params.get("q", []):
+            if q_val.startswith("place_id:"):
+                return q_val.split("place_id:", 1)[1]
+
+        # ?place_id=ChIJ...
+        for key in ("place_id", "placeid"):
+            if key in params and params[key]:
+                return params[key][0]
+    except Exception:
+        pass
+    return None
+
+
+def fetch_gmaps_place_ids(candidates: list[dict]) -> dict[int, str]:
+    """
+    Resolve a Google Place ID for each candidate, using (in priority order):
+      1. gmaps_place_id column in Supabase
+      2. Extracted from gmaps_uri stored on the candidate dict itself
+      3. Extracted from gmaps_uri fetched from Supabase
+
+    Returns {internal_place_id: google_place_id}
+    """
+    if not candidates:
+        return {}
+
+    place_ids = [c.get("id") for c in candidates if c.get("id") is not None]
+    result: dict[int, str] = {}
+
+    # --- Step 1 & 3: query Supabase for gmaps_place_id AND gmaps_uri together ---
+    try:
+        res = supabase.table("places").select("id, gmaps_place_id, gmaps_uri").in_("id", place_ids).execute()
+        db_rows = {row["id"]: row for row in (res.data or [])}
+    except Exception as e:
+        logger.error("Supabase fetch for place IDs failed: %s", e)
+        db_rows = {}
+
+    for c in candidates:
+        pid = c.get("id")
+        if pid is None:
+            continue
+
+        db_row = db_rows.get(pid, {})
+
+        # Priority 1: gmaps_place_id column
+        gid = db_row.get("gmaps_place_id") or ""
+        if gid:
+            result[pid] = gid
+            continue
+
+        # Priority 2: extract from gmaps_uri on the candidate dict
+        gid = extract_place_id_from_uri(c.get("gmaps_uri") or "")
+        if gid:
+            result[pid] = gid
+            logger.info("Extracted place ID from candidate gmaps_uri for id=%s: %s", pid, gid)
+            continue
+
+        # Priority 3: extract from gmaps_uri stored in Supabase
+        gid = extract_place_id_from_uri(db_row.get("gmaps_uri") or "")
+        if gid:
+            result[pid] = gid
+            logger.info("Extracted place ID from Supabase gmaps_uri for id=%s: %s", pid, gid)
+            continue
+
+        logger.warning("No Google Place ID found for internal place id=%s (name=%s)", pid, c.get("name"))
+
+    logger.info(
+        "fetch_gmaps_place_ids: resolved %d/%d place IDs (key used: %s)",
+        len(result), len(place_ids),
+        "GOOGLE_PLACES_API_KEY" if os.getenv("GOOGLE_PLACES_API_KEY")
+        else "GOOGLE_MAPS_API_KEY" if os.getenv("GOOGLE_MAPS_API_KEY")
+        else "GOOGLE_API_KEY (fallback — may lack Places API access)",
+    )
+    return result
+
+
+def fetch_reviews_for_place(gmaps_place_id: str) -> list[dict]:
+    """Fetch up to 5 Google reviews for a place via the Places Details API (Legacy)."""
+    if not PLACES_KEY:
+        logger.error("No Places API key configured — cannot fetch reviews")
+        return []
+    try:
+        url = "https://maps.googleapis.com/maps/api/place/details/json"
+        params = {
+            "place_id": gmaps_place_id,
+            "fields":   "reviews,rating,user_ratings_total",
+            "key":      PLACES_KEY,
+        }
+        r = requests.get(url, params=params, timeout=10)
+        data = r.json()
+        status = data.get("status")
+        if status != "OK":
+            logger.warning(
+                "Places Details API returned status=%s for place_id=%s — error: %s",
+                status, gmaps_place_id, data.get("error_message", ""),
+            )
+            return []
+        result  = data.get("result", {})
+        reviews = result.get("reviews", [])
+        return [
+            {
+                "author": rv.get("author_name", "Anonymous"),
+                "rating": rv.get("rating"),
+                "text":   rv.get("text", "").strip(),
+                "time":   rv.get("relative_time_description", ""),
+            }
+            for rv in reviews
+            if rv.get("text", "").strip()
+        ]
+    except Exception as e:
+        logger.error("Failed to fetch reviews for place_id=%s: %s", gmaps_place_id, e)
+        return []
+
+
+def build_reviews_context(candidates: list[dict], gmaps_id_map: dict[int, str]) -> str:
+    """Build a context block containing Google reviews for the given candidates."""
+    lines = ["=== RESTAURANT REVIEWS FROM GOOGLE ===\n"]
+    any_reviews = False
+
+    for place in candidates[:5]:  # cap at 5 to avoid oversized context
+        pid    = place.get("id")
+        name   = place.get("name", "Unknown")
+        rating = place.get("rating")
+        gmaps_place_id = gmaps_id_map.get(pid)
+
+        block = [f"## {name}"]
+        if rating:
+            block.append(f"   Overall rating: {rating}/5")
+
+        if not gmaps_place_id:
+            block.append("   (No Google Place ID resolved — reviews unavailable)")
+            lines.append("\n".join(block))
+            continue
+
+        reviews = fetch_reviews_for_place(gmaps_place_id)
+        if not reviews:
+            block.append("   (No reviews returned by the API)")
+        else:
+            any_reviews = True
+            block.append(f"   Reviews ({len(reviews)} fetched):")
+            for rv in reviews:
+                stars = (
+                    f"{'★' * int(rv['rating'])}{'☆' * (5 - int(rv['rating']))}"
+                    if rv.get("rating") else ""
+                )
+                block.append(f"\n   [{rv['author']} — {rv['time']}] {stars}")
+                text = rv["text"]
+                if len(text) > 400:
+                    text = text[:397] + "..."
+                block.append(f'   "{text}"')
+
+        lines.append("\n".join(block))
+
+    lines.append("\n=== END OF REVIEWS ===")
+
+    if not any_reviews:
+        return ""
+
+    return "\n\n".join(lines)
+
+
+def generate_review_response(
+    user_message: str,
+    reviews_context: str,
+    candidates: list[dict],
+    conversation_history: list,
+) -> str:
+    """Generate a response summarising Google reviews for previously recommended restaurants."""
+    history_text = ""
+    if conversation_history:
+        for turn in conversation_history[-10:]:
+            role = "User" if turn["role"] == "user" else "Assistant"
+            history_text += f"{role}: {turn['content']}\n"
+
+    restaurant_names = ", ".join(c.get("name", "") for c in candidates[:5] if c.get("name"))
+
+    prompt = f"""You are FoodKakiBot, a helpful food recommendation assistant for Singapore.
+
+The user was previously shown these restaurants: {restaurant_names}
+
+They are now asking: "{user_message}"
+
+Here are the real Google reviews for those restaurants:
+
+{reviews_context}
+
+--- CONVERSATION HISTORY ---
+{history_text.strip() or "(none)"}
+
+Instructions:
+- Summarise what reviewers are saying in a natural, conversational way.
+- Highlight common themes (e.g. food quality, service, value for money, atmosphere).
+- Be honest — if reviews are mixed, say so clearly.
+- You may quote a reviewer briefly to support a point, but keep it concise.
+- Do NOT invent any reviews or opinions not present in the context above.
+- Keep your response friendly and 3-6 sentences long.
+"""
+
+    try:
+        resp = model.generate_content(prompt)
+        return (getattr(resp, "text", "") or "").strip()
+    except Exception as e:
+        logger.error("Review response generation failed: %s", e)
+        return (
+            "I wasn't able to fetch reviews right now. "
+            "Try checking their Google Maps pages directly — the links are in the cards above!"
+        )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Conversational response
+# ─────────────────────────────────────────────────────────────────────────────
+
+def generate_conversational_response(user_message: str, conversation_history: list) -> str:
+    """Generate a friendly conversational response without touching RAG."""
+    history_text = ""
+    if conversation_history:
+        for turn in conversation_history[-10:]:
+            role = "User" if turn["role"] == "user" else "Assistant"
+            history_text += f"{role}: {turn['content']}\n"
+
+    prompt = f"""You are FoodKakiBot, a friendly and helpful food recommendation chatbot for Singapore.
+You help users discover great restaurants based on their location, budget, and cuisine preferences.
+
+Your capabilities:
+- Recommend restaurants across Singapore by location (e.g. Tampines, Orchard, Bugis)
+- Filter by cuisine type (Japanese, Chinese, Indian, Western, Malay, Korean, Thai, Vietnamese, Italian, and many more)
+- Filter by budget (Budget/cheap, Mid-Range, Expensive, Premium)
+- Remember preferences within a conversation
+- Show ratings, opening hours, photos, Google Maps links, and real customer reviews
+
+Conversation so far:
+{history_text.strip() or "(none)"}
+
+User: {user_message}
+
+Respond naturally and conversationally. Be warm and concise (2-4 sentences).
+If appropriate, give a concrete example of how they can search (e.g. "Try asking: 'cheap Japanese food in Tampines'").
+Do NOT ask for location unless they've clearly expressed intent to find food."""
+
+    try:
+        resp = model.generate_content(prompt)
+        return (getattr(resp, "text", "") or "").strip()
+    except Exception as e:
+        logger.error("Conversational response failed: %s", e)
+        return (
+            "I'm here to help you find great food in Singapore! "
+            "Try asking something like 'cheap Japanese food in Tampines' "
+            "or 'best restaurants near Orchard'."
+        )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Haversine & distance reranking
 # ─────────────────────────────────────────────────────────────────────────────
 
 def haversine_km(lat1, lon1, lat2, lon2):
     R = 6371
     phi1, phi2 = math.radians(lat1), math.radians(lat2)
-    dphi   = math.radians(lat2 - lat1)
+    dphi    = math.radians(lat2 - lat1)
     dlambda = math.radians(lon2 - lon1)
     a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
     return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
 
 def geocode_location_to_latlng(location_text: str):
     if not location_text:
@@ -308,7 +647,12 @@ def rerank_candidates_by_distance(candidates: list[dict], user_lat: float, user_
     try:
         resp = requests.get(
             "https://maps.googleapis.com/maps/api/distancematrix/json",
-            params={"origins": f"{user_lat},{user_lng}", "destinations": destinations, "mode": "walking", "key": PLACES_KEY},
+            params={
+                "origins":      f"{user_lat},{user_lng}",
+                "destinations": destinations,
+                "mode":         "walking",
+                "key":          PLACES_KEY,
+            },
             timeout=10,
         )
         dm = resp.json()
@@ -326,6 +670,7 @@ def rerank_candidates_by_distance(candidates: list[dict], user_lat: float, user_
         logger.warning("Distance Matrix failed, keeping Haversine order: %s", exc)
 
     return top + rest + no_coords
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # RAG-powered chat endpoint
@@ -345,34 +690,76 @@ def chat():
         session = get_session(session_id)
 
         session["history"].append({
-            "role": "user",
-            "content": user_message,
+            "role":      "user",
+            "content":   user_message,
             "timestamp": datetime.now().isoformat(),
         })
 
-        # ── 2. Extract tags from THIS message only ────────────────────────────
-        matched_tags   = extract_tags_from_message(user_message)
-        current_tags   = classify_required_tags(matched_tags)
+        history_for_intent  = [
+            {"role": m["role"], "content": m["content"]}
+            for m in session["history"][:-1]
+        ]
+        has_last_candidates = bool(session.get("last_candidates"))
 
-        # LLM fills slots still missing after rule-based extraction.
-        # New rule: Location is required, and it must be paired with either budget or cuisine.
+        # ── 1.5. Classify intent ──────────────────────────────────────────────
+        intent = classify_message_intent(user_message, history_for_intent, has_last_candidates)
+        logger.info("Session %s | intent=%s", session_id[:8], intent)
+
+        # ── Path A: Conversational ────────────────────────────────────────────
+        if intent == "conversational":
+            reply = generate_conversational_response(user_message, history_for_intent)
+            session["history"].append({
+                "role": "assistant", "content": reply,
+                "timestamp": datetime.now().isoformat(),
+            })
+            return jsonify({"response": reply, "restaurants": []})
+
+        # ── Path B: Follow-up review question ─────────────────────────────────
+        if intent == "followup_review" and has_last_candidates:
+            candidates = session["last_candidates"]
+
+            gmaps_id_map    = fetch_gmaps_place_ids(candidates)
+            reviews_context = build_reviews_context(candidates, gmaps_id_map)
+
+            if reviews_context:
+                reply = generate_review_response(
+                    user_message=user_message,
+                    reviews_context=reviews_context,
+                    candidates=candidates,
+                    conversation_history=history_for_intent,
+                )
+            else:
+                reply = (
+                    "I wasn't able to pull up reviews for those restaurants right now. "
+                    "You can check their Google Maps pages for the latest customer opinions — "
+                    "the links are in the cards above!"
+                )
+
+            session["history"].append({
+                "role": "assistant", "content": reply,
+                "timestamp": datetime.now().isoformat(),
+            })
+            return jsonify({"response": reply, "restaurants": []})
+
+        # ── Path C: Restaurant search — full RAG pipeline ─────────────────────
+
+        # ── 2. Extract tags from THIS message only ────────────────────────────
+        matched_tags = extract_tags_from_message(user_message)
+        current_tags = classify_required_tags(matched_tags)
+
         needs_location = current_tags.get("location") is None
-        needs_pair = (current_tags.get("budget") is None and current_tags.get("cuisine") is None)
+        needs_pair     = (current_tags.get("budget") is None and current_tags.get("cuisine") is None)
         if needs_location or needs_pair:
             llm_selected = llm_extract_required_tags(user_message, current_tags)
             current_tags = merge_selected_tags(current_tags, llm_selected)
 
         # ── 3. Merge with remembered tags from earlier in this session ────────
-        # Current message wins (allows "actually make it Korean" to override).
-        # Remembered tags fill slots the current message didn't mention.
         remembered = session["tags"]
         resolved = {
             "cuisine":  current_tags.get("cuisine")  or remembered.get("cuisine"),
             "location": current_tags.get("location") or remembered.get("location"),
             "budget":   current_tags.get("budget")   or remembered.get("budget"),
         }
-
-        # Persist the freshly resolved state back into this session only
         session["tags"] = resolved
 
         required_tags = [t for t in [
@@ -386,26 +773,22 @@ def chat():
             session_id[:8], current_tags, remembered, resolved,
         )
 
-        # ── 4. Check if we have enough info ──────────────────────────────────
+        # ── 4. Check we have enough info ──────────────────────────────────────
         has_location = bool(resolved.get("location"))
         has_budget   = bool(resolved.get("budget"))
         has_cuisine  = bool(resolved.get("cuisine"))
 
         missing_response: str | None = None
-        missing_reason: str | None = None
+        missing_reason:   str | None = None
 
-        # Enforce: location required
         if not has_location:
             missing_reason = "location"
-            # Show any known non-location fields
             known_parts = [f"{k}: {resolved[k]}" for k in ("budget", "cuisine") if resolved.get(k)]
-            known_str = (f" (I already know: {', '.join(known_parts)}.)" if known_parts else "")
+            known_str   = (f" (I already know: {', '.join(known_parts)}.)" if known_parts else "")
             missing_response = (
                 f"To find you the perfect restaurant, I still need your location.{known_str} "
                 f"For example: 'cheap food in Tampines' or 'Japanese food in Tampines'."
             )
-
-        # Enforce: location must be paired with either budget OR cuisine
         elif not (has_budget or has_cuisine):
             missing_reason = "budget_or_cuisine"
             known_str = f" (I already know: location: {resolved.get('location')}.)"
@@ -422,8 +805,7 @@ def chat():
                     missing_response += f" (I couldn't match '{phrase}' to a known Singapore area.)"
 
             session["history"].append({
-                "role": "assistant",
-                "content": missing_response,
+                "role": "assistant", "content": missing_response,
                 "timestamp": datetime.now().isoformat(),
             })
             return jsonify({
@@ -436,19 +818,17 @@ def chat():
             user_message,
             limit=15,
             location_tags=[resolved.get("location")] if resolved.get("location") else [],
-            budget_tags=[resolved.get("budget")] if resolved.get("budget") else [],
-            cuisine_tags=[resolved.get("cuisine")] if resolved.get("cuisine") else [],
+            budget_tags=[resolved.get("budget")]     if resolved.get("budget")   else [],
+            cuisine_tags=[resolved.get("cuisine")]   if resolved.get("cuisine")  else [],
         )
 
         logger.info("Retrieval strategy: %s | candidates: %d", strategy, len(candidates))
-
-        # Remember what we showed for potential follow-ups ("tell me more about #2")
         session["last_candidates"] = candidates
 
-        # ── Distance rerank (nearest first) ──────────────────────────────
+        # ── Distance rerank ───────────────────────────────────────────────────
         user_lat = data.get("lat")
         user_lng = data.get("lng")
-        latlng = None
+        latlng   = None
         if user_lat is not None and user_lng is not None:
             try:
                 latlng = (float(user_lat), float(user_lng))
@@ -472,8 +852,7 @@ def chat():
         tags_map  = fetch_place_tags_map_rag(place_ids, supabase) if place_ids else {}
         context   = build_rag_context(candidates[:10], tags_map)
 
-        # ── 7. Grounded generation with full session history ──────────────────
-        # Pass history excluding the current turn (already in user_message)
+        # ── 7. Grounded generation ────────────────────────────────────────────
         history_for_llm = [
             {"role": m["role"], "content": m["content"]}
             for m in session["history"][:-1]
@@ -486,47 +865,49 @@ def chat():
             model=model,
         )
 
-        # ── 8. Persist assistant turn and return ──────────────────────────────
+        # ── 8. Persist and return ─────────────────────────────────────────────
         session["history"].append({
-            "role": "assistant",
-            "content": assistant_message,
+            "role": "assistant", "content": assistant_message,
             "timestamp": datetime.now().isoformat(),
         })
+
         restaurants_for_ui = []
         for c in candidates[:15]:
             cname = c.get("name", "")
             if cname and cname.lower() in assistant_message.lower():
                 raw_summary = c.get("editorial_summary") or ""
-                description = ""
+                description: str = ""
                 if isinstance(raw_summary, dict):
-                    description = raw_summary.get("overview", "")
-                elif isinstance(raw_summary, str):
+                    description = raw_summary.get("overview", "") or ""
+                elif isinstance(raw_summary, str) and raw_summary:
                     try:
                         parsed = json.loads(raw_summary)
-                        description = parsed.get("overview", raw_summary)
+                        description = (
+                            (parsed.get("overview", raw_summary) or "")
+                            if isinstance(parsed, dict) else raw_summary
+                        )
                     except Exception:
                         description = raw_summary
 
                 restaurants_for_ui.append({
-                    "name":        cname,
-                    "description": description,
-                    "address":     c.get("address", ""),
-                    "maps_url":    c.get("gmaps_uri") or "",
-                    "photo_url":   c.get("photo_url") or "",
+                    "name":          cname,
+                    "description":   description,
+                    "address":       c.get("address", ""),
+                    "maps_url":      c.get("gmaps_uri") or "",
+                    "photo_url":     c.get("photo_url") or "",
                     "rating":        c.get("rating"),
-                    "opening_hours": c.get("opening_hours"),   
+                    "opening_hours": c.get("opening_hours"),
                 })
-
 
         return jsonify({
             "response": assistant_message,
             "restaurants": restaurants_for_ui,
             "debug": {
-                "required_tags":      required_tags,
-                "retrieval_strategy": strategy,
-                "candidates_found":   len(candidates),
-                "resolved_tags":      resolved,
-            "top5_distance_check": [
+                "required_tags":       required_tags,
+                "retrieval_strategy":  strategy,
+                "candidates_found":    len(candidates),
+                "resolved_tags":       resolved,
+                "top5_distance_check": [
                     {"name": c.get("name"), "distance_km": c.get("distance_km")}
                     for c in candidates[:5]
                 ],
@@ -539,14 +920,63 @@ def chat():
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Existing auxiliary endpoints (unchanged)
+# Debug endpoint — test review fetching for any place
+# ─────────────────────────────────────────────────────────────────────────────
+
+@app.get("/api/debug/reviews")
+def debug_reviews():
+    """
+    Quick diagnostic: fetch reviews for a single place by internal DB id.
+    Usage: GET /api/debug/reviews?id=123
+    """
+    place_id = request.args.get("id")
+    if not place_id:
+        return jsonify({"error": "missing ?id= param"}), 400
+
+    try:
+        pid = int(place_id)
+    except ValueError:
+        return jsonify({"error": "id must be an integer"}), 400
+
+    res = supabase.table("places").select("id, name, gmaps_place_id, gmaps_uri").eq("id", pid).limit(1).execute()
+    rows = res.data or []
+    if not rows:
+        return jsonify({"error": f"place id={pid} not found in Supabase"}), 404
+
+    row = rows[0]
+    name = row.get("name")
+    gmaps_place_id = row.get("gmaps_place_id") or extract_place_id_from_uri(row.get("gmaps_uri") or "")
+
+    if not gmaps_place_id:
+        return jsonify({
+            "place": name,
+            "error": "No gmaps_place_id and could not extract one from gmaps_uri",
+            "gmaps_uri": row.get("gmaps_uri"),
+        })
+
+    reviews = fetch_reviews_for_place(gmaps_place_id)
+    return jsonify({
+        "place":          name,
+        "gmaps_place_id": gmaps_place_id,
+        "places_key_src": (
+            "GOOGLE_PLACES_API_KEY" if os.getenv("GOOGLE_PLACES_API_KEY")
+            else "GOOGLE_MAPS_API_KEY" if os.getenv("GOOGLE_MAPS_API_KEY")
+            else "GOOGLE_API_KEY (fallback)"
+        ),
+        "reviews_count":  len(reviews),
+        "reviews":        reviews,
+    })
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Auxiliary endpoints
 # ─────────────────────────────────────────────────────────────────────────────
 
 @app.route("/api/session", methods=["POST"])
 def create_session():
     try:
         session_id = str(uuid.uuid4())
-        get_session(session_id)   # initialise isolated state
+        get_session(session_id)
         return jsonify({"session_id": session_id})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -555,9 +985,14 @@ def create_session():
 @app.route("/api/health", methods=["GET"])
 def health():
     return jsonify({
-        "status": "healthy",
-        "active_sessions": len(sessions),
+        "status":            "healthy",
+        "active_sessions":   len(sessions),
         "gemini_configured": os.environ.get("GOOGLE_API_KEY") is not None,
+        "places_key_src": (
+            "GOOGLE_PLACES_API_KEY" if os.getenv("GOOGLE_PLACES_API_KEY")
+            else "GOOGLE_MAPS_API_KEY" if os.getenv("GOOGLE_MAPS_API_KEY")
+            else "GOOGLE_API_KEY (fallback — may lack Places API)"
+        ),
         "rag_enabled": True,
     })
 
@@ -604,16 +1039,16 @@ def google_places_endpoint():
         details, derr = google_place_details(r["place_id"])
         if derr:
             continue
-        photos   = details.get("photos") or []
-        photo    = google_photo_url(photos[0]["photo_reference"]) if photos else None
+        photos = details.get("photos") or []
+        photo  = google_photo_url(photos[0]["photo_reference"]) if photos else None
         enriched.append({
-            "name":       details.get("name"),
-            "address":    details.get("formatted_address"),
-            "rating":     details.get("rating"),
+            "name":        details.get("name"),
+            "address":     details.get("formatted_address"),
+            "rating":      details.get("rating"),
             "price_level": details.get("price_level"),
-            "open_now":   (details.get("opening_hours") or {}).get("open_now"),
-            "maps_url":   details.get("url"),
-            "photo_url":  photo,
+            "open_now":    (details.get("opening_hours") or {}).get("open_now"),
+            "maps_url":    details.get("url"),
+            "photo_url":   photo,
         })
     return jsonify({"query": q, "results": enriched})
 
@@ -628,13 +1063,13 @@ def google_details_by_placeid():
         return jsonify(err), 400
     tags = auto_tags_from_google(details)
     return jsonify({
-        "place_id":   place_id,
-        "name":       details.get("name"),
-        "address":    details.get("formatted_address"),
+        "place_id":    place_id,
+        "name":        details.get("name"),
+        "address":     details.get("formatted_address"),
         "price_level": details.get("price_level"),
-        "open_now":   (details.get("opening_hours") or {}).get("open_now"),
-        "types":      details.get("types"),
-        "auto_tags":  tags,
+        "open_now":    (details.get("opening_hours") or {}).get("open_now"),
+        "types":       details.get("types"),
+        "auto_tags":   tags,
     })
 
 
@@ -647,6 +1082,7 @@ if __name__ == "__main__":
     print("Server  : http://localhost:5000")
     print(f"Gemini  : {'configured' if os.environ.get('GOOGLE_API_KEY') else 'NOT configured'}")
     print(f"Supabase: {'configured' if SUPABASE_URL else 'NOT configured'}")
+    print(f"Places  : {'GOOGLE_PLACES_API_KEY' if os.getenv('GOOGLE_PLACES_API_KEY') else 'GOOGLE_MAPS_API_KEY' if os.getenv('GOOGLE_MAPS_API_KEY') else 'GOOGLE_API_KEY (fallback)'}")
     print("RAG     : enabled (pgvector + grounded generation)")
     print("=" * 55)
     app.run(debug=True, port=5000)
