@@ -34,6 +34,7 @@ from tagging import auto_tags_from_google
 # ── RAG module ────────────────────────────────────────────────────────────────
 from rag import (
     retrieve_hybrid,
+    retrieve_by_tags,
     build_rag_context,
     generate_grounded_response,
     fetch_place_tags_map_rag,
@@ -671,6 +672,65 @@ def rerank_candidates_by_distance(candidates: list[dict], user_lat: float, user_
 
     return top + rest + no_coords
 
+def apply_progressive_radius(candidates, min_results=3, radius_steps=None):
+    """
+    Keep expanding radius until we have enough nearby results.
+    Returns the closest results found within the smallest radius that works.
+    """
+    if radius_steps is None:
+        radius_steps = [1, 2, 4, 6, 10]
+
+    # only keep candidates that already have a computed distance
+    valid = [c for c in candidates if c.get("distance_km") is not None]
+    valid.sort(key=lambda x: x["distance_km"])
+
+    if not valid:
+        return []
+
+    for radius in radius_steps:
+        within = [c for c in valid if c["distance_km"] <= radius]
+        if len(within) >= min_results:
+            return within[:min_results]
+
+    # if even the largest radius doesn't have enough, return closest available
+    return valid[:min_results]
+
+def retrieve_nearby_from_db(
+    *,
+    user_lat: float,
+    user_lng: float,
+    budget_tag: str | None = None,
+    cuisine_tag: str | None = None,
+    limit: int = 50,
+):
+    """
+    Distance-first retrieval from DB for 'near me' queries.
+    Filters by budget/cuisine tags if provided, then sorts by haversine distance.
+    """
+    supabase_client = supabase
+
+    required_tags = [t for t in [budget_tag, cuisine_tag] if t]
+
+    # If no tags, pull a broad pool
+    if not required_tags:
+        rows = supabase_client.table("places").select(
+            "id, name, address, gmaps_uri, editorial_summary, rating, opening_hours, price_level, photo_url, latitude, longitude"
+        ).limit(1000).execute().data or []
+    else:
+        # Reuse your existing tag-based retrieval from rag.py
+        rows = retrieve_by_tags(required_tags, limit=1000)
+
+    enriched = []
+    for r in rows:
+        lat = r.get("latitude")
+        lng = r.get("longitude")
+        if lat is None or lng is None:
+            continue
+        r["distance_km"] = round(haversine_km(user_lat, user_lng, float(lat), float(lng)), 2)
+        enriched.append(r)
+
+    enriched.sort(key=lambda x: x["distance_km"])
+    return enriched[:limit]
 
 # ─────────────────────────────────────────────────────────────────────────────
 # RAG-powered chat endpoint
@@ -681,6 +741,21 @@ def chat():
     data         = request.json
     user_message = data.get("message")
     session_id   = data.get("session_id")
+
+    raw_lat = data.get("lat")
+    raw_lng = data.get("lng")
+
+    has_gps = False
+    gps_lat = None
+    gps_lng = None
+
+    try:
+        if raw_lat is not None and raw_lng is not None:
+            gps_lat = float(raw_lat)
+            gps_lng = float(raw_lng)
+            has_gps = True
+    except (TypeError, ValueError):
+        has_gps = False
 
     if not user_message or not session_id:
         return jsonify({"error": "Missing message or session_id"}), 400
@@ -774,7 +849,7 @@ def chat():
         )
 
         # ── 4. Check we have enough info ──────────────────────────────────────
-        has_location = bool(resolved.get("location"))
+        has_location = bool(resolved.get("location")) or has_gps
         has_budget   = bool(resolved.get("budget"))
         has_cuisine  = bool(resolved.get("cuisine"))
 
@@ -814,38 +889,54 @@ def chat():
             })
 
         # ── 5. Hybrid RAG retrieval ───────────────────────────────────────────
-        candidates, strategy = retrieve_hybrid(
-            user_message,
-            limit=15,
-            location_tags=[resolved.get("location")] if resolved.get("location") else [],
-            budget_tags=[resolved.get("budget")]     if resolved.get("budget")   else [],
-            cuisine_tags=[resolved.get("cuisine")]   if resolved.get("cuisine")  else [],
-        )
+
+        use_gps_only = has_gps and not resolved.get("location")
+
+        if use_gps_only:
+            # For "near me", do distance-first retrieval instead of RAG-first
+            candidates = retrieve_nearby_from_db(
+                user_lat=gps_lat,
+                user_lng=gps_lng,
+                budget_tag=resolved.get("budget"),
+                cuisine_tag=resolved.get("cuisine"),
+                limit=50,
+            )
+            strategy = "nearby_db"
+        else:
+            candidates, strategy = retrieve_hybrid(
+                user_message,
+                limit=80,
+                location_tags=[resolved.get("location")] if resolved.get("location") else [],
+                budget_tags=[resolved.get("budget")] if resolved.get("budget") else [],
+                cuisine_tags=[resolved.get("cuisine")] if resolved.get("cuisine") else [],
+            )
 
         logger.info("Retrieval strategy: %s | candidates: %d", strategy, len(candidates))
-        session["last_candidates"] = candidates
 
         # ── Distance rerank ───────────────────────────────────────────────────
-        user_lat = data.get("lat")
-        user_lng = data.get("lng")
-        latlng   = None
-        if user_lat is not None and user_lng is not None:
-            try:
-                latlng = (float(user_lat), float(user_lng))
-            except (TypeError, ValueError):
-                latlng = None
+        latlng = None
 
-        if latlng:
-            candidates = rerank_candidates_by_distance(candidates, latlng[0], latlng[1])
-            logger.info("Distance rerank enabled (%s,%s)", latlng[0], latlng[1])
+        if has_gps:
+            latlng = (gps_lat, gps_lng)
         else:
             user_loc = resolved.get("location")
-            fallback = geocode_location_to_latlng(user_loc)
-            if fallback:
-                candidates = rerank_candidates_by_distance(candidates, fallback[0], fallback[1])
-                logger.info("Distance rerank via geocode fallback: %s", user_loc)
-            else:
-                logger.info("Distance rerank skipped (no lat/lng)")
+            latlng = geocode_location_to_latlng(user_loc)
+
+        if latlng:
+            user_lat, user_lng = latlng
+            candidates = rerank_candidates_by_distance(candidates, user_lat, user_lng)
+
+            # progressive radius fallback for "near me" / GPS-based search
+            if has_gps:
+                candidates = apply_progressive_radius(
+                    candidates,
+                    min_results=3,
+                    radius_steps=[1, 2, 4, 6, 10]
+                )
+
+            logger.info("Distance rerank enabled (%s,%s)", user_lat, user_lng)
+        else:
+            logger.info("Distance rerank skipped (no GPS and geocode failed)")
 
         # ── 6. Fetch tags and build grounded context ──────────────────────────
         place_ids = [p.get("id") for p in candidates if p.get("id") is not None]
@@ -1072,6 +1163,9 @@ def google_details_by_placeid():
         "auto_tags":   tags,
     })
 
+@app.get("/")
+def home():
+    return "Backend running. Try /api/health"
 
 # ─────────────────────────────────────────────────────────────────────────────
 

@@ -372,6 +372,9 @@ def build_rag_context(candidates: list[dict[str, Any]], tags_map: dict[int, list
         if rating:
             block.append(f"    Rating  : {rating}/5")
         block.append(f"    Price   : {price_label}")
+        dist = place.get("distance_km")
+        if dist is not None:
+            block.append(f"    Distance: {dist} km")
         if tags:
             block.append(f"    Tags    : {', '.join(tags)}")
         if summ:
@@ -397,6 +400,7 @@ CRITICAL RULES — follow these exactly:
 5. Keep recommendations concise: name, description of the food sold there, why it fits, price range, address, and Maps URL.
 6. If fewer than 3 restaurants are found, recommend only what is available.
 7. If 0 restaurants are found, politely say so and suggest the user refine their search.
+8. If Distance is present in the database context, mention it and prioritize nearer restaurants.
 
 You may use your conversational ability to explain WHY each restaurant fits the request, but all factual details must come only from the database context provided.
 """

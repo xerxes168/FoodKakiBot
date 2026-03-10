@@ -236,7 +236,10 @@ export default function RestaurantChatbot() {
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (pos) => setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+        (pos) => {
+          console.log("GPS:", pos.coords.latitude, pos.coords.longitude);
+          setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        },
         (err) => console.warn('Geolocation unavailable:', err.message)
       );
     }
