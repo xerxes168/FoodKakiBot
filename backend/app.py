@@ -33,12 +33,15 @@ from tagging import auto_tags_from_google
 
 # ── RAG module ────────────────────────────────────────────────────────────────
 from rag import (
-    retrieve_hybrid,
-    retrieve_by_tags,
-    build_rag_context,
-    generate_grounded_response,
-    fetch_place_tags_map_rag,
-)
+        retrieve_hybrid,
+        retrieve_by_tags,
+        build_rag_context,
+        generate_grounded_response,
+        fetch_place_tags_map_rag,
+    )
+from location_expansion import expand_location_tags, build_location_tag_sets
+from ranking import rank_candidates, detect_allow_closed
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -735,6 +738,22 @@ def retrieve_nearby_from_db(
 # ─────────────────────────────────────────────────────────────────────────────
 # RAG-powered chat endpoint
 # ─────────────────────────────────────────────────────────────────────────────
+def _location_subsets(expanded: list[str]):
+    """
+    Yield progressively broader location subsets for retrieval attempts.
+
+    Given expand_location_tags("Tampines") → ["Tampines", "Pasir Ris", "Simei", ...]
+
+    Yields:
+      ["Tampines"]                        — exact only
+      ["Tampines", "Pasir Ris", "Simei"]  — + immediate neighbours
+    """
+    if not expanded:
+        yield []
+        return
+    yield [expanded[0]]          # exact location only
+    if len(expanded) > 1:
+        yield expanded           # all (location + neighbours)
 
 @app.route("/api/chat", methods=["POST"])
 def chat():
@@ -903,13 +922,49 @@ def chat():
             )
             strategy = "nearby_db"
         else:
-            candidates, strategy = retrieve_hybrid(
-                user_message,
-                limit=80,
-                location_tags=[resolved.get("location")] if resolved.get("location") else [],
-                budget_tags=[resolved.get("budget")] if resolved.get("budget") else [],
-                cuisine_tags=[resolved.get("cuisine")] if resolved.get("cuisine") else [],
+            raw_loc = resolved.get("location")
+
+            # Expand location to include neighbouring planning areas so that
+            # a search for "Tampines" also surfaces results tagged "Simei",
+            # "Pasir Ris", etc. — trying most-specific first via multiple
+            # tag-set attempts inside retrieve_hybrid.
+            expanded_locs = expand_location_tags(raw_loc) if raw_loc else []
+            logger.info(
+                "Session %s | location expansion: %s → %s",
+                session_id[:8], raw_loc, expanded_locs,
             )
+
+            # Try retrieval with progressively broader location sets:
+            # 1st: original location only (exact match, most precise)
+            # 2nd: original + immediate neighbours
+            # This avoids flooding results with distant neighbours when
+            # there are already enough local candidates.
+            candidates: list = []
+            strategy = "none"
+
+            for loc_subset in _location_subsets(expanded_locs):
+                candidates, strategy = retrieve_hybrid(
+                    user_message,
+                    limit=80,
+                    location_tags=loc_subset,
+                    budget_tags=[resolved.get("budget")] if resolved.get("budget") else [],
+                    cuisine_tags=[resolved.get("cuisine")] if resolved.get("cuisine") else [],
+                )
+                if len(candidates) >= 3:
+                    break
+
+            if not candidates:
+                # Final fallback: ignore location constraint entirely,
+                # rely purely on distance reranking below.
+                candidates, strategy = retrieve_hybrid(
+                    user_message,
+                    limit=80,
+                    location_tags=[],
+                    budget_tags=[resolved.get("budget")] if resolved.get("budget") else [],
+                    cuisine_tags=[resolved.get("cuisine")] if resolved.get("cuisine") else [],
+                )
+                if candidates:
+                    strategy = strategy + "_no_loc_fallback"
 
         logger.info("Retrieval strategy: %s | candidates: %d", strategy, len(candidates))
 
@@ -941,7 +996,31 @@ def chat():
         # ── 6. Fetch tags and build grounded context ──────────────────────────
         place_ids = [p.get("id") for p in candidates if p.get("id") is not None]
         tags_map  = fetch_place_tags_map_rag(place_ids, supabase) if place_ids else {}
-        context   = build_rag_context(candidates[:10], tags_map)
+
+        # Attach tags to each candidate so ranking can use them for preference scoring
+        for c in candidates:
+            c["tags"] = tags_map.get(c.get("id"), [])
+
+        # Log opening_hours format of first candidate for debugging
+        if candidates:
+            sample_oh = candidates[0].get("opening_hours")
+            logger.info("opening_hours sample type=%s value=%s", type(sample_oh).__name__, repr(sample_oh)[:200])
+
+        # ── Ranking: filter closed + score by preference / distance / popularity ─
+        allow_closed = detect_allow_closed(user_message)
+        candidates = rank_candidates(
+            candidates,
+            resolved_tags=resolved,
+            user_lat=user_lat if latlng else None,
+            user_lng=user_lng if latlng else None,
+            allow_closed=allow_closed,
+        )
+        logger.info(
+            "Session %s | ranked %d candidates (allow_closed=%s, strategy=%s)",
+            session_id[:8], len(candidates), allow_closed, strategy,
+        )
+
+        context = build_rag_context(candidates[:10], tags_map)
 
         # ── 7. Grounded generation ────────────────────────────────────────────
         history_for_llm = [
