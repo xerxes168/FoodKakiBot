@@ -380,15 +380,9 @@ def rank_candidates(
         now = datetime.now()
 
     results: list[dict[str, Any]] = []
-    filtered_count = 0
 
     for place in candidates:
-        # ── 1. Opening hours filter ────────────────────────────────────────────
-        if not allow_closed and not is_open_now(place, now):
-            filtered_count += 1
-            continue
-
-        # ── 2. Score components ────────────────────────────────────────────────
+        # ── Score components ───────────────────────────────────────────────────
         pref_s = _preference_score(place, resolved_tags)
         dist_s = _distance_score(place, user_lat, user_lng)
         pop_s  = _popularity_score(place)
@@ -399,26 +393,20 @@ def rank_candidates(
             + W_POPULARITY * pop_s
         )
 
-        # Attach scores for transparency / logging / frontend use
         place = {
             **place,
             "_score": {
-                "composite":   round(composite, 4),
-                "preference":  round(pref_s, 4),
-                "distance":    round(dist_s, 4),
-                "popularity":  round(pop_s, 4),
+                "composite":  round(composite, 4),
+                "preference": round(pref_s, 4),
+                "distance":   round(dist_s, 4),
+                "popularity": round(pop_s, 4),
+                "is_open":    is_open_now(place, now),   # informational only
             },
         }
         results.append((composite, place))
 
-    # ── 3. Sort descending by composite score ──────────────────────────────────
+    # ── Sort descending by composite score ────────────────────────────────────
     results.sort(key=lambda x: x[0], reverse=True)
-    if filtered_count:
-        import logging
-        logging.getLogger(__name__).info(
-            "rank_candidates: %d/%d filtered by opening hours (allow_closed=%s)",
-            filtered_count, len(candidates), allow_closed,
-        )
     return [place for _, place in results]
 
 

@@ -982,7 +982,7 @@ def chat():
             candidates = rerank_candidates_by_distance(candidates, user_lat, user_lng)
 
             # progressive radius fallback for "near me" / GPS-based search
-            if has_gps:
+            if has_gps and len(candidates) > 15:
                 candidates = apply_progressive_radius(
                     candidates,
                     min_results=3,
@@ -1006,18 +1006,16 @@ def chat():
             sample_oh = candidates[0].get("opening_hours")
             logger.info("opening_hours sample type=%s value=%s", type(sample_oh).__name__, repr(sample_oh)[:200])
 
-        # ── Ranking: filter closed + score by preference / distance / popularity ─
-        allow_closed = detect_allow_closed(user_message)
+        # ── Ranking: score by preference / distance / popularity ──────────────
         candidates = rank_candidates(
             candidates,
             resolved_tags=resolved,
             user_lat=user_lat if latlng else None,
             user_lng=user_lng if latlng else None,
-            allow_closed=allow_closed,
         )
         logger.info(
-            "Session %s | ranked %d candidates (allow_closed=%s, strategy=%s)",
-            session_id[:8], len(candidates), allow_closed, strategy,
+            "Session %s | ranked %d candidates (strategy=%s)",
+            session_id[:8], len(candidates), strategy,
         )
 
         context = build_rag_context(candidates[:10], tags_map)
