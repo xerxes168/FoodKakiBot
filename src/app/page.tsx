@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Utensils, Loader2, MapPin, ExternalLink, Star, Clock, ChevronDown, ChevronUp } from 'lucide-react';
+import { Send, Utensils, Loader2, MapPin, ExternalLink, Star, Clock, ChevronDown, ChevronUp, Download } from 'lucide-react';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -197,6 +197,18 @@ function extractIntro(content: string): string {
   return content.substring(0, cutoff).trim();
 }
 
+function formatRestaurantForExport(restaurant: Restaurant): string {
+  const parts = [
+    `- ${restaurant.name}`,
+    restaurant.description ? `  Description: ${restaurant.description}` : '',
+    restaurant.address ? `  Address: ${restaurant.address}` : '',
+    restaurant.rating != null ? `  Rating: ${restaurant.rating.toFixed(1)}` : '',
+    restaurant.maps_url ? `  Maps: ${restaurant.maps_url}` : '',
+  ].filter(Boolean);
+
+  return parts.join('\n');
+}
+
 // ── Main Component ────────────────────────────────────────────────────────────
 
 export default function RestaurantChatbot() {
@@ -299,6 +311,42 @@ export default function RestaurantChatbot() {
     }
   };
 
+  const handleExport = () => {
+    const timestamp = new Date();
+    const exportLines = [
+      'FoodKakiBot Chat Export',
+      `Exported: ${timestamp.toLocaleString()}`,
+      `Session ID: ${sessionId || 'Unavailable'}`,
+      '',
+      ...messages.flatMap((msg, index) => {
+        const section = [
+          `[${index + 1}] ${msg.role.toUpperCase()}`,
+          msg.content,
+        ];
+
+        if (msg.restaurants?.length) {
+          section.push('', 'Restaurants:');
+          section.push(...msg.restaurants.map(formatRestaurantForExport));
+        }
+
+        section.push('');
+        return section;
+      }),
+    ].join('\n');
+
+    const blob = new Blob([exportLines], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const safeSessionId = sessionId ? sessionId.slice(0, 8) : 'chat';
+
+    link.href = url;
+    link.download = `foodkakibot-chat-${safeSessionId}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-orange-50 to-amber-50">
       {/* Header */}
@@ -312,10 +360,17 @@ export default function RestaurantChatbot() {
             <p className="text-sm text-gray-500">AI-powered restaurant recommendations</p>
           </div>
           {sessionId && (
-            <div className="text-xs text-gray-400">
+            <div className="hidden sm:block text-xs text-gray-400">
               Session: {sessionId.slice(0, 8)}...
             </div>
           )}
+          <button
+            onClick={handleExport}
+            className="inline-flex items-center gap-2 rounded-full border border-orange-200 px-4 py-2 text-sm font-semibold text-orange-600 hover:bg-orange-50 transition-colors"
+          >
+            <Download className="w-4 h-4" />
+            Export
+          </button>
         </div>
       </div>
 
