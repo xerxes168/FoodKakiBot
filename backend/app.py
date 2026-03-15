@@ -110,6 +110,53 @@ CUISINE_TAGS = {
     "Thai", "Vegetarian", "Vietnamese", "Western",
 }
 
+CUISINE_ALIASES = {
+    # Filipino
+    "filipino": "Asian",   # take filipino food as asian
+    "pinoy": "Asian",
+
+    # Chinese regional cuisines -> Chinese
+    "hunan": "Chinese",
+    "hubei": "Chinese",
+    "sichuan": "Chinese",
+    "szechuan": "Chinese",
+    "cantonese": "Chinese",
+    "teochew": "Chinese",
+    "hokkien": "Chinese",
+    "yunnan": "Chinese",
+    "xinjiang": "Chinese",
+    "dongbei": "Chinese",
+    "shanghai": "Chinese",
+
+    # Japanese subtypes
+    "omakase": "Japanese",
+    "yakitori": "Japanese",
+    "donburi": "Japanese",
+    "soba": "Japanese",
+    "udon": "Japanese",
+
+    # Korean subtypes
+    "kbbq": "Korean",
+    "korean bbq": "Korean",
+    "bibimbap": "Korean",
+    "tteokbokki": "Korean",
+
+    # Indian subtypes
+    "biryani": "Indian",
+    "briyani": "Indian",
+    "dosa": "Indian",
+    "prata": "Indian",
+    "roti prata": "Indian",
+
+    "pho": "Vietnamese",
+    "banh mi": "Vietnamese",
+
+    "tom yum": "Thai",
+
+    "filipino": "Filipino",
+    "pinoy": "Filipino",
+}
+
 NON_LOCATION_TAGS = (
     BUDGET_TAGS | CUISINE_TAGS | {
         "Delivery", "Dine-In", "Takeaway", "Reservable", "Family-Friendly", "Good for Groups",
@@ -157,18 +204,39 @@ def extract_tags_from_message(user_message):
     normalized_user_text = normalize_text_for_match(user_message or "")
     tag_lookup = {t.lower(): t for t in tag_names}
     matched_tags = []
+
+    # exact DB tag matches first
     for tag in sorted(tag_names, key=len, reverse=True):
         if tag in IGNORED_QUERY_TAGS:
             continue
         if contains_phrase(normalized_user_text, tag):
             matched_tags.append(tag)
+
+    # alias matches -> canonical DB tag
+    for alias, canonical in CUISINE_ALIASES.items():
+        if contains_phrase(normalized_user_text, alias):
+            actual_tag = tag_lookup.get(canonical.lower())
+            if actual_tag and actual_tag not in matched_tags:
+                matched_tags.append(actual_tag)
+
+    # price aliases
     canonical_price_tag = detect_canonical_price_tag(user_message or "")
     if canonical_price_tag:
         actual_tag = tag_lookup.get(canonical_price_tag.lower())
         if actual_tag and actual_tag not in matched_tags:
             matched_tags.append(actual_tag)
+
     return matched_tags
 
+def canonicalize_query_text(user_message: str) -> str:
+    text = user_message or ""
+    normalized = text
+
+    for alias, canonical in CUISINE_ALIASES.items():
+        pattern = re.compile(rf"\b{re.escape(alias)}\b", re.IGNORECASE)
+        normalized = pattern.sub(canonical, normalized)
+
+    return normalized
 
 def classify_required_tags(matched_tags):
     selected = {"cuisine": None, "location": None, "budget": None}
@@ -909,6 +977,8 @@ def chat():
 
         # ── 5. Hybrid RAG retrieval ───────────────────────────────────────────
 
+        canonical_user_message = canonicalize_query_text(user_message)
+
         use_gps_only = has_gps and not resolved.get("location")
 
         if use_gps_only:
@@ -934,6 +1004,8 @@ def chat():
                 session_id[:8], raw_loc, expanded_locs,
             )
 
+            canonical_user_message = canonicalize_query_text(user_message)
+
             # Try retrieval with progressively broader location sets:
             # 1st: original location only (exact match, most precise)
             # 2nd: original + immediate neighbours
@@ -944,7 +1016,7 @@ def chat():
 
             for loc_subset in _location_subsets(expanded_locs):
                 candidates, strategy = retrieve_hybrid(
-                    user_message,
+                    canonical_user_message,
                     limit=80,
                     location_tags=loc_subset,
                     budget_tags=[resolved.get("budget")] if resolved.get("budget") else [],
@@ -957,7 +1029,7 @@ def chat():
                 # Final fallback: ignore location constraint entirely,
                 # rely purely on distance reranking below.
                 candidates, strategy = retrieve_hybrid(
-                    user_message,
+                    canonical_user_message,
                     limit=80,
                     location_tags=[],
                     budget_tags=[resolved.get("budget")] if resolved.get("budget") else [],
@@ -1027,7 +1099,7 @@ def chat():
         ]
 
         assistant_message = generate_grounded_response(
-            user_message=user_message,
+            user_message=canonical_user_message,
             context=context,
             conversation_history=history_for_llm,
             model=model,

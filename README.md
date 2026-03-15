@@ -5,7 +5,7 @@
 - Lucas Ng Hong Wei
 - Gregory Tan
 - Tan Zheng Liang
-- Elsia Teo
+- Elsia Teo Yu Ning
 - Moo Zhe Yan
 
 ---
