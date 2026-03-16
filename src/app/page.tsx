@@ -384,15 +384,13 @@ export default function RestaurantChatbot() {
                   <p className="whitespace-pre-wrap">{msg.content}</p>
                 </div>
               ) : msg.restaurants && msg.restaurants.length > 0 ? (
-                <div className="w-full max-w-2xl space-y-3">
-                  {extractIntro(msg.content) && (
-                    <div className="px-4 py-3 rounded-2xl bg-white text-gray-800 shadow-sm border border-orange-100">
-                      <p>{extractIntro(msg.content)}</p>
+                    <div className="w-full max-w-2xl space-y-3">
+                      <div className="px-4 py-3 rounded-2xl bg-white text-gray-800 shadow-sm border border-orange-100">
+                        <p className="whitespace-pre-wrap">{msg.content}</p>
+                      </div>
+                      <RestaurantList restaurants={msg.restaurants} />
                     </div>
-                  )}
-                  <RestaurantList restaurants={msg.restaurants} />
-                </div>
-              ) : (
+                  ) : (
                 <div className="max-w-2xl px-4 py-3 rounded-2xl bg-white text-gray-800 shadow-sm border border-orange-100">
                   <p className="whitespace-pre-wrap">{msg.content}</p>
                 </div>

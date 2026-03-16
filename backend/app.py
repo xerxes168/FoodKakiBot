@@ -743,7 +743,7 @@ def rerank_candidates_by_distance(candidates: list[dict], user_lat: float, user_
 
     return top + rest + no_coords
 
-def apply_progressive_radius(candidates, min_results=3, radius_steps=None):
+def apply_progressive_radius(candidates, min_results=5, radius_steps=None):
     """
     Keep expanding radius until we have enough nearby results.
     Returns the closest results found within the smallest radius that works.
@@ -822,6 +822,60 @@ def _location_subsets(expanded: list[str]):
     yield [expanded[0]]          # exact location only
     if len(expanded) > 1:
         yield expanded           # all (location + neighbours)
+
+def is_generic_recommendation_request(user_message: str) -> bool:
+    msg = (user_message or "").lower().strip()
+
+    if "recommend" in msg and ("restaurant" in msg or "food" in msg or "eat" in msg):
+        return True
+
+    generic_patterns = [
+        "where should i eat",
+        "what should i eat",
+        "where to eat",
+        "food recommendation",
+        "give me recommendations",
+        "any recommendations",
+        "best food",
+        "best restaurant",
+    ]
+    return any(p in msg for p in generic_patterns)
+
+def generic_review_rank_key(candidate: dict):
+    """
+    Rank generic recommendations mainly by rating/review strength.
+    If review-count fields are unavailable, it falls back to rating only.
+    """
+    rating = candidate.get("rating") or 0
+    review_count = (
+        candidate.get("user_ratings_total")
+        or candidate.get("reviews_count")
+        or candidate.get("review_count")
+        or 0
+    )
+    return (rating, review_count)
+
+def is_llm_error_message(text: str) -> bool:
+    msg = (text or "").lower().strip()
+    error_markers = [
+        "sorry, i encountered an error",
+        "please try again",
+        "error generating a response",
+        "wasn't able to",
+        "quota",
+        "rate limit",
+    ]
+    return any(m in msg for m in error_markers)
+
+def sort_best_rated(candidates: list[dict]) -> list[dict]:
+    return sorted(
+        candidates,
+        key=lambda c: (
+            c.get("rating") or 0,
+            c.get("user_ratings_total") or c.get("reviews_count") or c.get("review_count") or 0
+        ),
+        reverse=True
+    )
 
 @app.route("/api/chat", methods=["POST"])
 def chat():
@@ -916,12 +970,15 @@ def chat():
             current_tags = merge_selected_tags(current_tags, llm_selected)
 
         # ── 3. Merge with remembered tags from earlier in this session ────────
+        generic_request = is_generic_recommendation_request(user_message)
         remembered = session["tags"]
+
         resolved = {
-            "cuisine":  current_tags.get("cuisine")  or remembered.get("cuisine"),
-            "location": current_tags.get("location") or remembered.get("location"),
-            "budget":   current_tags.get("budget")   or remembered.get("budget"),
+            "cuisine": current_tags.get("cuisine") or remembered.get("cuisine"),
+            "location": current_tags.get("location") if generic_request else (current_tags.get("location") or remembered.get("location")),
+            "budget": current_tags.get("budget") or remembered.get("budget"),
         }
+
         session["tags"] = resolved
 
         required_tags = [t for t in [
@@ -936,29 +993,39 @@ def chat():
         )
 
         # ── 4. Check we have enough info ──────────────────────────────────────
-        has_location = bool(resolved.get("location")) or has_gps
-        has_budget   = bool(resolved.get("budget"))
-        has_cuisine  = bool(resolved.get("cuisine"))
+        has_explicit_location = bool(resolved.get("location"))
+        has_near_me_location = bool(has_gps)
+        has_any_location_context = has_explicit_location or has_near_me_location
+
+        has_budget = bool(resolved.get("budget"))
+        has_cuisine = bool(resolved.get("cuisine"))
+
+        generic_request = is_generic_recommendation_request(user_message)
+
+        # Broad recommendations are allowed in two cases:
+        # 1) no location, but user still asked generally / gave some preference
+        # 2) location exists, but user did not specify budget or cuisine yet
+        broad_reco_mode = (
+            (not has_any_location_context and (generic_request or has_budget or has_cuisine))
+            or
+            (has_any_location_context and not has_budget and not has_cuisine)
+        )
 
         missing_response: str | None = None
         missing_reason:   str | None = None
 
-        if not has_location:
+        # only block when we really have nothing useful
+        if not has_any_location_context and not broad_reco_mode:
             missing_reason = "location"
             known_parts = [f"{k}: {resolved[k]}" for k in ("budget", "cuisine") if resolved.get(k)]
             known_str   = (f" (I already know: {', '.join(known_parts)}.)" if known_parts else "")
             missing_response = (
-                f"To find you the perfect restaurant, I still need your location.{known_str} "
-                f"For example: 'cheap food in Tampines' or 'Japanese food in Tampines'."
+                f"Tell me a location in Singapore and I’ll recommend places for you.{known_str} "
+                f"For example: 'cheap food in Tampines' or 'Japanese food in Bugis'."
             )
-        elif not (has_budget or has_cuisine):
-            missing_reason = "budget_or_cuisine"
-            known_str = f" (I already know: location: {resolved.get('location')}.)"
-            loc = resolved.get("location")
-            missing_response = (
-                f"To find you the perfect restaurant, tell me either your budget or preferred cuisine.{known_str} "
-                f"For example: 'cheap food in {loc}' or 'Japanese food in {loc}'."
-            )
+
+        elif has_any_location_context and not (has_budget or has_cuisine) and not generic_request:
+            pass
 
         if missing_response:
             if missing_reason == "location":
@@ -972,17 +1039,25 @@ def chat():
             })
             return jsonify({
                 "response": missing_response,
-                "debug": {"required_tags": required_tags, "missing": missing_reason, "resolved": resolved},
+                "debug": {
+                    "required_tags": required_tags,
+                    "missing": missing_reason,
+                    "resolved": resolved,
+                    "generic_request": generic_request,
+                    "broad_reco_mode": broad_reco_mode,
+                },
             })
 
         # ── 5. Hybrid RAG retrieval ───────────────────────────────────────────
 
         canonical_user_message = canonicalize_query_text(user_message)
 
+        raw_loc = resolved.get("location")
+        location_only_mode = bool(raw_loc) and not resolved.get("budget") and not resolved.get("cuisine")
+
         use_gps_only = has_gps and not resolved.get("location")
 
         if use_gps_only:
-            # For "near me", do distance-first retrieval instead of RAG-first
             candidates = retrieve_nearby_from_db(
                 user_lat=gps_lat,
                 user_lng=gps_lng,
@@ -991,45 +1066,12 @@ def chat():
                 limit=50,
             )
             strategy = "nearby_db"
-        else:
-            raw_loc = resolved.get("location")
-
-            # Expand location to include neighbouring planning areas so that
-            # a search for "Tampines" also surfaces results tagged "Simei",
-            # "Pasir Ris", etc. — trying most-specific first via multiple
-            # tag-set attempts inside retrieve_hybrid.
-            expanded_locs = expand_location_tags(raw_loc) if raw_loc else []
-            logger.info(
-                "Session %s | location expansion: %s → %s",
-                session_id[:8], raw_loc, expanded_locs,
-            )
-
-            canonical_user_message = canonicalize_query_text(user_message)
-
-            # Try retrieval with progressively broader location sets:
-            # 1st: original location only (exact match, most precise)
-            # 2nd: original + immediate neighbours
-            # This avoids flooding results with distant neighbours when
-            # there are already enough local candidates.
-            candidates: list = []
-            strategy = "none"
-
-            for loc_subset in _location_subsets(expanded_locs):
-                candidates, strategy = retrieve_hybrid(
-                    canonical_user_message,
-                    limit=80,
-                    location_tags=loc_subset,
-                    budget_tags=[resolved.get("budget")] if resolved.get("budget") else [],
-                    cuisine_tags=[resolved.get("cuisine")] if resolved.get("cuisine") else [],
-                )
-                if len(candidates) >= 3:
-                    break
 
             if not candidates:
-                # Final fallback: ignore location constraint entirely,
-                # rely purely on distance reranking below.
+                # Final fallback: ignore location and search broadly across Singapore
+                fallback_query = canonicalize_query_text(user_message)
                 candidates, strategy = retrieve_hybrid(
-                    canonical_user_message,
+                    fallback_query,
                     limit=80,
                     location_tags=[],
                     budget_tags=[resolved.get("budget")] if resolved.get("budget") else [],
@@ -1037,6 +1079,102 @@ def chat():
                 )
                 if candidates:
                     strategy = strategy + "_no_loc_fallback"
+
+            # If still empty and we have some preference (budget/cuisine or generic request),
+            # do a broad Singapore-wide tag-based fallback and rank by rating.
+            if not candidates and (resolved.get("budget") or resolved.get("cuisine") or generic_request):
+                broad_tags = [t for t in [resolved.get("budget"), resolved.get("cuisine")] if t]
+                if broad_tags:
+                    candidates = retrieve_by_tags(broad_tags, limit=200)
+                    strategy = "singapore_tag_fallback"
+                else:
+                    candidates = supabase.table("places").select(
+                        "id, name, address, gmaps_uri, editorial_summary, rating, opening_hours, price_level, photo_url, latitude, longitude"
+                    ).limit(200).execute().data or []
+                    strategy = "singapore_global_fallback"
+
+                candidates = sort_best_rated(candidates)
+
+        else:
+            expanded_locs = expand_location_tags(raw_loc) if raw_loc else []
+
+            logger.info(...)
+
+            candidates: list = []
+            strategy = "none"
+
+            if location_only_mode:
+                seen_ids = set()
+                merged_candidates = []
+
+                # 1) exact location tag first
+                exact_candidates = retrieve_by_tags([raw_loc], limit=80) if raw_loc else []
+                for c in exact_candidates:
+                    cid = c.get("id")
+                    if cid not in seen_ids:
+                        seen_ids.add(cid)
+                        merged_candidates.append(c)
+
+                if merged_candidates:
+                    strategy = "location_tag_exact"
+
+                # 2) expand to neighbouring locations if exact isn't enough
+                if len(merged_candidates) < 10 and expanded_locs:
+                    expanded_candidates = retrieve_by_tags(expanded_locs, limit=80)
+                    for c in expanded_candidates:
+                        cid = c.get("id")
+                        if cid not in seen_ids:
+                            seen_ids.add(cid)
+                            merged_candidates.append(c)
+
+                    if merged_candidates:
+                        strategy = "location_tag_expanded"
+
+                # 3) fallback to hybrid area query only if tag retrieval is still weak
+                if len(merged_candidates) < 5:
+                    area_query = f"best restaurants in {raw_loc}"
+                    hybrid_candidates, hybrid_strategy = retrieve_hybrid(
+                        area_query,
+                        limit=80,
+                        location_tags=expanded_locs if expanded_locs else ([raw_loc] if raw_loc else []),
+                        budget_tags=[],
+                        cuisine_tags=[],
+                    )
+                    for c in hybrid_candidates:
+                        cid = c.get("id")
+                        if cid not in seen_ids:
+                            seen_ids.add(cid)
+                            merged_candidates.append(c)
+
+                    if merged_candidates:
+                        strategy = hybrid_strategy + "_area_fallback"
+                
+            else:
+                candidates, strategy = retrieve_hybrid(
+                    canonical_user_message,
+                    limit=80,
+                    location_tags=[],
+                    budget_tags=[resolved.get("budget")] if resolved.get("budget") else [],
+                    cuisine_tags=[resolved.get("cuisine")] if resolved.get("cuisine") else [],
+                )
+
+                if candidates:
+                    strategy = strategy + "_preference_only"
+
+                # Singapore-wide fallback if hybrid is still empty
+                if not candidates and (resolved.get("budget") or resolved.get("cuisine") or generic_request):
+                    broad_tags = [t for t in [resolved.get("budget"), resolved.get("cuisine")] if t]
+
+                    if broad_tags:
+                        candidates = retrieve_by_tags(broad_tags, limit=200)
+                        strategy = "singapore_tag_fallback"
+                    else:
+                        candidates = supabase.table("places").select(
+                            "id, name, address, gmaps_uri, editorial_summary, rating, opening_hours, price_level, photo_url, latitude, longitude"
+                        ).limit(200).execute().data or []
+                        strategy = "singapore_global_fallback"
+
+                    candidates = sort_best_rated(candidates)
 
         logger.info("Retrieval strategy: %s | candidates: %d", strategy, len(candidates))
 
@@ -1054,10 +1192,10 @@ def chat():
             candidates = rerank_candidates_by_distance(candidates, user_lat, user_lng)
 
             # progressive radius fallback for "near me" / GPS-based search
-            if has_gps and len(candidates) > 15:
+            if has_gps and len(candidates) > 15 and not broad_reco_mode:
                 candidates = apply_progressive_radius(
                     candidates,
-                    min_results=3,
+                    min_results=5,
                     radius_steps=[1, 2, 4, 6, 10]
                 )
 
@@ -1085,10 +1223,49 @@ def chat():
             user_lat=user_lat if latlng else None,
             user_lng=user_lng if latlng else None,
         )
-        logger.info(
-            "Session %s | ranked %d candidates (strategy=%s)",
-            session_id[:8], len(candidates), strategy,
+
+        candidates = sorted(
+            candidates,
+            key=lambda c: (
+                c.get("rating") or 0,
+                c.get("user_ratings_total") or c.get("reviews_count") or c.get("review_count") or 0
+            ),
+            reverse=True
         )
+
+        if not candidates:
+            if resolved.get("location"):
+                fallback_msg = (
+                    f"I couldn’t find enough restaurant matches around {resolved.get('location')} right now. "
+                    f"Tell me your budget or preferred cuisine and I’ll refine the search."
+                )
+            elif has_gps:
+                fallback_msg = (
+                    "I couldn’t find enough nearby restaurant matches right now. "
+                    "Tell me your budget or preferred cuisine and I’ll refine the search."
+                )
+            else:
+                fallback_msg = (
+                    "I couldn’t narrow it down properly, so here are some of the best-rated restaurant options in Singapore instead. "
+                    "Tell me a location if you want more relevant recommendations near you."
+                )
+
+            session["history"].append({
+                "role": "assistant",
+                "content": fallback_msg,
+                "timestamp": datetime.now().isoformat(),
+            })
+
+            return jsonify({
+                "response": fallback_msg,
+                "restaurants": [],
+                "debug": {
+                    "required_tags": required_tags,
+                    "retrieval_strategy": strategy,
+                    "candidates_found": 0,
+                    "resolved_tags": resolved,
+                },
+            })
 
         context = build_rag_context(candidates[:10], tags_map)
 
@@ -1098,12 +1275,58 @@ def chat():
             for m in session["history"][:-1]
         ]
 
+        generation_query = canonical_user_message
+
+        if location_only_mode and resolved.get("location"):
+            generation_query = f"restaurants in {resolved.get('location')}"
+
         assistant_message = generate_grounded_response(
             user_message=canonical_user_message,
             context=context,
             conversation_history=history_for_llm,
             model=model,
-        )
+        ) or "Here are some restaurant recommendations for you."
+
+        if candidates and is_llm_error_message(assistant_message):
+            if resolved.get("location") and not has_budget and not has_cuisine:
+                assistant_message = (
+                    f"Here are some restaurant recommendations around {resolved.get('location')}."
+                )
+            elif not has_any_location_context and broad_reco_mode:
+                assistant_message = "Here are some restaurant recommendations for you."
+            elif resolved.get("cuisine") and has_gps:
+                assistant_message = (
+                    f"Here are some {resolved.get('cuisine')} places near you."
+                )
+            else:
+                assistant_message = "Here are some restaurant recommendations for you."
+
+        if not has_any_location_context and broad_reco_mode:
+            assistant_message += (
+                "\n\nDo you have any preferred location in Singapore "
+                "for more accurate results?"
+            )
+        elif has_any_location_context and not has_budget and not has_cuisine:
+            assistant_message += (
+                "\n\nTell me either your budget or preferred cuisine "
+                "for more tailored recommendations."
+            )
+        
+        if strategy == "singapore_tag_fallback":
+            if resolved.get("cuisine") and resolved.get("budget"):
+                assistant_message = (
+                    f"Here are some of the best-rated {resolved.get('budget').lower()} {resolved.get('cuisine')} options in Singapore."
+                )
+            elif resolved.get("cuisine"):
+                assistant_message = (
+                    f"Here are some of the best-rated {resolved.get('cuisine')} restaurants in Singapore."
+                )
+            elif resolved.get("budget"):
+                assistant_message = (
+                    f"Here are some of the best-rated {resolved.get('budget').lower()} restaurant options in Singapore."
+                )
+        elif strategy == "singapore_global_fallback":
+            assistant_message = "Here are some of the best-rated restaurants in Singapore."
 
         # ── 8. Persist and return ─────────────────────────────────────────────
         session["history"].append({
@@ -1112,32 +1335,33 @@ def chat():
         })
 
         restaurants_for_ui = []
-        for c in candidates[:15]:
-            cname = c.get("name", "")
-            if cname and cname.lower() in assistant_message.lower():
-                raw_summary = c.get("editorial_summary") or ""
-                description: str = ""
-                if isinstance(raw_summary, dict):
-                    description = raw_summary.get("overview", "") or ""
-                elif isinstance(raw_summary, str) and raw_summary:
-                    try:
-                        parsed = json.loads(raw_summary)
-                        description = (
-                            (parsed.get("overview", raw_summary) or "")
-                            if isinstance(parsed, dict) else raw_summary
-                        )
-                    except Exception:
-                        description = raw_summary
+        top_n = 10 if broad_reco_mode else 5
 
-                restaurants_for_ui.append({
-                    "name":          cname,
-                    "description":   description,
-                    "address":       c.get("address", ""),
-                    "maps_url":      c.get("gmaps_uri") or "",
-                    "photo_url":     c.get("photo_url") or "",
-                    "rating":        c.get("rating"),
-                    "opening_hours": c.get("opening_hours"),
-                })
+        for c in candidates[:top_n]:
+            raw_summary = c.get("editorial_summary") or ""
+            description: str = ""
+
+            if isinstance(raw_summary, dict):
+                description = raw_summary.get("overview", "") or ""
+            elif isinstance(raw_summary, str) and raw_summary:
+                try:
+                    parsed = json.loads(raw_summary)
+                    description = (
+                        (parsed.get("overview", raw_summary) or "")
+                        if isinstance(parsed, dict) else raw_summary
+                    )
+                except Exception:
+                    description = raw_summary
+
+            restaurants_for_ui.append({
+                "name":          c.get("name", ""),
+                "description":   description,
+                "address":       c.get("address", ""),
+                "maps_url":      c.get("gmaps_uri") or "",
+                "photo_url":     c.get("photo_url") or "",
+                "rating":        c.get("rating"),
+                "opening_hours": c.get("opening_hours"),
+            })
 
         return jsonify({
             "response": assistant_message,
