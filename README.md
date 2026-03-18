@@ -63,4 +63,11 @@
    python fetch_and_enrich.py --limit 50              # 50 restaurants
    python fetch_and_enrich.py --limit 0               # all restaurants
    python fetch_and_enrich.py --limit 25 --output my_data.xlsx  # custom output name
+
+5. Export dishes mentioned in the top 5 Google reviews:
+   python export_review_dishes.py
+
+   The script will prompt for how many restaurants to process, then save an Excel workbook with:
+   - a restaurant summary sheet
+   - a review details sheet showing extracted dishes per review
 """
