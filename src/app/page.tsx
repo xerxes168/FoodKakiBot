@@ -18,6 +18,8 @@ interface Restaurant {
   photo_url: string;
   rating?: number;
   opening_hours?: OpeningHours;
+  recommended_because?: string;
+  rank_reason?: string;
 }
 
 interface Message {
@@ -114,6 +116,19 @@ function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
         {restaurant.description && (
           <p className="text-sm text-gray-500 leading-relaxed line-clamp-3">
             {restaurant.description}
+          </p>
+        )}
+
+        {/* Recommendation reasoning */}
+        {restaurant.recommended_because && (
+          <p className="text-sm text-gray-700 leading-relaxed">
+            {restaurant.recommended_because}
+          </p>
+        )}
+
+        {restaurant.rank_reason && (
+          <p className="text-xs text-gray-500 leading-relaxed">
+            {restaurant.rank_reason}
           </p>
         )}
 
