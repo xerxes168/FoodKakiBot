@@ -252,7 +252,7 @@ def classify_required_tags(matched_tags):
 
 def extract_location_phrase_from_message(user_message):
     text = (user_message or "").strip()
-    m = re.search(r"\b(?:in|at|near|around)\s+([a-zA-Z0-9\s\-]+)", text, flags=re.IGNORECASE)
+    m = re.search(r"\b(?:in|at|near)\s+([a-zA-Z0-9\s\-]+)", text, flags=re.IGNORECASE)
     if not m:
         return None
     phrase = m.group(1).strip(" .,!?:;")
@@ -877,93 +877,6 @@ def sort_best_rated(candidates: list[dict]) -> list[dict]:
         reverse=True
     )
 
-def get_review_count(candidate: dict) -> int:
-    return (
-        candidate.get("user_ratings_total")
-        or candidate.get("reviews_count")
-        or candidate.get("review_count")
-        or 0
-    )
-
-
-def build_candidate_reason(candidate: dict, resolved: dict, has_gps: bool = False) -> str:
-    reasons = []
-
-    cuisine = resolved.get("cuisine")
-    budget = resolved.get("budget")
-    location = resolved.get("location")
-
-    tags = set(candidate.get("tags") or [])
-
-    # match reasons
-    if cuisine and cuisine in tags:
-        reasons.append(f"matches your {cuisine.lower()} preference")
-
-    if budget and budget in tags:
-        reasons.append(f"fits your {budget.lower()} budget")
-
-    # rating / popularity reasons
-    rating = candidate.get("rating")
-    review_count = get_review_count(candidate)
-
-    if rating:
-        if review_count:
-            reasons.append(f"has a strong rating of {rating} from {review_count} reviews")
-        else:
-            reasons.append(f"has a strong rating of {rating}")
-
-    # distance / area reasons
-    distance_km = candidate.get("distance_km")
-    if distance_km is not None:
-        if has_gps:
-            reasons.append(f"is about {distance_km:.1f} km from you")
-        elif location:
-            reasons.append(f"is near {location}")
-
-    # fallback
-    if not reasons:
-        reasons.append("it is one of the stronger matches based on your request")
-
-    return "Recommended because it " + ", ".join(reasons) + "."
-
-
-def build_rank_reason(candidate: dict, index: int, resolved: dict, has_gps: bool = False) -> str:
-    rating = candidate.get("rating") or 0
-    review_count = get_review_count(candidate)
-    distance_km = candidate.get("distance_km")
-
-    if distance_km is not None and has_gps:
-        return (
-            f"Ranked #{index} because it balances rating ({rating})"
-            + (f", review volume ({review_count})" if review_count else "")
-            + f", and distance from you ({distance_km:.1f} km)."
-        )
-
-    if resolved.get("location"):
-        return (
-            f"Ranked #{index} because it is a strong match for the requested area"
-            + (f", has rating {rating}" if rating else "")
-            + (f", and has {review_count} reviews" if review_count else "")
-            + "."
-        )
-
-    return (
-        f"Ranked #{index} mainly by rating"
-        + (f" ({rating})" if rating else "")
-        + (f" and review volume ({review_count})" if review_count else "")
-        + "."
-    )
-
-
-def enrich_candidates_with_reasoning(candidates: list[dict], resolved: dict, has_gps: bool = False) -> list[dict]:
-    enriched = []
-    for idx, c in enumerate(candidates, start=1):
-        c = dict(c)
-        c["recommended_because"] = build_candidate_reason(c, resolved, has_gps=has_gps)
-        c["rank_reason"] = build_rank_reason(c, idx, resolved, has_gps=has_gps)
-        enriched.append(c)
-    return enriched
-
 @app.route("/api/chat", methods=["POST"])
 def chat():
     data         = request.json
@@ -1185,10 +1098,7 @@ def chat():
         else:
             expanded_locs = expand_location_tags(raw_loc) if raw_loc else []
 
-            logger.info(
-                "Session %s | location expansion: %s → %s",
-                session_id[:8], raw_loc, expanded_locs,
-            )
+            logger.info(...)
 
             candidates: list = []
             strategy = "none"
@@ -1238,8 +1148,6 @@ def chat():
 
                     if merged_candidates:
                         strategy = hybrid_strategy + "_area_fallback"
-
-                    candidates = merged_candidates
                 
             else:
                 candidates, strategy = retrieve_hybrid(
@@ -1325,12 +1233,6 @@ def chat():
             reverse=True
         )
 
-        candidates = enrich_candidates_with_reasoning(
-            candidates,
-            resolved=resolved,
-            has_gps=has_gps,
-        )
-
         if not candidates:
             if resolved.get("location"):
                 fallback_msg = (
@@ -1379,21 +1281,11 @@ def chat():
             generation_query = f"restaurants in {resolved.get('location')}"
 
         assistant_message = generate_grounded_response(
-            user_message=generation_query,
+            user_message=canonical_user_message,
             context=context,
             conversation_history=history_for_llm,
             model=model,
         ) or "Here are some restaurant recommendations for you."
-
-        top_reason_lines = []
-        for c in candidates[:3]:
-            name = c.get("name", "This restaurant")
-            why = c.get("recommended_because", "")
-            if why:
-                top_reason_lines.append(f"- {name}: {why}")
-
-        if top_reason_lines:
-            assistant_message += "\n\nWhy these were recommended:\n" + "\n".join(top_reason_lines)
 
         if candidates and is_llm_error_message(assistant_message):
             if resolved.get("location") and not has_budget and not has_cuisine:
@@ -1462,15 +1354,13 @@ def chat():
                     description = raw_summary
 
             restaurants_for_ui.append({
-                "name":                c.get("name", ""),
-                "description":         description,
-                "address":             c.get("address", ""),
-                "maps_url":            c.get("gmaps_uri") or "",
-                "photo_url":           c.get("photo_url") or "",
-                "rating":              c.get("rating"),
-                "opening_hours":       c.get("opening_hours"),
-                "recommended_because": c.get("recommended_because", ""),
-                "rank_reason":         c.get("rank_reason", ""),
+                "name":          c.get("name", ""),
+                "description":   description,
+                "address":       c.get("address", ""),
+                "maps_url":      c.get("gmaps_uri") or "",
+                "photo_url":     c.get("photo_url") or "",
+                "rating":        c.get("rating"),
+                "opening_hours": c.get("opening_hours"),
             })
 
         return jsonify({
