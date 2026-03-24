@@ -55,14 +55,14 @@
    pip install -r requirements.txt
 
 4. Run the test file:
-   python fetch_and_enrich.py
+   LocationEnricher — MRT proximity + planning area (formerly enrich_location_tags.py)
+   GoogleEnricher — Google Places Details API (formerly enrich_places_google.py)
+   AutoTagger — dataset/DB inference (formerly auto_tag_places.py)   
 
-   This will run the first 10 restaurants from the SupaBase DB through the Google Places API and generate an Excel file.
-
-   python fetch_and_enrich.py                         # 10 restaurants (default)
-   python fetch_and_enrich.py --limit 50              # 50 restaurants
-   python fetch_and_enrich.py --limit 0               # all restaurants
-   python fetch_and_enrich.py --limit 25 --output my_data.xlsx  # custom output name
+   python enrich.py location --apply --mrt-radius 800
+   python enrich.py google   --apply --use-find --include-allergies --places-new
+   python enrich.py auto     --apply --source dataset --dataset ./food.xlsx
+   python enrich.py all      --apply   # runs all three in sequence
 
 5. Export dishes mentioned in the top 5 Google reviews:
    python export_review_dishes.py
