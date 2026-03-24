@@ -18,6 +18,8 @@ interface Restaurant {
   photo_url: string;
   rating?: number;
   opening_hours?: OpeningHours;
+  recommended_because?: string;
+  rank_reason?: string;
 }
 
 interface Message {
@@ -74,9 +76,61 @@ function OpeningHoursDropdown({ hours }: { hours: OpeningHours }) {
   );
 }
 
+// ── WhyChosenDropdown ─────────────────────────────────────────────────────────
+
+function WhyChosenDropdown({
+  recommended_because,
+  rank_reason,
+  rank,
+}: {
+  recommended_because?: string;
+  rank_reason?: string;
+  rank: number;
+}) {
+  const [open, setOpen] = useState(false);
+
+  if (!recommended_because && !rank_reason) return null;
+
+  return (
+    <div className="border border-orange-100 rounded-xl overflow-hidden text-sm">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between gap-2 px-3 py-2 bg-orange-50 hover:bg-orange-100 transition-colors text-left"
+      >
+        <span className="font-semibold text-orange-600 flex items-center gap-1.5">
+          <span className="text-base"></span>
+          Why #{rank}?
+        </span>
+        <span className="text-orange-400 text-xs">{open ? '▲' : '▼'}</span>
+      </button>
+
+      {open && (
+        <div className="px-3 py-2.5 space-y-2.5 bg-white">
+          {recommended_because && (
+            <div>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-0.5">
+                Why recommended
+              </p>
+              <p className="text-gray-700 leading-relaxed">{recommended_because}</p>
+            </div>
+          )}
+          {rank_reason && (
+            <div>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-0.5">
+                Why this rank
+              </p>
+              <p className="text-gray-600 leading-relaxed">{rank_reason}</p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── RestaurantCard ────────────────────────────────────────────────────────────
 
-function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
+function RestaurantCard({ restaurant, rank }: { restaurant: Restaurant; rank: number }) {
   const [imgError, setImgError] = useState(false);
 
   return (
@@ -130,6 +184,13 @@ function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
           <OpeningHoursDropdown hours={restaurant.opening_hours!} />
         )}
 
+        {/* Why chosen — collapsible */}
+        <WhyChosenDropdown
+          recommended_because={restaurant.recommended_because}
+          rank_reason={restaurant.rank_reason}
+          rank={rank}
+        />
+
         {/* Maps Link */}
         {restaurant.maps_url && (
           <a
@@ -159,7 +220,7 @@ function RestaurantList({ restaurants }: { restaurants: Restaurant[] }) {
   return (
     <div className="space-y-3">
       {visible.map((r, i) => (
-        <RestaurantCard key={i} restaurant={r} />
+        <RestaurantCard key={i} restaurant={r} rank={i + 1} />
       ))}
 
       {hasMore && (
@@ -186,17 +247,6 @@ function RestaurantList({ restaurants }: { restaurants: Restaurant[] }) {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function extractIntro(content: string): string {
-  const firstStar = content.indexOf('**');
-  const firstAsterisk = content.indexOf('* ');
-  const cutoff = Math.min(
-    firstStar     === -1 ? Infinity : firstStar,
-    firstAsterisk === -1 ? Infinity : firstAsterisk
-  );
-  if (cutoff === Infinity) return '';
-  return content.substring(0, cutoff).trim();
-}
-
 function formatRestaurantForExport(restaurant: Restaurant): string {
   const parts = [
     `- ${restaurant.name}`,
@@ -204,6 +254,8 @@ function formatRestaurantForExport(restaurant: Restaurant): string {
     restaurant.address ? `  Address: ${restaurant.address}` : '',
     restaurant.rating != null ? `  Rating: ${restaurant.rating.toFixed(1)}` : '',
     restaurant.maps_url ? `  Maps: ${restaurant.maps_url}` : '',
+    restaurant.recommended_because ? `  Why recommended: ${restaurant.recommended_because}` : '',
+    restaurant.rank_reason ? `  Why this rank: ${restaurant.rank_reason}` : '',
   ].filter(Boolean);
 
   return parts.join('\n');
@@ -384,13 +436,13 @@ export default function RestaurantChatbot() {
                   <p className="whitespace-pre-wrap">{msg.content}</p>
                 </div>
               ) : msg.restaurants && msg.restaurants.length > 0 ? (
-                    <div className="w-full max-w-2xl space-y-3">
-                      <div className="px-4 py-3 rounded-2xl bg-white text-gray-800 shadow-sm border border-orange-100">
-                        <p className="whitespace-pre-wrap">{msg.content}</p>
-                      </div>
-                      <RestaurantList restaurants={msg.restaurants} />
-                    </div>
-                  ) : (
+                <div className="w-full max-w-2xl space-y-3">
+                  <div className="px-4 py-3 rounded-2xl bg-white text-gray-800 shadow-sm border border-orange-100">
+                    <p className="whitespace-pre-wrap">{msg.content}</p>
+                  </div>
+                  <RestaurantList restaurants={msg.restaurants} />
+                </div>
+              ) : (
                 <div className="max-w-2xl px-4 py-3 rounded-2xl bg-white text-gray-800 shadow-sm border border-orange-100">
                   <p className="whitespace-pre-wrap">{msg.content}</p>
                 </div>

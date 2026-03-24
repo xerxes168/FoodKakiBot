@@ -30,9 +30,9 @@ from datetime import datetime, time
 from typing import Any
 
 # ── Scoring weights (must sum to 1.0) ─────────────────────────────────────────
-W_PREFERENCE = 0.50
-W_DISTANCE   = 0.30
-W_POPULARITY = 0.20
+W_PREFERENCE = 0.40
+W_DISTANCE   = 0.50
+W_POPULARITY = 0.10
 
 # ── Distance scoring parameters ───────────────────────────────────────────────
 # Score = 1 / (1 + distance_km / DIST_HALF_SCORE_KM)
