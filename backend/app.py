@@ -165,6 +165,20 @@ NON_LOCATION_TAGS = (
     }
 )
 
+NON_RESTAURANT_SPECIALTY_TAGS = {
+    "Bakery", "Bubble Tea", "Dessert", "Ice Cream", "Juice", "Juice Bar", "Tea House",
+}
+
+NON_RESTAURANT_REQUEST_TERMS = {
+    "Bakery": ["bakery", "bake shop", "pastry", "cake shop"],
+    "Bubble Tea": ["bubble tea", "boba", "milk tea"],
+    "Dessert": ["dessert", "sweet treat", "sweets"],
+    "Ice Cream": ["ice cream", "gelato", "froyo", "frozen yogurt"],
+    "Juice": ["juice"],
+    "Juice Bar": ["juice bar", "smoothie", "smoothie bowl"],
+    "Tea House": ["tea house", "teahouse"],
+}
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Tag utilities
@@ -179,6 +193,41 @@ def normalize_text_for_match(text: str) -> str:
 def contains_phrase(normalized_text: str, phrase: str) -> bool:
     p = normalize_text_for_match(phrase)
     return bool(p) and f" {p} " in f" {normalized_text} "
+
+
+def user_explicitly_requested_non_restaurant_spot(user_message: str, resolved: dict | None = None) -> bool:
+    resolved = resolved or {}
+    cuisine = resolved.get("cuisine")
+    if cuisine in NON_RESTAURANT_SPECIALTY_TAGS:
+        return True
+
+    normalized = normalize_text_for_match(user_message or "")
+    for terms in NON_RESTAURANT_REQUEST_TERMS.values():
+        if any(contains_phrase(normalized, term) for term in terms):
+            return True
+    return False
+
+
+def filter_non_restaurant_candidates(
+    candidates: list[dict],
+    *,
+    user_message: str,
+    resolved: dict | None = None,
+) -> list[dict]:
+    if not candidates:
+        return candidates
+    if user_explicitly_requested_non_restaurant_spot(user_message, resolved):
+        return candidates
+
+    filtered: list[dict] = []
+    for candidate in candidates:
+        tags = set(candidate.get("tags") or [])
+        cuisine_tags = tags & CUISINE_TAGS
+        if cuisine_tags and cuisine_tags <= NON_RESTAURANT_SPECIALTY_TAGS:
+            continue
+        filtered.append(candidate)
+
+    return filtered
 
 
 def detect_canonical_price_tag(message: str) -> str | None:
@@ -900,7 +949,14 @@ def build_candidate_reason(candidate: dict, resolved: dict, has_gps: bool = Fals
         reasons.append(f"matches your {cuisine.lower()} preference")
 
     if budget and budget in tags:
-        reasons.append(f"fits your {budget.lower()} budget")
+        budget_reason = {
+            "Budget": "fits your budget preference",
+            "Mid-Range": "fits your mid-range budget",
+            "Expensive": "fits your expensive budget",
+            "Premium": "fits your premium budget",
+            "Free": "fits your free budget preference",
+        }.get(budget, f"fits your {budget.lower()} budget")
+        reasons.append(budget_reason)
 
     # rating / popularity reasons
     rating = candidate.get("rating")
@@ -915,10 +971,10 @@ def build_candidate_reason(candidate: dict, resolved: dict, has_gps: bool = Fals
     # distance / area reasons
     distance_km = candidate.get("distance_km")
     if distance_km is not None:
-        if has_gps:
+        if location:
+            reasons.append(f"is about {distance_km:.1f} km from {location}")
+        elif has_gps:
             reasons.append(f"is about {distance_km:.1f} km from you")
-        elif location:
-            reasons.append(f"is near {location}")
 
     # fallback
     if not reasons:
@@ -932,11 +988,13 @@ def build_rank_reason(candidate: dict, index: int, resolved: dict, has_gps: bool
     review_count = get_review_count(candidate)
     distance_km = candidate.get("distance_km")
 
-    if distance_km is not None and has_gps:
+    location = resolved.get("location")
+    if distance_km is not None and (location or has_gps):
+        dist_label = f"{location}" if location else "you"
         return (
             f"Ranked #{index} because it balances rating ({rating})"
             + (f", review volume ({review_count})" if review_count else "")
-            + f", and distance from you ({distance_km:.1f} km)."
+            + f", and distance from {dist_label} ({distance_km:.1f} km)."
         )
 
     if resolved.get("location"):
@@ -1184,6 +1242,7 @@ def chat():
 
         else:
             expanded_locs = expand_location_tags(raw_loc) if raw_loc else []
+            retrieval_location_tags = expanded_locs if expanded_locs else ([raw_loc] if raw_loc else [])
 
             logger.info(
                 "Session %s | location expansion: %s → %s",
@@ -1245,13 +1304,13 @@ def chat():
                 candidates, strategy = retrieve_hybrid(
                     canonical_user_message,
                     limit=80,
-                    location_tags=[],
+                    location_tags=retrieval_location_tags if retrieval_location_tags else [],
                     budget_tags=[resolved.get("budget")] if resolved.get("budget") else [],
                     cuisine_tags=[resolved.get("cuisine")] if resolved.get("cuisine") else [],
                 )
 
                 if candidates:
-                    strategy = strategy + "_preference_only"
+                    strategy = strategy + ("_location_preference" if retrieval_location_tags else "_preference_only")
 
                 # Singapore-wide fallback if hybrid is still empty
                 if not candidates and (resolved.get("budget") or resolved.get("cuisine") or generic_request):
@@ -1273,21 +1332,27 @@ def chat():
         # ── Distance rerank ───────────────────────────────────────────────────
         latlng = None
 
-        if has_gps:
-            latlng = (gps_lat, gps_lng)
-        else:
-            user_loc = resolved.get("location")
+        user_loc = resolved.get("location")
+        if user_loc:
+            # Location explicitly specified → rank by distance from that place,
+            # not the user's physical position.
             latlng = geocode_location_to_latlng(user_loc)
+            if not latlng and has_gps:
+                # Geocode failed → fall back to GPS so distance ranking still works
+                latlng = (gps_lat, gps_lng)
+        elif has_gps:
+            # No location specified (e.g. "near me" or no location at all) → use GPS
+            latlng = (gps_lat, gps_lng)
 
         if latlng:
             user_lat, user_lng = latlng
             candidates = rerank_candidates_by_distance(candidates, user_lat, user_lng)
 
-            # progressive radius fallback for "near me" / GPS-based search
-            if has_gps and len(candidates) > 15 and not broad_reco_mode:
+            # Keep the nearest sufficiently large cluster when distance context exists.
+            if len(candidates) > 5 and not broad_reco_mode:
                 candidates = apply_progressive_radius(
                     candidates,
-                    min_results=5,
+                    min_results=8 if raw_loc else 5,
                     radius_steps=[1, 2, 4, 6, 10]
                 )
 
@@ -1302,6 +1367,19 @@ def chat():
         # Attach tags to each candidate so ranking can use them for preference scoring
         for c in candidates:
             c["tags"] = tags_map.get(c.get("id"), [])
+
+        pre_filter_count = len(candidates)
+        candidates = filter_non_restaurant_candidates(
+            candidates,
+            user_message=user_message,
+            resolved=resolved,
+        )
+        if len(candidates) != pre_filter_count:
+            logger.info(
+                "Filtered %d non-restaurant specialty candidates for session %s",
+                pre_filter_count - len(candidates),
+                session_id[:8],
+            )
 
         # Log opening_hours format of first candidate for debugging
         if candidates:
@@ -1348,6 +1426,7 @@ def chat():
             return jsonify({
                 "response": fallback_msg,
                 "restaurants": [],
+                "active_tags": {k: v for k, v in resolved.items() if v},
                 "debug": {
                     "required_tags": required_tags,
                     "retrieval_strategy": strategy,
@@ -1467,6 +1546,7 @@ def chat():
         return jsonify({
             "response": assistant_message,
             "restaurants": restaurants_for_ui,
+            "active_tags": {k: v for k, v in resolved.items() if v},
             "debug": {
                 "required_tags":       required_tags,
                 "retrieval_strategy":  strategy,
@@ -1536,6 +1616,29 @@ def debug_reviews():
 # ─────────────────────────────────────────────────────────────────────────────
 # Auxiliary endpoints
 # ─────────────────────────────────────────────────────────────────────────────
+
+@app.route("/api/tags", methods=["GET"])
+def get_tags():
+    catalog = get_tag_catalog()
+    return jsonify({
+        "cuisines": catalog["cuisines"],
+        "budgets":  catalog["budgets"],
+        "locations": catalog["locations"][:60],  # cap to avoid huge payload
+    })
+
+
+@app.route("/api/session/tags", methods=["POST"])
+def set_session_tags():
+    data = request.get_json(silent=True) or {}
+    session_id = data.get("session_id")
+    if not session_id:
+        return jsonify({"error": "missing session_id"}), 400
+    session = get_session(session_id)
+    for key in ("cuisine", "location", "budget"):
+        if key in data:
+            session["tags"][key] = data[key] or None  # None clears the tag
+    return jsonify({"active_tags": {k: v for k, v in session["tags"].items() if v}})
+
 
 @app.route("/api/session", methods=["POST"])
 def create_session():

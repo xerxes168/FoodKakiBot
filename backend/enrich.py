@@ -3,9 +3,14 @@ enrich.py
 ---------
 Unified tagging and location-enrichment module for FoodKakiBot.
 
-Replaces:
-  tagging.py, location_data.py, location_expansion.py,
-  auto_tag_places.py, enrich_location_tags.py, enrich_places_google.py
+Changes in this version:
+  - SUBCUISINE_TO_PARENT mapping: sub-cuisines (Ramen, Dim Sum, Mala, Hubei, etc.)
+    now automatically include their parent cuisine tag (Japanese, Chinese, etc.)
+  - Road-name tags: addresses are parsed to extract road names (e.g. "Orchard Road",
+    "Arab Street") and stored as searchable tags.
+  - expand_with_parent_cuisines(): applied after all tag-inference paths.
+  - extract_road_name_from_address(): applied in LocationEnricher, GoogleEnricher,
+    and AutoTagger so every enrichment path creates road-name tags.
 
 PUBLIC API (importable by app.py and rag.py):
   auto_tags_from_google(details)          → list[str]
@@ -52,26 +57,24 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence, Set, Tuple
 try:
     from dotenv import load_dotenv
 except ImportError:
-    def load_dotenv(*_, **__) -> bool:  # type: ignore[misc]
+    def load_dotenv(*_, **__) -> bool:
         return False
 
 try:
     from supabase import Client, create_client
 except ImportError:
-    Client = Any  # type: ignore[misc,assignment]
-    create_client = None  # type: ignore[assignment]
+    Client = Any
+    create_client = None
 
 try:
     from openpyxl import load_workbook, Workbook
 except ImportError:
-    load_workbook = Workbook = None  # type: ignore[assignment,misc]
+    load_workbook = Workbook = None
 
 # ══════════════════════════════════════════════════════════════════════════════
 # §1  STATIC GEOGRAPHIC DATA
 # ══════════════════════════════════════════════════════════════════════════════
 
-# ── MRT / LRT Stations ─────────────────────────────────────────────────────────
-# (station_name, latitude, longitude) — name used as tag "Near X MRT"
 MRT_STATIONS: list[tuple[str, float, float]] = [
     # North-South Line
     ("Jurong East", 1.3332, 103.7422), ("Bukit Batok", 1.3491, 103.7496),
@@ -155,9 +158,8 @@ MRT_STATIONS: list[tuple[str, float, float]] = [
     # JRL partial
     ("Gek Poh", 1.3445, 103.6958), ("Tawas", 1.3499, 103.6876),
 ]
-# Deduplicate by name (keep first occurrence)
 _seen_mrt: set[str] = set()
-MRT_STATIONS = [s for s in MRT_STATIONS if not (_seen_mrt.add(s[0]) or s[0] in _seen_mrt - {s[0]})]  # type: ignore[misc]
+MRT_STATIONS = [s for s in MRT_STATIONS if not (_seen_mrt.add(s[0]) or s[0] in _seen_mrt - {s[0]})]
 
 PLANNING_AREA_NEIGHBORS: dict[str, list[str]] = {
     "Raffles Place":  ["Tanjong Pagar", "Chinatown", "City Hall", "Marina Bay", "Clarke Quay"],
@@ -254,7 +256,6 @@ POSTAL_DISTRICT_TO_AREA: dict[str, str] = {
 }
 
 AREA_ALIAS_TO_PLANNING_AREA: dict[str, str] = {
-    # CBD / Marina / City
     "raffles place": "Raffles Place", "shenton way": "Raffles Place",
     "tanjong pagar plaza": "Tanjong Pagar", "robinson road": "Raffles Place",
     "battery road": "Raffles Place", "telok ayer": "Raffles Place",
@@ -269,14 +270,12 @@ AREA_ALIAS_TO_PLANNING_AREA: dict[str, str] = {
     "clarke quay": "Clarke Quay", "clark quay": "Clarke Quay",
     "robertson quay": "Robertson Quay", "river valley": "Robertson Quay",
     "fort canning": "Clarke Quay", "bras basah": "Bugis",
-    # Kampong Glam / Bugis / Little India
     "kampong glam": "Kampong Glam", "arab street": "Kampong Glam",
     "haji lane": "Kampong Glam", "beach road": "Bugis",
     "bugis": "Bugis", "golden mile": "Bugis",
     "little india": "Little India", "serangoon road": "Little India",
     "farrer park": "Little India", "mustafa": "Little India",
     "tekka": "Little India", "rochor": "Bugis",
-    # Orchard / Tanglin / Holland
     "orchard road": "Orchard", "orchard": "Orchard",
     "somerset": "Orchard", "cairnhill": "Orchard",
     "scotts road": "Orchard", "dhoby ghaut": "Orchard",
@@ -287,27 +286,24 @@ AREA_ALIAS_TO_PLANNING_AREA: dict[str, str] = {
     "holland road": "Holland Village", "ghim moh": "Holland Village",
     "farrer road": "Holland Village", "sixth avenue": "Holland Village",
     "king albert park": "Bukit Timah", "botanic gardens": "Holland Village",
-    # Newton / Novena / Upper Thomson
+    "bukit timah": "Bukit Timah", "beauty world": "Bukit Timah",
     "newton": "Newton", "novena": "Novena",
     "moulmein": "Novena", "thomson road": "Novena",
     "upper thomson": "Upper Thomson", "springleaf": "Upper Thomson",
     "lentor": "Upper Thomson", "thomson": "Upper Thomson",
     "mandai": "Mandai",
-    # Toa Payoh / Bishan / Kallang
     "balestier": "Balestier", "boon keng": "Balestier",
     "bendemeer": "Balestier", "toa payoh": "Toa Payoh",
     "braddell": "Toa Payoh", "kallang": "Kallang",
     "lavender": "Kallang", "geylang bahru": "Kallang",
     "jalan besar": "Little India", "bishan": "Bishan",
     "marymount": "Bishan",
-    # MacPherson / Geylang / Paya Lebar
     "macpherson": "MacPherson", "mac pherson": "MacPherson",
     "potong pasir": "Potong Pasir", "ubi": "MacPherson",
     "geylang": "Geylang", "aljunied": "Geylang",
     "guillemard": "Geylang", "dakota": "Geylang",
     "eunos": "Eunos", "kembangan": "Eunos",
     "paya lebar": "Paya Lebar",
-    # Joo Chiat / Katong / Marine Parade / Bedok
     "joo chiat": "Joo Chiat", "east coast road": "Joo Chiat",
     "tanjong katong": "Katong", "amber road": "Katong",
     "katong": "Katong", "marine parade": "Marine Parade",
@@ -316,34 +312,28 @@ AREA_ALIAS_TO_PLANNING_AREA: dict[str, str] = {
     "mountbatten": "Marine Parade", "tanjong rhu": "Marine Parade",
     "bedok": "Bedok", "upper changi": "Bedok",
     "new upper changi": "Bedok", "chai chee": "Bedok",
-    # Tampines / Pasir Ris / Changi
     "tampines": "Tampines", "simei": "Tampines",
     "pasir ris": "Pasir Ris", "changi": "Changi",
     "loyang": "Changi", "changi airport": "Changi",
     "changi village": "Changi",
-    # Serangoon / Hougang / Sengkang / Punggol
     "serangoon": "Serangoon", "kovan": "Serangoon",
     "lorong chuan": "Serangoon", "upper serangoon": "Serangoon",
     "hougang": "Hougang", "buangkok": "Hougang",
     "sengkang": "Sengkang", "punggol": "Punggol",
-    # Ang Mo Kio / Yio Chu Kang
     "ang mo kio": "Ang Mo Kio", "amk": "Ang Mo Kio",
-    "bishan": "Bishan", "sin ming": "Bishan", "bright hill": "Bishan",
+    "sin ming": "Bishan", "bright hill": "Bishan",
     "yio chu kang": "Yio Chu Kang", "seletar": "Seletar",
     "jalan kayu": "Seletar", "fernvale": "Sengkang",
-    # Queenstown / Buona Vista / Tiong Bahru / Alexandra
     "queenstown": "Queenstown", "commonwealth": "Queenstown",
     "buona vista": "Buona Vista", "one-north": "Buona Vista",
     "one north": "Buona Vista", "kent ridge": "Buona Vista",
     "dover": "Buona Vista", "tiong bahru": "Tiong Bahru",
     "redhill": "Tiong Bahru", "havelock": "Tiong Bahru",
     "alexandra": "Alexandra", "bukit merah": "Alexandra",
-    # Harbourfront / Pasir Panjang / West
     "harbourfront": "Harbourfront", "telok blangah": "Harbourfront",
     "sentosa": "Harbourfront", "vivocity": "Harbourfront",
     "pasir panjang": "Pasir Panjang", "haw par villa": "Pasir Panjang",
     "labrador": "Pasir Panjang", "west coast": "West Coast",
-    # Jurong / Bukit area
     "jurong east": "Jurong East", "jurong west": "Jurong West",
     "boon lay": "Jurong West", "pioneer": "Jurong West",
     "tuas": "Tuas", "clementi": "Clementi",
@@ -352,8 +342,6 @@ AREA_ALIAS_TO_PLANNING_AREA: dict[str, str] = {
     "yew tee": "Choa Chu Kang", "bukit panjang": "Bukit Panjang",
     "hillview": "Bukit Panjang", "cashew": "Bukit Panjang",
     "tengah": "Tengah", "lim chu kang": "Lim Chu Kang",
-    "bukit timah": "Bukit Timah", "beauty world": "Bukit Timah",
-    # North
     "woodlands": "Woodlands", "marsiling": "Woodlands",
     "woodgrove": "Woodlands", "kranji": "Woodlands",
     "admiralty": "Sembawang", "sembawang": "Sembawang",
@@ -372,7 +360,8 @@ CUISINE_KEYWORDS: dict[str, Sequence[str]] = {
     "Korean":     ("korean","kimchi","bibimbap","bulgogi","tteokbokki","kbbq",
                    "korean bbq","banchan","samgyeopsal","jjajangmyeon","doenjang"),
     "Chinese":    ("chinese","dim sum","dumpling","wonton","char siew","cantonese",
-                   "szechuan","sichuan","xiao long bao","claypot","zi char","tze char"),
+                   "szechuan","sichuan","xiao long bao","claypot","zi char","tze char",
+                   "hubei","hunan","yunnan","teochew","hokkien","shanghainese","dongbei"),
     "Mala":       ("mala","ma la","spicy pot","xiang guo","dry pot"),
     "Indian":     ("indian","biryani","briyani","tandoori","naan","masala","dosa",
                    "prata","roti prata","thosai","tikka","paneer","chaat"),
@@ -392,11 +381,18 @@ CUISINE_KEYWORDS: dict[str, Sequence[str]] = {
     "Dessert":    ("dessert","cake","pastry","gelato","ice cream","sweet",
                    "brownie","tart","pudding","crepe","waffle","churros"),
     "Cafe":       ("cafe","coffee","latte","espresso","flat white","cappuccino","barista"),
-    "Mala":       ("mala","ma la","spicy pot"),
     "Bubble Tea": ("bubble tea","boba","milk tea","gong cha","koi","liho","taro"),
     "Fast Food":  ("fast food","mcdonald","kfc","subway","burger king","jollibee"),
     "Singaporean":("hawker","kopitiam","chicken rice","char kway teow",
                    "bak kut teh","laksa","rojak","carrot cake","wanton mee"),
+    "Taiwanese":  ("taiwanese","lu rou fan","braised pork rice","oyster omelette",
+                   "beef noodle","scallion pancake","salted crispy chicken"),
+    "Indonesian": ("indonesian","bakso","soto ayam","ayam penyet","bebek","mie ayam",
+                   "gado gado","nasi campur bali"),
+    "Mediterranean": ("mediterranean","mezze","falafel","grilled lamb","hummus platter"),
+    "Middle Eastern": ("middle eastern","shawarma","kebab","hummus","labneh","manakish"),
+    "Spanish":    ("spanish","tapas","paella","jamon","patatas bravas"),
+    "Brunch":     ("brunch","eggs benedict","avocado toast","all day breakfast"),
 }
 
 ALLERGY_KEYWORDS: dict[str, Sequence[str]] = {
@@ -411,6 +407,85 @@ ALLERGY_KEYWORDS: dict[str, Sequence[str]] = {
 CUISINE_ALIASES: dict[str, str] = {
     "jpn": "Japanese", "jp": "Japanese", "korea": "Korean",
     "chinese food": "Chinese", "veg": "Vegetarian", "western food": "Western",
+    "taiwan": "Taiwanese", "indo": "Indonesian",
+    "mediterranean food": "Mediterranean",
+}
+
+# ── Specific sub-cuisine keyword detection ────────────────────────────────────
+# Maps sub-cuisine tag names → their specific trigger keywords (lowercased).
+# When ANY keyword is detected in place text, both the sub-cuisine tag AND
+# its parent cuisine tag are assigned.
+# e.g. text contains "ramen" → tags: ["Ramen", "Japanese"]
+# e.g. text contains "hubei" → tags: ["Hubei", "Chinese"]
+# e.g. text contains "dim sum" → tags: ["Dim Sum", "Chinese"]
+SPECIFIC_CUISINE_KEYWORDS: dict[str, list[str]] = {
+    # Japanese sub-types
+    "Ramen":      ["ramen", "tsukemen", "tantanmen", "tonkotsu ramen"],
+    "Sushi":      ["sushi", "sashimi", "omakase", "nigiri", "maki", "temaki", "kaiseki"],
+    "Yakitori":   ["yakitori", "kushiyaki", "kushikatsu"],
+    "Tempura":    ["tempura"],
+    "Teppanyaki": ["teppanyaki"],
+    # Chinese sub-types / regional cuisines
+    "Dim Sum":    ["dim sum", "dimsum", "yum cha", "har gow", "siu mai", "char siu bao",
+                   "cheong fun", "lo mai gai"],
+    "Hotpot / Steamboat": ["hotpot", "hot pot", "steamboat", "shabu shabu",
+                            "mookata", "chinese fondue"],
+    "Mala":       ["mala", "ma la", "spicy pot", "xiang guo", "dry pot"],
+    "Cantonese":  ["cantonese", "congee", "roast duck", "wonton noodles", "poon choi",
+                   "char siu rice"],
+    "Teochew":    ["teochew", "chaozhou", "braised duck teochew"],
+    "Hokkien":    ["hokkien"],
+    "Sichuan":    ["sichuan", "szechuan", "mapo tofu", "kung pao", "dan dan noodles"],
+    "Hubei":      ["hubei"],
+    "Hunan":      ["hunan", "hunanese"],
+    "Yunnan":     ["yunnan", "crossing the bridge noodles"],
+    "Shanghainese": ["shanghainese", "xiao long bao", "soup dumpling", "xlb",
+                     "red braised pork"],
+    "Xinjiang":   ["xinjiang", "uyghur", "lamb skewer xinjiang"],
+    "Dongbei":    ["dongbei", "northeast chinese"],
+    # Korean sub-types
+    "Korean BBQ": ["kbbq", "korean bbq", "samgyeopsal", "galbi", "korean grill",
+                   "korean barbecue"],
+    # Indian sub-types
+    "Biryani":    ["biryani", "briyani", "dum biryani"],
+    "Prata":      ["prata", "roti prata", "canai"],
+    "Dosa":       ["dosa", "thosai", "uttapam", "idli"],
+    # Italian sub-types
+    "Pizza":      ["pizza", "pizzeria", "neapolitan pizza", "roman pizza"],
+    # Western sub-types
+    "Burgers":    ["burger", "smash burger", "wagyu burger", "cheeseburger"],
+    "Steakhouse": ["steakhouse", "steak house", "chophouse", "prime rib",
+                   "dry-aged steak"],
+    "BBQ":        ["smokehouse", "brisket", "pulled pork", "american bbq",
+                   "bbq ribs"],
+    "Sandwiches": ["sandwich shop", "sub shop", "deli sandwich"],
+    "Taiwanese":  ["taiwanese", "lu rou fan", "braised pork rice", "oyster omelette",
+                   "beef noodle soup", "scallion pancake", "salted crispy chicken"],
+    "Indonesian": ["indonesian", "nasi padang", "ayam penyet", "bakso", "gado gado",
+                   "mie ayam", "soto ayam"],
+    "Middle Eastern": ["middle eastern", "shawarma", "kebab", "hummus", "labneh",
+                       "manakish", "falafel wrap"],
+    "Mediterranean": ["mediterranean", "mezze", "falafel", "gyro", "grilled lamb"],
+    "Spanish":    ["spanish", "tapas", "paella", "jamon", "patatas bravas"],
+}
+
+# Maps each sub-cuisine tag to its parent cuisine tag.
+SUBCUISINE_PARENT: dict[str, str] = {
+    "Ramen": "Japanese", "Sushi": "Japanese", "Yakitori": "Japanese",
+    "Tempura": "Japanese", "Teppanyaki": "Japanese",
+    "Dim Sum": "Chinese", "Hotpot / Steamboat": "Chinese", "Mala": "Chinese",
+    "Cantonese": "Chinese", "Teochew": "Chinese", "Hokkien": "Chinese",
+    "Sichuan": "Chinese", "Hubei": "Chinese", "Hunan": "Chinese",
+    "Yunnan": "Chinese", "Shanghainese": "Chinese", "Xinjiang": "Chinese",
+    "Dongbei": "Chinese",
+    "Korean BBQ": "Korean",
+    "Biryani": "Indian", "Prata": "Indian", "Dosa": "Indian",
+    "Pizza": "Italian",
+    "Burgers": "Western", "Steakhouse": "Western", "BBQ": "Western",
+    "Sandwiches": "Western",
+    "Taiwanese": "Taiwanese", "Indonesian": "Indonesian",
+    "Mediterranean": "Mediterranean", "Middle Eastern": "Middle Eastern",
+    "Spanish": "Spanish",
 }
 
 # Google primaryType → cuisine label
@@ -423,8 +498,8 @@ PRIMARY_TYPE_TO_CUISINE: dict[str, str] = {
     "vegetarian_restaurant": "Vegetarian", "vegan_restaurant": "Vegetarian",
     "halal_restaurant": "Halal", "cafe": "Cafe", "coffee_shop": "Cafe",
     "dessert_shop": "Dessert", "ice_cream_shop": "Dessert",
-    "bakery": "Bakery", "steak_house": "Western", "american_restaurant": "Western",
-    "barbecue_restaurant": "Western", "malay_restaurant": "Malay",
+    "bakery": "Bakery", "steak_house": "Steakhouse", "american_restaurant": "Western",
+    "barbecue_restaurant": "BBQ", "malay_restaurant": "Malay",
     "singaporean_restaurant": "Singaporean", "hot_pot_restaurant": "Hotpot / Steamboat",
     "ramen_restaurant": "Ramen", "sushi_restaurant": "Sushi",
     "dim_sum_restaurant": "Dim Sum", "bubble_tea_store": "Bubble Tea",
@@ -433,6 +508,10 @@ PRIMARY_TYPE_TO_CUISINE: dict[str, str] = {
     "taiwanese_restaurant": "Taiwanese", "indonesian_restaurant": "Indonesian",
     "mediterranean_restaurant": "Mediterranean", "middle_eastern_restaurant": "Middle Eastern",
     "spanish_restaurant": "Spanish", "brunch_restaurant": "Brunch",
+    "ramen_restaurant": "Ramen", "sushi_restaurant": "Sushi",
+    "steak_house": "Steakhouse", "barbecue_restaurant": "BBQ",
+    "kebab_shop": "Middle Eastern", "falafel_restaurant": "Middle Eastern",
+    "breakfast_restaurant": "Brunch",
 }
 
 # Google type → non-cuisine attribute tag
@@ -447,7 +526,16 @@ GOOGLE_TYPE_TO_ATTR_TAG: dict[str, str] = {
     "vegan_restaurant": "Vegetarian", "vegetarian_restaurant": "Vegetarian",
 }
 
-# legacy tagging.py TYPE_TO_TAG (kept for backwards compat with auto_tags_from_google)
+NON_SAVORY_VENUE_TYPES: set[str] = {
+    "bakery", "cafe", "coffee_shop", "dessert_shop", "ice_cream_shop",
+    "bubble_tea_store", "juice_shop", "tea_house",
+}
+
+NON_SAVORY_CUISINE_TAGS: set[str] = {
+    "Bakery", "Cafe", "Dessert", "Ice Cream", "Bubble Tea", "Juice Bar",
+    "Tea House", "Brunch",
+}
+
 _LEGACY_TYPE_TO_TAG: dict[str, list[str]] = {
     "bakery": ["Dessert"], "cafe": ["Cafe", "Dessert"],
     "meal_takeaway": ["Fast Food"], "meal_delivery": ["Fast Food"],
@@ -464,6 +552,27 @@ AREA_COMPONENT_TYPES = (
     "locality", "administrative_area_level_2",
 )
 
+# ── Road name extraction ───────────────────────────────────────────────────────
+# Matches Singapore road names like "Orchard Road", "Smith Street 45",
+# "Arab Street", "Tanjong Pagar Road", "Harbourfront Walk".
+_ROAD_SUFFIX_PAT = (
+    r"Road|Street|Avenue|Ave|Drive|Lane|Walk|Way|Place|Close|Crescent"
+    r"|Boulevard|Link|Terrace|Rise|View|Grove|Hill|Park|Gardens|Quay"
+    r"|Square|Loop|Court|Alley|Promenade|Esplanade|Rd|St|Dr|Ln|Blvd"
+)
+_ROAD_NAME_RE = re.compile(
+    r"(?:"
+    r"(?:^|,)\s*"                          # start or after comma
+    r"(?:Blk\s+\d+[A-Za-z]?\s*,?\s*)?"   # optional "Blk 123," OR "Blk 123 " (no comma)
+    r"(?:#[\w/\\-]+\s*,?\s*)?"            # optional "#01-23,"
+    r"(?:\d+[A-Za-z]?\s+)?"              # optional house number "68 "
+    r")"
+    r"([A-Z][A-Za-z \'-]{2,50}"
+    r"(?:" + _ROAD_SUFFIX_PAT + r")"
+    r"(?:\s+\d+)?)",                       # optional trailing number e.g. "Street 45"
+    re.IGNORECASE,
+)
+
 
 # ══════════════════════════════════════════════════════════════════════════════
 # §3  SHARED UTILITIES
@@ -471,6 +580,12 @@ AREA_COMPONENT_TYPES = (
 
 def normalize_text(value: Any) -> str:
     return re.sub(r"\s+", " ", str(value or "").strip().lower())
+
+
+def normalize_address_text(value: Any) -> str:
+    text = normalize_text(value)
+    text = re.sub(r"[^a-z0-9\s]", " ", text)
+    return re.sub(r"\s+", " ", text).strip()
 
 
 def normalize_tag_name(value: str) -> str:
@@ -500,6 +615,13 @@ def to_float(value: Any) -> Optional[float]:
         return float(value)
     except (TypeError, ValueError):
         return None
+
+
+def extract_postal_code(text: str) -> Optional[str]:
+    if not text:
+        return None
+    m = _POSTAL_RE.search(text)
+    return m.group(2) if m else None
 
 
 def haversine_m(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
@@ -538,7 +660,6 @@ def safe_json_loads(raw: Any) -> Any:
 # ══════════════════════════════════════════════════════════════════════════════
 
 def get_planning_area_from_postal(postal_code: str) -> Optional[str]:
-    """Return planning area from first 2 digits of a 6-digit postal code."""
     code = (postal_code or "").strip().lstrip("Ss")
     return POSTAL_DISTRICT_TO_AREA.get(code[:2]) if len(code) >= 2 else None
 
@@ -559,10 +680,6 @@ def expand_location_tags(
     include_neighbors: bool = True,
     max_neighbors: int = 4,
 ) -> list[str]:
-    """
-    Return [canonical_area, neighbor1, …] for retrieval expansion.
-    MRT proximity tags pass through as singletons.
-    """
     if not location_tag:
         return []
     norm = normalize_text(location_tag)
@@ -575,7 +692,7 @@ def expand_location_tags(
     if include_neighbors:
         result.extend(PLANNING_AREA_NEIGHBORS.get(canonical, [])[:max_neighbors])
     seen: set[str] = set()
-    return [t for t in result if not (t in seen or seen.add(t))]  # type: ignore[func-returns-value]
+    return [t for t in result if not (t in seen or seen.add(t))]
 
 
 def build_location_tag_sets(
@@ -585,7 +702,6 @@ def build_location_tag_sets(
     *,
     max_neighbors: int = 3,
 ) -> list[list[str]]:
-    """Cartesian product of expanded locations × (budget | cuisine) for retrieve_hybrid()."""
     if not location_tags:
         return []
     expanded: list[str] = []
@@ -600,23 +716,60 @@ def build_location_tag_sets(
 
 
 def area_from_address(address: str) -> Optional[str]:
-    """Extract planning area from address string via keyword scan then postal code."""
     if not address:
         return None
-    norm = address.lower()
+    road = extract_road_name_from_address(address)
+    if road:
+        direct = AREA_ALIAS_TO_PLANNING_AREA.get(normalize_text(road))
+        if direct:
+            return direct
+
+    norm = normalize_address_text(address)
     for phrase in sorted(AREA_ALIAS_TO_PLANNING_AREA, key=len, reverse=True):
-        if phrase in norm:
+        norm_phrase = normalize_address_text(phrase)
+        if not norm_phrase:
+            continue
+        if re.search(rf"(?<![a-z0-9]){re.escape(norm_phrase)}(?![a-z0-9])", norm):
             return AREA_ALIAS_TO_PLANNING_AREA[phrase]
-    m = _POSTAL_RE.search(address)
-    if m:
-        return get_planning_area_from_postal(m.group(2))
+
+    postal = extract_postal_code(address)
+    if postal:
+        return get_planning_area_from_postal(postal)
     return None
 
 
 def nearby_mrt_tags(lat: float, lng: float, radius_m: float) -> list[str]:
-    """Return 'Near X MRT' tags for all stations within radius_m metres."""
     return [f"Near {name} MRT" for name, slat, slng in MRT_STATIONS
             if haversine_m(lat, lng, slat, slng) <= radius_m]
+
+
+def extract_road_name_from_address(address: str) -> Optional[str]:
+    """
+    Extract a capitalised road/street name from a Singapore address string
+    and return it as a searchable tag — e.g. "Orchard Road", "Arab Street",
+    "Tanjong Pagar Road", "Harbourfront Walk".
+
+    Returns None when no road name can be confidently identified.
+    """
+    if not address:
+        return None
+    # Strip noise: unit numbers, postal codes, country name
+    clean = re.sub(r"#[\w/\\-]+\s*,?\s*", " ", address)
+    clean = re.sub(r",?\s*(?:Singapore\s*)?\b\d{6}\b", "", clean, flags=re.IGNORECASE)
+    clean = re.sub(r"\bS\d{6}\b", "", clean)
+    clean = re.sub(r"\bSingapore\b", "", clean, flags=re.IGNORECASE)
+    clean = re.sub(r"\s{2,}", " ", clean).strip()
+
+    m = _ROAD_NAME_RE.search(clean)
+    if not m:
+        return None
+
+    road = m.group(1).strip().strip(",").strip()
+    # Strip any leading house/block number that slipped through
+    road = re.sub(r"^\d+[A-Za-z]?\s+", "", road)
+    # Title-case each word for consistency with other tags
+    road = " ".join(w.capitalize() for w in road.split())
+    return road if len(road) >= 5 and re.search(r"[A-Za-z]", road) else None
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -638,6 +791,118 @@ def extract_reviews_text(raw_reviews: Any) -> str:
     return "\n".join(texts)
 
 
+def extract_google_types(details: dict) -> list[str]:
+    values: list[str] = []
+    primary = details.get("primaryType")
+    if isinstance(primary, str) and primary.strip():
+        values.append(primary.strip())
+    for item in details.get("types") or []:
+        if isinstance(item, str) and item.strip():
+            values.append(item.strip())
+    seen: set[str] = set()
+    deduped: list[str] = []
+    for value in values:
+        key = normalize_text(value).replace(" ", "_")
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(value)
+    return deduped
+
+
+def extract_google_display_name(details: dict) -> str:
+    display = details.get("displayName")
+    if isinstance(display, dict):
+        text = str(display.get("text") or "").strip()
+        if text:
+            return text
+    return str(details.get("name") or "").strip()
+
+
+def extract_address_text_from_details(details: dict) -> str:
+    parts: list[str] = []
+    for key in ("formattedAddress", "shortFormattedAddress", "formatted_address"):
+        value = str(details.get(key) or "").strip()
+        if value:
+            parts.append(value)
+    postal = details.get("postalAddress")
+    if isinstance(postal, dict):
+        lines = postal.get("addressLines") or []
+        if isinstance(lines, list):
+            for line in lines:
+                text = str(line or "").strip()
+                if text:
+                    parts.append(text)
+        for key in ("locality", "administrativeArea", "postalCode"):
+            value = str(postal.get(key) or "").strip()
+            if value:
+                parts.append(value)
+    return ", ".join(parts)
+
+
+def infer_specific_cuisine_tags(text: str) -> list[str]:
+    """
+    Scan text for specific sub-cuisine keywords and return BOTH the sub-cuisine
+    tag AND its parent cuisine tag.
+
+    Examples:
+      "tonkotsu ramen" → ["Ramen", "Japanese"]
+      "dim sum yum cha" → ["Dim Sum", "Chinese"]
+      "hubei cuisine"   → ["Hubei", "Chinese"]
+      "sichuan mala hotpot" → ["Sichuan", "Chinese", "Mala", "Hotpot / Steamboat"]
+
+    This is the correct replacement for the earlier SUBCUISINE_TO_PARENT approach,
+    which never fired because sub-cuisine tag names were never produced by the
+    keyword-scoring path — only parent cuisine names were.
+    """
+    norm = re.sub(r"\s+", " ", (text or "").strip().lower())
+    found_sub: list[str] = []
+    seen_sub: set[str] = set()
+
+    for sub_cuisine, keywords in SPECIFIC_CUISINE_KEYWORDS.items():
+        for kw in keywords:
+            kw_norm = kw.lower().strip()
+            # Use word-boundary matching for short keywords to avoid false positives
+            if len(kw_norm) <= 5:
+                matched = bool(re.search(r"\b" + re.escape(kw_norm) + r"\b", norm))
+            else:
+                matched = kw_norm in norm
+            if matched:
+                if sub_cuisine not in seen_sub:
+                    seen_sub.add(sub_cuisine)
+                    found_sub.append(sub_cuisine)
+                break  # only need one keyword match per sub-cuisine
+
+    # Add parent cuisine tags for all detected sub-cuisines
+    result = list(found_sub)
+    parents_seen: set[str] = {s.lower() for s in found_sub}
+    for sub in found_sub:
+        parent = SUBCUISINE_PARENT.get(sub)
+        if parent and parent.lower() not in parents_seen:
+            parents_seen.add(parent.lower())
+            result.append(parent)
+
+    return result
+
+
+def expand_with_parent_cuisines(tags: list[str]) -> list[str]:
+    """
+    Legacy helper kept for the Google-API path where PRIMARY_TYPE_TO_CUISINE
+    can produce sub-cuisine tag names like "Ramen", "Dim Sum", "Sushi" etc.
+    In that case this function adds the parent tag as well.
+
+    For text-inferred tags the correct entry point is infer_specific_cuisine_tags().
+    """
+    seen: set[str] = {t.lower() for t in tags}
+    result = list(tags)
+    for tag in list(tags):
+        parent = SUBCUISINE_PARENT.get(tag)
+        if parent and parent.lower() not in seen:
+            seen.add(parent.lower())
+            result.append(parent)
+    return result
+
+
 def infer_cuisine_tags(
     text: str,
     label_name: str = "",
@@ -645,18 +910,51 @@ def infer_cuisine_tags(
     min_score: int = 2,
     max_tags: int = 3,
 ) -> list[str]:
+    """
+    Infer cuisine tags from free text.
+
+    Two-pass approach:
+      1. Broad scoring against CUISINE_KEYWORDS → top-level parent cuisines
+         (Japanese, Chinese, Korean, …)
+      2. Specific keyword scan via infer_specific_cuisine_tags → sub-cuisine tags
+         AND their parent (Ramen+Japanese, Dim Sum+Chinese, Hubei+Chinese, …)
+
+    The two result sets are merged and deduplicated so we never double-assign
+    a parent tag that was already found by either pass.
+    """
     score: dict[str, int] = {}
     norm_text = normalize_text(text)
-    canonical_label = CUISINE_ALIASES.get(normalize_text(label_name), label_name.strip())
+    norm_name = normalize_text(label_name)
+    canonical_label = CUISINE_ALIASES.get(norm_name, label_name.strip())
     if canonical_label in CUISINE_KEYWORDS:
         score[canonical_label] = score.get(canonical_label, 0) + 4
     for cuisine, keywords in CUISINE_KEYWORDS.items():
         for kw in keywords:
             kw_norm = normalize_text(kw)
-            if kw_norm and kw_norm in norm_text:
+            if not kw_norm:
+                continue
+            matched_in_text = kw_norm in norm_text
+            matched_in_name = bool(norm_name and kw_norm in norm_name)
+            if matched_in_text:
                 score[cuisine] = score.get(cuisine, 0) + (2 if " " in kw_norm else 1)
+            # Place-name matches are a stronger signal than generic text.
+            if matched_in_name:
+                score[cuisine] = score.get(cuisine, 0) + (3 if " " in kw_norm else 2)
     ranked = sorted(score.items(), key=lambda p: (-p[1], p[0]))
-    return [c for c, pts in ranked if pts >= min_score and is_english_tag(c)][:max_tags]
+    base = [c for c, pts in ranked if pts >= min_score and is_english_tag(c)][:max_tags]
+
+    # Second pass: detect sub-cuisine keywords → adds e.g. Ramen+Japanese,
+    # Dim Sum+Chinese, Hubei+Chinese, Sichuan+Chinese, Mala+Chinese, etc.
+    specific = infer_specific_cuisine_tags(text)
+
+    # Merge: start from specific (more detailed), then append base tags not already present
+    seen: set[str] = {t.lower() for t in specific}
+    merged = list(specific)
+    for t in base:
+        if t.lower() not in seen:
+            seen.add(t.lower())
+            merged.append(t)
+    return merged
 
 
 def infer_cuisine_tags_from_types(types: Sequence[str]) -> list[str]:
@@ -667,7 +965,63 @@ def infer_cuisine_tags_from_types(types: Sequence[str]) -> list[str]:
         if label and label not in seen:
             seen.add(label)
             out.append(label)
+    # Automatically include parent cuisine tags (e.g. Ramen → Japanese)
+    return expand_with_parent_cuisines(out)
+
+
+def infer_attribute_tags_from_types(types: Sequence[str]) -> list[str]:
+    seen: set[str] = set()
+    out: list[str] = []
+    for t in types:
+        label = GOOGLE_TYPE_TO_ATTR_TAG.get(normalize_text(t).replace(" ", "_"))
+        if label and label not in seen:
+            seen.add(label)
+            out.append(label)
     return out
+
+
+def name_has_non_savory_signal(name: str) -> bool:
+    norm_name = normalize_text(name)
+    if not norm_name:
+        return False
+    for cuisine, keywords in CUISINE_KEYWORDS.items():
+        if cuisine not in NON_SAVORY_CUISINE_TAGS:
+            continue
+        for kw in keywords:
+            kw_norm = normalize_text(kw)
+            if kw_norm and kw_norm in norm_name:
+                return True
+    return False
+
+
+def filter_cuisine_tags_for_venue(
+    types: Sequence[str],
+    cuisine_tags: Sequence[str],
+    *,
+    place_name: str = "",
+) -> list[str]:
+    type_keys = {normalize_text(t).replace(" ", "_") for t in types}
+    has_non_savory_signal = bool(type_keys.intersection(NON_SAVORY_VENUE_TYPES)) or name_has_non_savory_signal(place_name)
+    if not has_non_savory_signal:
+        return list(cuisine_tags)
+
+    explicit_savory_type = any(
+        key.endswith("_restaurant") and key not in NON_SAVORY_VENUE_TYPES
+        for key in type_keys
+    )
+    if explicit_savory_type:
+        return list(cuisine_tags)
+
+    allowed_from_name = set(infer_cuisine_tags(place_name, place_name))
+    filtered = [
+        tag for tag in cuisine_tags
+        if tag in NON_SAVORY_CUISINE_TAGS or tag in allowed_from_name
+    ]
+
+    if filtered:
+        seen: set[str] = set()
+        return [tag for tag in filtered if not (tag.lower() in seen or seen.add(tag.lower()))]
+    return list(allowed_from_name)
 
 
 def infer_allergy_tags(text: str) -> list[str]:
@@ -730,26 +1084,92 @@ def infer_area_tag_from_details(details: dict) -> Optional[str]:
     if isinstance(comps, list):
         key = "long_name" if details.get("address_components") else "longText"
         raw = _extract_area_from_address_components(comps, key)
-        return sanitize_area_candidate(raw or "")
+        clean = sanitize_area_candidate(raw or "")
+        if clean:
+            return clean
+
+    address_area = area_from_address(extract_address_text_from_details(details))
+    if address_area:
+        return sanitize_area_candidate(address_area)
+
+    postal = extract_postal_code(extract_address_text_from_details(details) or "")
+    if postal:
+        return sanitize_area_candidate(get_planning_area_from_postal(postal) or "")
+
     return None
+
+
+def infer_location_tags_from_name(name: str) -> list[str]:
+    """
+    Infer Singapore area/location tags from a restaurant name by scanning for
+    known area aliases and planning area names.
+
+    Examples:
+      "Orchard Ramen"             → ["Orchard"]
+      "Bugis Street Noodles"      → ["Bugis"]
+      "Tanjong Pagar Chicken Rice"→ ["Tanjong Pagar"]
+      "Tiong Bahru Bakery"        → ["Tiong Bahru"]
+    """
+    if not name:
+        return []
+    norm = normalize_text(name)
+    found: list[str] = []
+    seen: set[str] = set()
+
+    # Sort aliases longest-first so "tanjong pagar" matches before "pagar"
+    for alias, area in sorted(AREA_ALIAS_TO_PLANNING_AREA.items(), key=lambda x: -len(x[0])):
+        if not alias:
+            continue
+        if re.search(r"(?<![a-z])" + re.escape(alias) + r"(?![a-z])", norm):
+            if area.lower() not in seen:
+                seen.add(area.lower())
+                found.append(area)
+
+    # Also try road-name extraction from the name itself (e.g. "Keong Saik Road Kitchen")
+    road = extract_road_name_from_address(name)
+    if road:
+        area_from_road = AREA_ALIAS_TO_PLANNING_AREA.get(normalize_text(road))
+        if area_from_road and area_from_road.lower() not in seen:
+            seen.add(area_from_road.lower())
+            found.append(area_from_road)
+        elif not area_from_road and road.lower() not in seen:
+            seen.add(road.lower())
+            found.append(road)
+
+    return found
 
 
 def auto_tags_from_google(details: dict) -> list[str]:
     """
     Public API — imported by app.py.
     Fast heuristic tag extraction from a Google Places Details result.
+    Includes parent cuisine expansion automatically.
     """
     tags: set[str] = set()
-    for t in details.get("types", []) or []:
-        tags.update(_LEGACY_TYPE_TO_TAG.get(t, []))
-        cuisine = PRIMARY_TYPE_TO_CUISINE.get(t)
+    google_types = extract_google_types(details)
+    for t in google_types:
+        key = normalize_text(t).replace(" ", "_")
+        tags.update(_LEGACY_TYPE_TO_TAG.get(key, []))
+        attr = GOOGLE_TYPE_TO_ATTR_TAG.get(key)
+        if attr:
+            tags.add(attr)
+        cuisine = PRIMARY_TYPE_TO_CUISINE.get(key)
         if cuisine:
             tags.add(cuisine)
-    name = (details.get("name") or "").lower()
-    for cuisine, kws in CUISINE_KEYWORDS.items():
-        if any(kw in name for kw in kws):
-            tags.add(cuisine)
-    return sorted(tags)
+    place_name = extract_google_display_name(details)
+    text = " ".join(filter(None, [
+        place_name,
+        " ".join(google_types),
+        extract_address_text_from_details(details),
+    ]))
+    text_cuisines = infer_cuisine_tags(text, place_name)
+    type_cuisines = [tag for tag in tags if tag in CUISINE_KEYWORDS or tag in SUBCUISINE_PARENT]
+    merged = type_cuisines + [tag for tag in text_cuisines if tag not in type_cuisines]
+    tags.update(filter_cuisine_tags_for_venue(google_types, merged, place_name=place_name))
+    # Location tags inferred from the restaurant name itself
+    tags.update(infer_location_tags_from_name(place_name))
+    # Expand sub-cuisines to include parent cuisines
+    return sorted(expand_with_parent_cuisines(list(tags)))
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -775,7 +1195,6 @@ def fetch_all_rows(
 
 
 def fetch_tags_map(supabase: Client) -> dict[str, int]:
-    """Return {tag_name_lower: tag_id}."""
     rows = fetch_all_rows(supabase, "tags", "id, name")
     return {row["name"].lower(): row["id"] for row in rows if row.get("name")}
 
@@ -798,7 +1217,6 @@ def ensure_tag(
     apply: bool,
     _synthetic_counter: list[int],
 ) -> Optional[int]:
-    """Resolve or create a tag, return its ID."""
     clean = normalize_tag_name(name)
     if not clean:
         return None
@@ -818,7 +1236,6 @@ def ensure_tag(
             return new_id
     except Exception:
         pass
-    # May already exist — re-fetch
     res2 = supabase.table("tags").select("id").ilike("name", clean).limit(1).execute()
     row = (res2.data or [None])[0]
     if row and row.get("id"):
@@ -873,13 +1290,11 @@ def write_report(path: str, rows: list[dict], fieldnames: list[str]) -> None:
 # ══════════════════════════════════════════════════════════════════════════════
 
 class _BaseEnricher:
-    """Shared infrastructure for all enrichers."""
-
     def __init__(self, supabase: Client, *, apply: bool, limit: int = 0):
         self.sb = supabase
         self.apply = apply
         self.limit = limit or None
-        self._counter = [-1]   # synthetic tag-id counter for dry-run
+        self._counter = [-1]
 
     def _ensure_tag(self, name: str, tags_map: dict[str, int]) -> Optional[int]:
         return ensure_tag(self.sb, name, tags_map, apply=self.apply,
@@ -897,14 +1312,7 @@ class _BaseEnricher:
 
 class LocationEnricher(_BaseEnricher):
     """
-    Tags every place with its planning area and nearby MRT stations.
-
-    Options:
-        mrt_radius   metres radius for MRT proximity (default 600)
-        use_onemap   use OneMap reverse geocode for authoritative area
-        skip_mrt     skip MRT tagging
-        skip_area    skip planning area tagging
-        onemap_token API token (reads ONEMAP_TOKEN env var if not supplied)
+    Tags every place with its planning area, road name, and nearby MRT stations.
     """
 
     def __init__(
@@ -964,13 +1372,17 @@ class LocationEnricher(_BaseEnricher):
                     proposed.append(area)
                     if self.use_onemap and lat:
                         time.sleep(0.15)
+                # Road name tag — more specific than planning area
+                road = extract_road_name_from_address(addr)
+                if road:
+                    proposed.append(road)
 
             if not self.skip_mrt and lat and lng:
                 proposed.extend(nearby_mrt_tags(lat, lng, self.mrt_radius))
 
             # deduplicate case-insensitively
             seen: set[str] = set()
-            deduped = [t for t in proposed if not (t.lower() in seen or seen.add(t.lower()))]  # type: ignore[func-returns-value]
+            deduped = [t for t in proposed if not (t.lower() in seen or seen.add(t.lower()))]
 
             new_for_place = 0
             for tag_name in deduped:
@@ -1000,21 +1412,13 @@ class LocationEnricher(_BaseEnricher):
 class GoogleEnricher(_BaseEnricher):
     """
     Enriches places by calling Google Places Details API.
-
-    Options:
-        api_key          Google API key (reads GOOGLE_PLACES_API_KEY env var)
-        use_find         Use Find Place to resolve missing gmaps_place_id
-        find_radius      Bias radius for Find Place (metres, default 1000)
-        include_allergies Also infer allergy tags from text
-        places_new       Use Places API (New) endpoint
-        fields           Custom field mask / legacy fields string
-        skip_if_tagged   Skip places that already have ≥1 tag
-        sleep_sec        Delay between API calls (default 0.05)
+    Now also creates road-name tags and expands sub-cuisines to parent cuisines.
     """
 
     LEGACY_FIELDS = ("place_id,name,formatted_address,types,price_level,"
                      "reviews,editorial_summary")
-    NEW_FIELDS = ("addressComponents,formattedAddress,types,priceLevel,"
+    NEW_FIELDS = ("addressComponents,formattedAddress,shortFormattedAddress,"
+                  "postalAddress,types,primaryType,displayName,priceLevel,"
                   "editorialSummary,reviews")
 
     def __init__(
@@ -1149,7 +1553,6 @@ class GoogleEnricher(_BaseEnricher):
                                     "status": "details_not_found", "tags": ""})
                 continue
 
-            # Build combined text for inference
             reviews_text = extract_reviews_text(details.get("reviews"))
             editorial = ""
             for key in ("editorial_summary", "editorialSummary"):
@@ -1158,23 +1561,33 @@ class GoogleEnricher(_BaseEnricher):
                              if isinstance(raw, dict) else str(raw or "")).strip()
                 if editorial:
                     break
-            types = details.get("types") or []
-            combined = " ".join(filter(None, [name, " ".join(types), editorial, reviews_text]))
+            details_name = extract_google_display_name(details) or name
+            types = extract_google_types(details)
+            address_text = extract_address_text_from_details(details) or str(place.get("address") or "")
+            cuisine_text = " ".join(filter(None, [details_name, " ".join(types), editorial, address_text]))
+            combined = " ".join(filter(None, [cuisine_text, reviews_text]))
 
-            type_cuisines = infer_cuisine_tags_from_types(types)
-            text_cuisines = infer_cuisine_tags(combined)
+            type_cuisines = infer_cuisine_tags_from_types(types)   # already expands parents
+            text_cuisines = infer_cuisine_tags(cuisine_text, details_name)        # already expands parents
             cuisine_tags = type_cuisines + [t for t in text_cuisines if t not in type_cuisines]
+            cuisine_tags = filter_cuisine_tags_for_venue(types, cuisine_tags, place_name=details_name)
+            attr_tags = infer_attribute_tags_from_types(types)
             allergy_tags = infer_allergy_tags(combined) if self.include_allergies else []
             price_tag = infer_price_range_tag(
                 details.get("price_level") or details.get("priceLevel"), combined
             )
             area_tag = infer_area_tag_from_details(details)
-            proposed_names = [t for t in [area_tag] + cuisine_tags + [price_tag] + allergy_tags if t]
+            # Road-name tag from the Supabase address column (most reliable source)
+            road_tag = extract_road_name_from_address(place.get("address") or "") or extract_road_name_from_address(address_text)
+            # Location tags inferred from the restaurant name itself
+            name_location_tags = infer_location_tags_from_name(details_name)
+
+            proposed_names = [t for t in [area_tag] + ([road_tag] if road_tag else []) + name_location_tags + attr_tags + cuisine_tags + [price_tag] + allergy_tags if t]
 
             # deduplicate
             seen: set[str] = set()
             deduped = [t for t in proposed_names
-                       if is_english_tag(t) and not (t.lower() in seen or seen.add(t.lower()))]  # type: ignore[func-returns-value]
+                       if is_english_tag(t) and not (t.lower() in seen or seen.add(t.lower()))]
 
             row_links = 0
             for tag_name in deduped:
@@ -1190,7 +1603,7 @@ class GoogleEnricher(_BaseEnricher):
 
             report_rows.append({"place_id": pid, "place_name": name, "status": "ok",
                                  "tags": "|".join(deduped), "new_links": row_links})
-            print(f"    → {', '.join(deduped[:5])}")
+            print(f"    → {', '.join(deduped[:6])}")
 
         inserted = self._apply_links(links)
         if report:
@@ -1206,10 +1619,9 @@ class GoogleEnricher(_BaseEnricher):
 
 @dataclass
 class _DataRow:
-    """Normalised view over either a dataset row or a Supabase places row."""
     row_num: int
     values: dict[str, Any]
-    _source: str = "supabase"   # "supabase" | "dataset"
+    _source: str = "supabase"
 
     @property
     def place_name(self) -> str:
@@ -1246,17 +1658,8 @@ class _DataRow:
 
 class AutoTagger(_BaseEnricher):
     """
-    Infers area, cuisine, budget, and allergy tags from existing DB fields or
-    an Excel dataset, then writes them to Supabase.
-
-    Options:
-        source              "supabase" | "dataset" | "csv"
-        dataset_path        Path to .xlsx file (source=dataset)
-        sheet_name          Sheet name in the xlsx
-        use_google_geocode  Reverse-geocode area via Google Maps API
-        google_api_key      Key for geocoding (reads GOOGLE_MAPS_API_KEY env)
-        include_allergies   Infer allergy tags
-        skip_if_tagged      Skip already-tagged places
+    Infers area, road name, cuisine (with parent expansion), budget, and allergy
+    tags from existing DB fields or an Excel dataset, then writes them to Supabase.
     """
 
     def __init__(
@@ -1325,13 +1728,19 @@ class AutoTagger(_BaseEnricher):
             extract_reviews_text(row.values.get("reviews")),
         ]))
         area = self._infer_area(row)
+        # Road-name tag — fine-grained location tag from address
+        road = extract_road_name_from_address(row.address)
         price_tag = infer_price_range_tag(row.values.get("price_level"), combined)
+        # infer_cuisine_tags already calls expand_with_parent_cuisines internally
         cuisine_tags = infer_cuisine_tags(combined, row.label_name)
         allergy_tags = infer_allergy_tags(combined) if self.include_allergies else []
-        proposed = [t for t in ([area] + [price_tag] + cuisine_tags + allergy_tags) if t]
+        road_tags = [road] if road else []
+        # Location tags inferred from the restaurant name itself
+        name_location_tags = infer_location_tags_from_name(row.place_name)
+        proposed = [t for t in ([area] + road_tags + [price_tag] + cuisine_tags + allergy_tags + name_location_tags) if t]
         seen: set[str] = set()
         return [t for t in proposed
-                if is_english_tag(t) and not (t.lower() in seen or seen.add(t.lower()))]  # type: ignore[func-returns-value]
+                if is_english_tag(t) and not (t.lower() in seen or seen.add(t.lower()))]
 
     def _load_dataset_rows(self) -> list[_DataRow]:
         if load_workbook is None:
@@ -1367,13 +1776,11 @@ class AutoTagger(_BaseEnricher):
         return place_lookup.get("_by_name_addr", {}).get(key)
 
     def run(self, *, report: str = "") -> dict:
-        # Load rows
         if self.source == "dataset":
             rows = self._load_dataset_rows()
         else:
             rows = self._load_supabase_rows()
 
-        # Build place lookups for dataset matching
         place_lookup: dict[str, Any] = {}
         if self.source == "dataset":
             all_places = fetch_all_rows(
@@ -1441,7 +1848,7 @@ class AutoTagger(_BaseEnricher):
             report_rows.append({"row": row.row_num, "place": row.place_name,
                                  "matched": True, "tags": "|".join(tag_names),
                                  "new_links": row_links})
-            print(f"  [{row.row_num}] {row.place_name[:40]:<40} | {', '.join(tag_names[:4])}")
+            print(f"  [{row.row_num}] {row.place_name[:40]:<40} | {', '.join(tag_names[:5])}")
 
         inserted = self._apply_links(links)
         if report:
@@ -1464,68 +1871,37 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     sub = root.add_subparsers(dest="cmd", required=True)
 
-    # ── Shared parent parser ──────────────────────────────────────────────────
     common = argparse.ArgumentParser(add_help=False)
-    common.add_argument("--apply", action="store_true",
-                        help="Write to Supabase (default: dry-run)")
-    common.add_argument("--limit", type=int, default=0,
-                        help="Cap rows processed (0 = all)")
-    common.add_argument("--report", default="",
-                        help="Report output path (.csv / .json / .xlsx)")
-    common.add_argument("--skip-if-tagged", action="store_true",
-                        help="Skip places that already have ≥1 tag")
+    common.add_argument("--apply", action="store_true")
+    common.add_argument("--limit", type=int, default=0)
+    common.add_argument("--report", default="")
+    common.add_argument("--skip-if-tagged", action="store_true")
 
-    # ── location sub-command ─────────────────────────────────────────────────
-    p_loc = sub.add_parser("location", parents=[common],
-                           help="Tag places with planning area and MRT proximity")
-    p_loc.add_argument("--mrt-radius", type=int, default=600,
-                       help="MRT proximity radius in metres (default 600)")
-    p_loc.add_argument("--use-onemap", action="store_true",
-                       help="Use OneMap reverse geocode for authoritative area")
-    p_loc.add_argument("--onemap-token", default="",
-                       help="OneMap API token (overrides ONEMAP_TOKEN env var)")
-    p_loc.add_argument("--skip-mrt", action="store_true",
-                       help="Skip MRT proximity tagging")
-    p_loc.add_argument("--skip-area", action="store_true",
-                       help="Skip planning area tagging")
+    p_loc = sub.add_parser("location", parents=[common])
+    p_loc.add_argument("--mrt-radius", type=int, default=600)
+    p_loc.add_argument("--use-onemap", action="store_true")
+    p_loc.add_argument("--onemap-token", default="")
+    p_loc.add_argument("--skip-mrt", action="store_true")
+    p_loc.add_argument("--skip-area", action="store_true")
 
-    # ── google sub-command ───────────────────────────────────────────────────
-    p_goog = sub.add_parser("google", parents=[common],
-                            help="Enrich places using Google Places Details API")
-    p_goog.add_argument("--api-key", default="",
-                        help="Google Places API key (overrides GOOGLE_PLACES_API_KEY env)")
-    p_goog.add_argument("--use-find", action="store_true",
-                        help="Use Find Place when gmaps_place_id is missing")
-    p_goog.add_argument("--find-radius", type=int, default=1000,
-                        help="Location bias radius for Find Place in metres (default 1000)")
-    p_goog.add_argument("--include-allergies", action="store_true",
-                        help="Also infer allergy tags from API text")
-    p_goog.add_argument("--places-new", action="store_true",
-                        help="Use Places API (New) endpoint")
-    p_goog.add_argument("--fields", default="",
-                        help="Custom field mask / legacy fields string")
-    p_goog.add_argument("--sleep", type=float, default=0.05,
-                        help="Seconds between API calls (default 0.05)")
+    p_goog = sub.add_parser("google", parents=[common])
+    p_goog.add_argument("--api-key", default="")
+    p_goog.add_argument("--use-find", action="store_true")
+    p_goog.add_argument("--find-radius", type=int, default=1000)
+    p_goog.add_argument("--include-allergies", action="store_true")
+    p_goog.add_argument("--places-new", action="store_true")
+    p_goog.add_argument("--fields", default="")
+    p_goog.add_argument("--sleep", type=float, default=0.05)
 
-    # ── auto sub-command ─────────────────────────────────────────────────────
-    p_auto = sub.add_parser("auto", parents=[common],
-                            help="Infer tags from existing DB fields or Excel dataset")
-    p_auto.add_argument("--source", choices=["supabase", "dataset"], default="supabase",
-                        help="Row source (default: supabase)")
-    p_auto.add_argument("--dataset", default="",
-                        help="Path to .xlsx dataset file (required when --source=dataset)")
-    p_auto.add_argument("--sheet", default="Result 1",
-                        help="Sheet name in the dataset workbook (default: 'Result 1')")
-    p_auto.add_argument("--use-google-geocode", action="store_true",
-                        help="Reverse-geocode area via Google Maps API")
-    p_auto.add_argument("--google-api-key", default="",
-                        help="Google API key for geocoding (overrides GOOGLE_MAPS_API_KEY env)")
-    p_auto.add_argument("--include-allergies", action="store_true",
-                        help="Infer allergy tags from text")
+    p_auto = sub.add_parser("auto", parents=[common])
+    p_auto.add_argument("--source", choices=["supabase", "dataset"], default="supabase")
+    p_auto.add_argument("--dataset", default="")
+    p_auto.add_argument("--sheet", default="Result 1")
+    p_auto.add_argument("--use-google-geocode", action="store_true")
+    p_auto.add_argument("--google-api-key", default="")
+    p_auto.add_argument("--include-allergies", action="store_true")
 
-    # ── all sub-command ──────────────────────────────────────────────────────
-    p_all = sub.add_parser("all", parents=[common],
-                           help="Run location → auto → google enrichment in sequence")
+    p_all = sub.add_parser("all", parents=[common])
     p_all.add_argument("--mrt-radius", type=int, default=600)
     p_all.add_argument("--use-onemap", action="store_true")
     p_all.add_argument("--skip-mrt", action="store_true")
