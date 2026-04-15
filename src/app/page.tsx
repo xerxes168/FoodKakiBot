@@ -20,6 +20,8 @@ interface Restaurant {
   opening_hours?: OpeningHours;
   recommended_because?: string;
   rank_reason?: string;
+  is_wink?: boolean;
+  tags?: string[];
 }
 
 interface Message {
@@ -31,6 +33,31 @@ interface Message {
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 const MAX_VISIBLE = 3;
+
+const NEAR_ME_PATTERNS = [
+  'near me', 'nearby', 'close to me', 'around me', 'my location',
+  'current location', 'where i am', 'around here', 'food nearby',
+  'restaurants nearby', 'places nearby',
+];
+
+function isNearMeRequest(message: string): boolean {
+  const lower = message.toLowerCase();
+  return NEAR_ME_PATTERNS.some(p => lower.includes(p));
+}
+
+function getGeolocation(): Promise<{ lat: number; lng: number }> {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject(new Error('Geolocation is not supported by your browser.'));
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      pos => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      err => reject(new Error(err.message)),
+      { timeout: 10000, maximumAge: 60000 },
+    );
+  });
+}
 
 // ── TagFilterDropdown ─────────────────────────────────────────────────────────
 
@@ -289,9 +316,19 @@ function RestaurantCard({ restaurant, rank }: { restaurant: Restaurant; rank: nu
       <div className="p-4 space-y-2">
         {/* Name + Rating */}
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-bold text-gray-800 text-base leading-snug">
-            {restaurant.name}
-          </h3>
+          <div className="flex items-center gap-1.5 min-w-0">
+            <h3 className="font-bold text-gray-800 text-base leading-snug truncate">
+              {restaurant.name}
+            </h3>
+            {restaurant.is_wink && (
+              <span
+                className="inline-flex items-center gap-0.5 bg-pink-100 text-pink-600 text-xs font-semibold px-1.5 py-0.5 rounded-full shrink-0"
+                title="Wink Recommended"
+              >
+                Wink+
+              </span>
+            )}
+          </div>
           {restaurant.rating != null && (
             <div className="flex items-center gap-1 bg-orange-50 text-orange-600 text-sm font-semibold px-2 py-0.5 rounded-full shrink-0">
               <Star className="w-3.5 h-3.5 fill-orange-400 text-orange-400" />
@@ -409,7 +446,9 @@ export default function RestaurantChatbot() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string>('');
-  const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  // 'unknown' = never tried | 'granted' = have coords | 'denied' = user blocked
+  const [gpsStatus, setGpsStatus] = useState<'unknown' | 'granted' | 'denied'>('unknown');
   const [activeTags, setActiveTags] = useState<Record<string, string>>({});
   const [tagCatalog, setTagCatalog] = useState<TagCatalog>({ cuisines: [], budgets: [], locations: [] });
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -495,6 +534,50 @@ export default function RestaurantChatbot() {
     if (!textMessage || loading || !sessionId) return;
 
     const userMessage = textMessage;
+
+    // ── GPS resolution ─────────────────────────────────────────────────────
+    // Must happen BEFORE any state updates so we stay inside the user-gesture
+    // context — browsers may suppress the permission dialog otherwise.
+    let location = userLocation;
+
+    if (isNearMeRequest(userMessage) && !location) {
+      if (gpsStatus === 'denied') {
+        setMessages(prev => [
+          ...prev,
+          { role: 'user', content: userMessage },
+          {
+            role: 'assistant',
+            content:
+              "Location access is blocked in your browser. Click the lock icon " +
+              "in your address bar, allow location access, then try again. " +
+              "Or tell me which area in Singapore you're in (e.g. 'food in Bugis').",
+          },
+        ]);
+        if (!overrideMessage) setInput('');
+        return;
+      }
+
+      try {
+        location = await getGeolocation();
+        setUserLocation(location);
+        setGpsStatus('granted');
+      } catch {
+        setGpsStatus('denied');
+        setMessages(prev => [
+          ...prev,
+          { role: 'user', content: userMessage },
+          {
+            role: 'assistant',
+            content:
+              "Location access was denied. Please allow it when prompted, or " +
+              "tell me which area in Singapore you're in (e.g. 'food in Bugis').",
+          },
+        ]);
+        if (!overrideMessage) setInput('');
+        return;
+      }
+    }
+
     if (!overrideMessage) setInput('');
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
     setLoading(true);
@@ -508,8 +591,7 @@ export default function RestaurantChatbot() {
         body: JSON.stringify({
           message: userMessage,
           session_id: sessionId,
-          lat: userLocation?.lat ?? null,
-          lng: userLocation?.lng ?? null,
+          ...(location ? { lat: location.lat, lng: location.lng } : {}),
         })
       });
 
@@ -519,7 +601,7 @@ export default function RestaurantChatbot() {
         setMessages(prev => [...prev, {
           role: 'assistant',
           content: data.response,
-          restaurants: data.restaurants ?? [],
+          restaurants: data.restaurants || [],
         }]);
         if (data.active_tags) setActiveTags(data.active_tags);
       } else {
@@ -612,27 +694,33 @@ export default function RestaurantChatbot() {
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-6">
         <div className="max-w-4xl mx-auto space-y-4">
-          {messages.map((msg, idx) => (
-            <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              {msg.role === 'user' ? (
-                <div className="max-w-2xl px-4 py-3 rounded-2xl bg-orange-500 text-white">
-                  <p className="whitespace-pre-wrap">{msg.content}</p>
-                </div>
-              ) : msg.restaurants && msg.restaurants.length > 0 ? (
-                <div className="w-full max-w-2xl space-y-3">
-                  <div className="px-4 py-3 rounded-2xl bg-white text-gray-800 shadow-sm border border-orange-100">
+          {messages.map((msg, idx) => {
+            const hasCards = msg.role === 'assistant' && msg.restaurants && msg.restaurants.length > 0;
+            return (
+              <div
+                key={idx}
+                className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
+              >
+                {/* Only show text bubble when there are no restaurant cards */}
+                {!hasCards && (
+                  <div
+                    className={`max-w-2xl px-4 py-3 rounded-2xl ${
+                      msg.role === 'user'
+                        ? 'bg-orange-500 text-white'
+                        : 'bg-white text-gray-800 shadow-sm border border-orange-100'
+                    }`}
+                  >
                     <p className="whitespace-pre-wrap">{msg.content}</p>
                   </div>
-                  <RestaurantList restaurants={msg.restaurants} />
-                </div>
-              ) : (
-                <div className="max-w-2xl px-4 py-3 rounded-2xl bg-white text-gray-800 shadow-sm border border-orange-100">
-                  <p className="whitespace-pre-wrap">{msg.content}</p>
-                </div>
-              )}
-            </div>
-          ))}
-
+                )}
+                {hasCards && (
+                  <div className="w-full max-w-2xl">
+                    <RestaurantList restaurants={msg.restaurants!} />
+                  </div>
+                )}
+              </div>
+            );
+          })}
           {loading && (
             <div className="flex justify-start">
               <div className="bg-white px-4 py-3 rounded-2xl shadow-sm border border-orange-100">

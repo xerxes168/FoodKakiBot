@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "baseline-browser-mapping": "^2.10.18",
     "lucide-react": "^0.263.1",
     "next": "^16.1.6",
     "react": "^18.2.0",

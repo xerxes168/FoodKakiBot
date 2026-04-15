@@ -29,8 +29,6 @@ import json
 import logging
 import urllib.parse
 
-from tagging import auto_tags_from_google
-
 # ── RAG module ────────────────────────────────────────────────────────────────
 from rag import (
         retrieve_hybrid,
@@ -41,6 +39,7 @@ from rag import (
     )
 from location_expansion import expand_location_tags, build_location_tag_sets
 from ranking import rank_candidates, detect_allow_closed
+from tagging import auto_tags_from_google
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -71,6 +70,14 @@ PLACES_KEY = (
 )
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+# ── Google Places API key ──────────────────────────────────────────────────────
+# Prefer the dedicated Places key; fall back to the shared Gemini key.
+PLACES_KEY = (
+    os.getenv("GOOGLE_PLACES_API_KEY")
+    or os.getenv("GOOGLE_MAPS_API_KEY")
+    or os.getenv("GOOGLE_API_KEY")
+)
 
 # ── Per-session state ─────────────────────────────────────────────────────────
 sessions: dict[str, dict] = {}
@@ -396,12 +403,49 @@ def merge_selected_tags(rule_selected, llm_selected):
 
 def classify_message_intent(user_message: str, conversation_history: list, has_last_candidates: bool) -> str:
     """
-    Classify the user message into one of three intents:
+    Classify the user message into one of five intents:
       - "restaurant_search"  : user wants new restaurant recommendations
+      - "followup_filter"    : user wants to filter/sort/refine previously shown
+                               restaurants — returns updated cards
+      - "followup_info"      : user is asking an analytical or factual question about
+                               previously shown restaurants — returns text only.
+                               Also used for specific restaurant info queries (e.g.
+                               popular dishes, menu items) that should be answered
+                               via LLM + web search instead of RAG.
       - "followup_review"    : user is asking about quality/reviews/experience of
                                previously shown restaurants
       - "conversational"     : general chat, greetings, capability questions, etc.
     """
+    msg_lower = user_message.lower()
+
+    # ── PRE-FILTER: catch clear-cut patterns before calling the LLM ──────
+    # These patterns are unambiguously about getting *info* about a
+    # restaurant (popular dishes, menu, prices, hours) and should always
+    # bypass RAG — regardless of whether we have prior candidates.
+    _info_pre_patterns = [
+        "popular dish", "signature dish", "best dish", "must try", "must-try",
+        "recommended dish", "famous dish", "famous for",
+        "what do they serve", "what do they sell", "what does it serve",
+        "what's on the menu", "what is on the menu", "menu item",
+        "popular food at", "popular item", "what food do they",
+        "tell me about", "tell me more about", "more about",
+        "what are the prices", "how much does", "how much do",
+    ]
+    if any(kw in msg_lower for kw in _info_pre_patterns):
+        logger.info("Pre-filter matched followup_info for: %r", user_message)
+        return "followup_info"
+
+    # Analytical questions about previously shown places → followup_info
+    _analytical_patterns = [
+        "average price", "average cost", "average rating",
+        "how much on average", "what's the average",
+        "which is cheapest", "which is closest", "which one is",
+        "compare these", "compare them", "comparison",
+    ]
+    if has_last_candidates and any(kw in msg_lower for kw in _analytical_patterns):
+        logger.info("Pre-filter matched followup_info (analytical) for: %r", user_message)
+        return "followup_info"
+
     history_text = ""
     if conversation_history:
         for turn in conversation_history[-6:]:
@@ -416,40 +460,109 @@ Conversation so far:
 Latest user message: "{user_message}"
 
 Classify the intent as exactly one of:
-- "restaurant_search"  : user wants restaurant recommendations (mentions food + location, asks where to eat, etc.)
-- "followup_review"    : user is asking about quality, reviews, opinions, atmosphere, or experience of restaurants already recommended in this conversation (e.g. "is the food good?", "what do people think?", "is it worth it?", "how are the reviews?", "is it nice there?")
-- "conversational"     : greeting, asking what the bot can do, saying thanks, off-topic, or anything else
 
-{"Note: The bot has previously recommended restaurants in this conversation, so follow-up questions about those places are likely." if has_last_candidates else "Note: No restaurants have been recommended yet, so follow-ups about specific places are unlikely."}
+- "restaurant_search" : The user wants NEW restaurant recommendations or wants to DISCOVER places to eat. This includes ANY request involving food, restaurants, dining, cuisine, price/budget, or location — even if vague or casual. Examples: "cheap Japanese food in Tampines", "best restaurants near Orchard", "give me 10 random top rated places that won't break the bank", "affordable food options", "where to eat", "what's good around here", "any halal places", "I'm hungry", "suggest something".
 
-Reply with ONLY one of these exact strings: restaurant_search, followup_review, conversational
+- "followup_filter" : The user wants to REFINE, FILTER, or RE-SORT the restaurants that were already shown — they want a DIFFERENT SUBSET or ORDER of the same results. The answer should show NEW restaurant cards. Examples: "are there nearer options?", "above 4.5 stars", "show me only halal ones", "cheaper options", "sort by rating", "only budget places", "anything closer?", "higher rated ones", "remove the expensive ones", "above 4.5 stars review".
+
+- "followup_info" : The user is asking a FACTUAL or ANALYTICAL question about restaurants — they want a TEXT answer, not new cards. This includes questions about specific restaurants by name, even if they weren't previously shown. Examples: "what's the average price?", "which one is cheapest?", "what food is sold there?", "how far is the first one?", "what time do they close?", "tell me more about the second one", "what cuisine do they serve?", "compare these two", "what are the popular dishes at Imperial Treasure?", "what does Din Tai Fung serve?", "how much does a meal cost there?".
+
+- "followup_review" : The user is asking specifically about REVIEWS, customer opinions, or subjective quality of restaurants — NOT about filtering by rating. Examples: "is the food good?", "what do people think?", "how are the reviews?", "is it worth it?", "is it nice there?".
+
+- "conversational" : ONLY for greetings, thank-you messages, asking what the bot can do, or clearly off-topic chat that has NOTHING to do with food or restaurants. Examples: "hello", "thanks!", "what can you do?", "tell me a joke".
+
+IMPORTANT RULES:
+- When in doubt between "conversational" and "restaurant_search", choose "restaurant_search".
+- When the user mentions a rating threshold (e.g. "above 4.5 stars"), that is "followup_filter", NOT "followup_review".
+- When the user asks about specific restaurant details (popular dishes, menu, prices), that is "followup_info" — even if the restaurant was not previously shown.
+{"- The bot has previously recommended restaurants in this conversation. Questions about those places should be followup_filter, followup_info, or followup_review, NOT restaurant_search." if has_last_candidates else "- No restaurants have been recommended yet, so followup_filter is unlikely. However, followup_info is still valid for specific restaurant questions (e.g. 'what are the popular dishes at X?')."}
+
+Reply with ONLY one of these exact strings: restaurant_search, followup_filter, followup_info, followup_review, conversational
 """.strip()
+
+    # ── Keyword-based fallback classifier ────────────────────────────────
+    # Used when the LLM call fails OR when the LLM returns an unrecognised
+    # string.  Defined here so both the happy path and the except path share it.
+    def _keyword_fallback() -> str:
+        followup_filter_keywords = [
+            "nearer", "closer", "nearest", "closest", "cheaper", "cheapest",
+            "higher rated", "above", "over", "at least", "minimum",
+            "only halal", "only vegetarian", "only budget", "sort by",
+            "more expensive", "within", "under $", "less than",
+        ]
+        review_keywords = [
+            "review", "reviews", "opinion", "opinions", "people say",
+            "what do people", "what do customers", "what do others",
+            "is the food good", "is the food nice", "is it good", "are they good",
+            "how is", "how are", "how's the food",
+            "worth it", "worth going", "worth visiting",
+            "experience", "atmosphere", "vibe", "ambiance",
+            "recommended", "thoughts",
+        ]
+        followup_info_keywords = [
+            "what food", "what do they sell", "what do they serve", "what cuisine",
+            "menu", "tell me more", "more about", "tell me about", "info about",
+            "which one", "how far",
+            "what time", "when do they", "opening hours", "average", "price",
+            "popular dish", "signature dish", "best dish", "must try",
+            "first one", "second one", "third one", "the one", "compare",
+        ]
+        food_keywords = [
+            "food", "eat", "hungry", "cuisine", "budget", "cheap",
+            "near", "in ", "recommend", "suggest", "places", "options", "spot",
+            "dinner", "lunch", "breakfast", "supper", "brunch", "meal",
+            "affordable", "top rated", "best", "random", "halal", "vegetarian",
+            "vegan", "break the bank", "pricey", "expensive", "premium",
+            # food-type nouns so "ramen in tampines" etc. aren't classified conversational
+            "ramen", "sushi", "pho", "pizza", "burger", "steak", "noodle",
+            "rice", "curry", "bbq", "hotpot", "dim sum", "pasta", "cafe",
+            "restaurant", "eatery", "kopitiam", "hawker",
+        ]
+        if has_last_candidates and any(kw in msg_lower for kw in followup_filter_keywords):
+            return "followup_filter"
+        # Review / info checks run regardless of whether we have prior candidates so that
+        # "Reviews about Ramen Taisho" (no prior context) routes to web-search, not RAG.
+        if any(kw in msg_lower for kw in review_keywords):
+            return "followup_review"
+        if any(kw in msg_lower for kw in followup_info_keywords):
+            return "followup_info"
+        if any(kw in msg_lower for kw in food_keywords):
+            return "restaurant_search"
+        return "conversational"
 
     try:
         resp = model.generate_content(prompt)
         answer = (getattr(resp, "text", "") or "").strip().lower()
-        if "followup_review" in answer or "follow" in answer:
+
+        # ── Post-LLM override for ambiguous cases ────────────────────────
+        # "above 4.5 stars review" contains both "review" and a rating
+        # threshold — the filter intent should win.
+        if "followup_review" in answer:
+            rating_threshold = re.search(
+                r"(?:above|over|at\s+least|minimum|more\s+than|higher\s+than)"
+                r"\s+\d+(?:\.\d+)?\s*(?:star|rating|⭐)?",
+                msg_lower,
+            )
+            if rating_threshold and has_last_candidates:
+                logger.info("Post-LLM override: followup_review → followup_filter (rating threshold detected)")
+                return "followup_filter"
+
+        if "followup_filter" in answer:
+            return "followup_filter"
+        if "followup_info" in answer:
+            return "followup_info"
+        if "followup_review" in answer:
             return "followup_review"
         if "restaurant_search" in answer or "search" in answer:
             return "restaurant_search"
         if "conversational" in answer:
             return "conversational"
-        # Keyword fallback
-        review_keywords = [
-            "good", "worth", "nice", "review", "opinion", "people say", "popular",
-            "recommended", "quality", "experience", "atmosphere", "vibe",
-            "how is", "how are", "is it", "are they", "do people", "what do", "thoughts",
-        ]
-        food_keywords = ["food", "eat", "restaurant", "hungry", "cuisine", "budget", "cheap", "near", "in "]
-        msg_lower = user_message.lower()
-        if has_last_candidates and any(kw in msg_lower for kw in review_keywords):
-            return "followup_review"
-        if any(kw in msg_lower for kw in food_keywords):
-            return "restaurant_search"
-        return "conversational"
+        # LLM returned something unrecognised — fall back to keywords
+        logger.info("Classifier returned unrecognised: %r — using keyword fallback", answer)
+        return _keyword_fallback()
     except Exception as e:
-        logger.warning("Intent classification failed: %s", e)
-        return "restaurant_search"
+        logger.warning("Intent classification LLM failed: %s — using keyword fallback", e)
+        return _keyword_fallback()
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -638,7 +751,11 @@ def generate_review_response(
     candidates: list[dict],
     conversation_history: list,
 ) -> str:
-    """Generate a response summarising Google reviews for previously recommended restaurants."""
+    """
+    Generate a response about reviews/opinions for restaurants.
+    Uses Google Places API reviews when available, falls back to
+    web search grounding (Gemini + Google Search) when not.
+    """
     history_text = ""
     if conversation_history:
         for turn in conversation_history[-10:]:
@@ -647,7 +764,9 @@ def generate_review_response(
 
     restaurant_names = ", ".join(c.get("name", "") for c in candidates[:5] if c.get("name"))
 
-    prompt = f"""You are FoodKakiBot, a helpful food recommendation assistant for Singapore.
+    # ── Path 1: We have real Google Places reviews ────────────────────────
+    if reviews_context:
+        prompt = f"""You are FoodKakiBot, a helpful food recommendation assistant for Singapore.
 
 The user was previously shown these restaurants: {restaurant_names}
 
@@ -668,21 +787,482 @@ Instructions:
 - Do NOT invent any reviews or opinions not present in the context above.
 - Keep your response friendly and 3-6 sentences long.
 """
+        try:
+            resp = model.generate_content(prompt)
+            text = (getattr(resp, "text", "") or "").strip()
+            if text:
+                return text
+        except Exception as e:
+            logger.warning("Review response (Places API) LLM call failed: %s", e)
+
+    # ── Path 2: No Places reviews — use web search grounding ─────────────
+    names_for_search = restaurant_names or user_message
+    search_prompt = f"""You are FoodKakiBot, a helpful food recommendation assistant for Singapore.
+
+The user is asking: "{user_message}"
+
+Restaurants in question: {names_for_search}
+
+--- CONVERSATION HISTORY ---
+{history_text.strip() or "(none)"}
+
+Instructions:
+- Search the internet for recent customer reviews and opinions about these restaurants.
+- Summarise what reviewers and customers are saying — food quality, service, value for money, atmosphere.
+- Be honest about mixed or negative reviews if they exist.
+- If information comes from online sources rather than direct data, say so naturally (e.g. "based on online reviews", "reviewers mention").
+- Keep your response friendly and conversational (3-6 sentences).
+- Do NOT say you cannot find information — search for it.
+"""
+    grounded = _gemini_search_grounded(search_prompt)
+    if grounded:
+        logger.info("Review response answered via web search grounding")
+        return grounded
+
+    # ── Path 3: Everything failed ─────────────────────────────────────────
+    return (
+        "I wasn't able to pull up reviews right now. "
+        "Try checking their Google Maps pages for the latest customer opinions!"
+        )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Follow-up info response (non-review questions about previously shown places)
+# ─────────────────────────────────────────────────────────────────────────────
+
+_PRICE_LEVEL_DESCRIPTIONS = {
+    0: "Free",
+    1: "Budget (roughly S$5–S$15 per person)",
+    2: "Mid-Range (roughly S$15–S$35 per person)",
+    3: "Expensive (roughly S$35–S$70 per person)",
+    4: "Premium / Fine Dining (roughly S$70+ per person)",
+}
+
+
+def _gemini_search_grounded(prompt: str) -> str | None:
+    """
+    Call the Gemini REST API with Google Search grounding enabled.
+    Returns the generated text, or None on failure.
+    """
+    api_key = os.environ.get("GOOGLE_API_KEY")
+    if not api_key:
+        return None
+    url = (
+        "https://generativelanguage.googleapis.com/v1beta/"
+        "models/gemini-2.5-flash-lite:generateContent"
+        f"?key={api_key}"
+    )
+    payload = {
+        "contents": [{"parts": [{"text": prompt}]}],
+        "tools": [{"google_search": {}}],
+    }
+    try:
+        resp = requests.post(url, json=payload, timeout=30)
+        data = resp.json()
+        candidates = data.get("candidates")
+        if not candidates:
+            logger.warning("Search-grounded call returned no candidates: %s",
+                           data.get("error", {}).get("message", "unknown"))
+            return None
+        parts = candidates[0].get("content", {}).get("parts", [])
+        text = " ".join(p.get("text", "") for p in parts if p.get("text")).strip()
+        return text or None
+    except Exception as e:
+        logger.warning("Search-grounded Gemini call failed: %s", e)
+        return None
+
+
+def _build_restaurant_context_block(candidates: list[dict]) -> str:
+    """Build a text block describing restaurant data for LLM context."""
+    parts = []
+    for i, c in enumerate(candidates[:10], 1):
+        tags = c.get("tags") or []
+        summary = c.get("editorial_summary") or ""
+        if isinstance(summary, dict):
+            summary = summary.get("text") or summary.get("overview") or ""
+        distance = c.get("distance_km")
+        distance_str = f"{distance:.1f} km away" if distance else "distance unknown"
+        opening_hours = c.get("opening_hours") or "unknown"
+        price_level = c.get("price_level")
+        price_str = (
+            _PRICE_LEVEL_DESCRIPTIONS.get(price_level, "unknown")
+            if price_level is not None else "unknown"
+        )
+        gmaps = c.get("gmaps_uri") or ""
+
+        parts.append(
+            f"{i}. {c.get('name', 'Unknown')}\n"
+            f"   Address: {c.get('address', 'N/A')}\n"
+            f"   Rating: {c.get('rating', 'N/A')}\n"
+            f"   Price Level: {price_str}\n"
+            f"   Distance: {distance_str}\n"
+            f"   Tags: {', '.join(tags) if tags else 'N/A'}\n"
+            f"   Description: {summary or 'N/A'}\n"
+            f"   Opening Hours: {opening_hours}\n"
+            f"   Google Maps: {gmaps}"
+        )
+    return "\n\n".join(parts)
+
+
+def generate_followup_info_response(
+    user_message: str,
+    candidates: list[dict],
+    conversation_history: list,
+) -> str:
+    """
+    Answer a factual / analytical question using data from previously shown
+    restaurants AND web search.  Works in two modes:
+
+    1. With candidates: uses restaurant data as primary source, supplements
+       with web search when data is insufficient (e.g. popular dishes).
+    2. Without candidates: answers via web search directly (e.g. user asks
+       about a specific restaurant by name without prior context).
+
+    Never tells the user that data is "not in the database" — instead
+    searches the web or estimates, disclosing when information is approximate.
+    """
+    history_text = ""
+    if conversation_history:
+        for turn in conversation_history[-10:]:
+            role = "User" if turn["role"] == "user" else "Assistant"
+            history_text += f"{role}: {turn['content']}\n"
+
+    has_context = bool(candidates)
+    restaurants_block = _build_restaurant_context_block(candidates) if has_context else ""
+
+    # ── Build the search-grounded prompt ─────────────────────────────────
+    if has_context:
+        grounded_prompt = f"""You are FoodKakiBot, a helpful food recommendation assistant for Singapore.
+
+The user was previously shown these restaurants:
+
+{restaurants_block}
+
+--- CONVERSATION HISTORY ---
+{history_text.strip() or "(none)"}
+
+The user is now asking: "{user_message}"
+
+Instructions:
+- Use the restaurant data above as your primary source.
+- If the data above is not sufficient to fully answer (e.g. popular dishes, specific menu items, detailed pricing), search the internet for the relevant information.
+- If they ask about price or average cost, the price levels correspond to typical Singapore per-person spending: Budget ≈ S$5–15, Mid-Range ≈ S$15–35, Expensive ≈ S$35–70, Premium ≈ S$70+. Give rough SGD estimates based on the restaurant type, cuisine, and price level.
+- If information is estimated or sourced from general knowledge rather than exact data, say so naturally (e.g. "roughly", "typically around", "based on online sources").
+- NEVER say "I don't have that information" or "not in my database" — always search the internet or estimate instead.
+- Be concise and conversational (3-6 sentences).
+"""
+    else:
+        # No prior candidates — answer purely via web search
+        grounded_prompt = f"""You are FoodKakiBot, a helpful food recommendation assistant for Singapore.
+
+--- CONVERSATION HISTORY ---
+{history_text.strip() or "(none)"}
+
+The user is asking: "{user_message}"
+
+Instructions:
+- Search the internet for relevant, up-to-date information to answer the user's question.
+- For restaurant-specific questions (popular dishes, menu, prices, opening hours), search for that specific restaurant in Singapore.
+- For general food questions, use your knowledge of Singapore's dining scene.
+- If they ask about price, typical Singapore per-person spending ranges are: Budget ≈ S$5–15, Mid-Range ≈ S$15–35, Expensive ≈ S$35–70, Premium ≈ S$70+.
+- If information is estimated or sourced from general knowledge, say so naturally (e.g. "roughly", "typically around", "based on online sources").
+- NEVER say "I don't have that information" — always search or estimate instead.
+- Be concise and conversational (3-6 sentences).
+"""
+
+    grounded_text = _gemini_search_grounded(grounded_prompt)
+    if grounded_text:
+        logger.info("followup_info answered with search grounding (has_context=%s)", has_context)
+        return grounded_text
+
+    # ── Fallback: regular LLM without grounding ──────────────────────────
+    logger.info("followup_info falling back to non-grounded LLM (has_context=%s)", has_context)
+
+    if has_context:
+        fallback_prompt = f"""You are FoodKakiBot, a helpful food recommendation assistant for Singapore.
+
+The user was previously shown these restaurants:
+
+{restaurants_block}
+
+--- CONVERSATION HISTORY ---
+{history_text.strip() or "(none)"}
+
+The user is now asking: "{user_message}"
+
+Instructions:
+- Answer their question using the restaurant data above as primary source.
+- If they ask about food/cuisine, use the tags and description to answer.
+- If they ask about distance or nearer options, compare the distances and highlight the closest ones.
+- If they ask about price or average cost, use the price level information above. The price levels correspond to typical Singapore per-person spending: Budget ≈ S$5–15, Mid-Range ≈ S$15–35, Expensive ≈ S$35–70, Premium ≈ S$70+. Give rough SGD estimates where possible — it's okay to estimate based on the restaurant type, cuisine, and price level.
+- If they ask about hours, use the opening hours data.
+- You may supplement with your general knowledge about these restaurants or Singapore dining if the data above is incomplete — but clearly indicate when you are estimating (e.g. "roughly", "typically around").
+- NEVER say "I don't have that information" or "not in my database" — always estimate or use general knowledge instead.
+- Be concise and conversational (3-6 sentences).
+"""
+    else:
+        fallback_prompt = f"""You are FoodKakiBot, a helpful food recommendation assistant for Singapore.
+
+--- CONVERSATION HISTORY ---
+{history_text.strip() or "(none)"}
+
+The user is asking: "{user_message}"
+
+Instructions:
+- Answer the question using your general knowledge about Singapore restaurants and dining.
+- For specific restaurants, share what you know about their cuisine, popular dishes, price range, or atmosphere.
+- If they ask about price, typical Singapore per-person spending ranges are: Budget ≈ S$5–15, Mid-Range ≈ S$15–35, Expensive ≈ S$35–70, Premium ≈ S$70+.
+- Clearly indicate when you are estimating (e.g. "roughly", "typically around", "generally known for").
+- NEVER say "I don't have that information" — always provide your best estimate or general knowledge.
+- Be concise and conversational (3-6 sentences).
+"""
 
     try:
-        resp = model.generate_content(prompt)
+        resp = model.generate_content(fallback_prompt)
         return (getattr(resp, "text", "") or "").strip()
     except Exception as e:
-        logger.error("Review response generation failed: %s", e)
+        logger.error("Follow-up info response failed: %s", e)
         return (
-            "I wasn't able to fetch reviews right now. "
-            "Try checking their Google Maps pages directly — the links are in the cards above!"
+            "Hmm, I'm having a bit of trouble looking that up right now. "
+            "You could try checking their Google Maps page for the latest details!"
         )
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Conversational response
 # ─────────────────────────────────────────────────────────────────────────────
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Follow-up filter: refine/sort cached candidates based on user's request
+# ─────────────────────────────────────────────────────────────────────────────
+
+def apply_followup_filter(
+    user_message: str,
+    candidates: list[dict],
+    *,
+    user_lat: float | None = None,
+    user_lng: float | None = None,
+) -> list[dict]:
+    """
+    Parse filter / sort criteria from a follow-up message and apply them
+    to the cached candidates list.  Returns a (possibly smaller / reordered)
+    list of candidates.
+
+    Supported operations:
+      • min rating     – "above 4.5 stars", "at least 4 star", "over 4"
+      • max price      – "under $20", "cheap", "budget only"
+      • price level    – "only budget", "mid-range", "not expensive"
+      • cuisine filter – "only halal", "just japanese"
+      • tag filter     – "only vegetarian", "with outdoor seating"
+      • sort: distance – "nearer", "closer", "nearest"
+      • sort: rating   – "highest rated", "sort by rating"
+      • sort: price    – "cheapest", "sort by price"
+    """
+    msg = (user_message or "").lower()
+    filtered = list(candidates)  # shallow copy
+
+    # ── Min-rating filter ────────────────────────────────────────────────────
+    rating_match = re.search(
+        r"(?:above|over|at\s+least|minimum|min|more\s+than|higher\s+than)\s*"
+        r"(\d+(?:\.\d+)?)\s*(?:star|rating|⭐)?",
+        msg,
+    )
+    if rating_match:
+        min_rating = float(rating_match.group(1))
+        filtered = [c for c in filtered if (c.get("rating") or 0) >= min_rating]
+
+    # ── Price-level filter ───────────────────────────────────────────────────
+    # "only budget" / "cheaper options" / "not expensive"
+    price_tag = detect_canonical_price_tag(user_message)
+    if price_tag:
+        target_level = PRICE_TAG_TO_LEVEL.get(price_tag, 99)
+        # "cheaper" / "budget" → keep things at-or-below that level
+        if any(kw in msg for kw in ("cheaper", "cheapest", "budget", "affordable", "under")):
+            filtered = [
+                c for c in filtered
+                if (c.get("price_level") or 99) <= target_level
+            ]
+        # "more expensive" / "premium" → keep things at-or-above
+        elif any(kw in msg for kw in ("more expensive", "pricier", "premium", "upscale")):
+            filtered = [
+                c for c in filtered
+                if (c.get("price_level") or 0) >= target_level
+            ]
+        else:
+            # exact match
+            filtered = [
+                c for c in filtered
+                if (c.get("price_level") or 99) <= target_level
+            ]
+
+    # ── Cuisine / tag substring filter ───────────────────────────────────────
+    # "only halal", "just japanese", "show me the korean ones"
+    only_match = re.search(
+        r"(?:only|just|show\s+(?:me\s+)?(?:the\s+)?|filter\s+(?:by|to)\s*)"
+        r"([a-z\s\-/]+?)(?:\s+(?:ones?|places?|restaurants?|options?|food))?$",
+        msg,
+    )
+    if only_match:
+        filter_term = only_match.group(1).strip()
+        # Check if it maps to a known cuisine tag
+        matched_cuisine = None
+        for ctag in CUISINE_TAGS:
+            if ctag.lower() == filter_term or filter_term in ctag.lower():
+                matched_cuisine = ctag
+                break
+        if not matched_cuisine:
+            matched_cuisine = CUISINE_ALIASES.get(filter_term)
+
+        if matched_cuisine:
+            filtered = [
+                c for c in filtered
+                if matched_cuisine in (c.get("tags") or [])
+            ]
+
+    # ── Distance filter: "within X km" ───────────────────────────────────────
+    dist_match = re.search(r"within\s+(\d+(?:\.\d+)?)\s*km", msg)
+    if dist_match:
+        max_km = float(dist_match.group(1))
+        filtered = [
+            c for c in filtered
+            if c.get("distance_km") is not None and c["distance_km"] <= max_km
+        ]
+
+    # ── Sorting ──────────────────────────────────────────────────────────────
+    sort_by_distance = any(kw in msg for kw in (
+        "nearer", "nearest", "closer", "closest", "nearby", "by distance",
+    ))
+    sort_by_rating = any(kw in msg for kw in (
+        "highest rated", "best rated", "top rated", "sort by rating",
+        "by rating", "higher rated",
+    ))
+    sort_by_price = any(kw in msg for kw in (
+        "cheapest", "sort by price", "by price", "lowest price",
+    ))
+
+    if sort_by_distance:
+        # Re-compute distance if we have GPS but candidates lack it
+        if user_lat is not None and user_lng is not None:
+            for c in filtered:
+                lat = c.get("latitude")
+                lng = c.get("longitude")
+                if lat is not None and lng is not None and c.get("distance_km") is None:
+                    c["distance_km"] = round(haversine_km(user_lat, user_lng, float(lat), float(lng)), 2)
+        filtered = sorted(
+            filtered,
+            key=lambda c: c.get("distance_km") if c.get("distance_km") is not None else 9999,
+        )
+    elif sort_by_rating:
+        filtered = sorted(
+            filtered,
+            key=lambda c: (c.get("rating") or 0, get_review_count(c)),
+            reverse=True,
+        )
+    elif sort_by_price:
+        filtered = sorted(
+            filtered,
+            key=lambda c: c.get("price_level") if c.get("price_level") is not None else 99,
+        )
+
+    return filtered
+
+
+def generate_followup_filter_response(
+    user_message: str,
+    original_count: int,
+    filtered_candidates: list[dict],
+    conversation_history: list,
+) -> str:
+    """Generate a short text summary describing the filtered/sorted results."""
+    history_text = ""
+    if conversation_history:
+        for turn in conversation_history[-6:]:
+            role = "User" if turn["role"] == "user" else "Assistant"
+            history_text += f"{role}: {turn['content']}\n"
+
+    names = [c.get("name", "Unknown") for c in filtered_candidates[:10]]
+    names_str = ", ".join(names)
+
+    prompt = f"""You are FoodKakiBot, a helpful food recommendation assistant for Singapore.
+
+The user previously saw {original_count} restaurant recommendations.
+They just asked: "{user_message}"
+
+After filtering/sorting, {len(filtered_candidates)} restaurants matched.
+The top results are: {names_str}
+
+--- CONVERSATION HISTORY ---
+{history_text.strip() or "(none)"}
+
+Instructions:
+- Write a SHORT (1-3 sentences) friendly summary of the filtered results.
+- Mention how many results matched and what filter was applied.
+- If zero results matched, say so and suggest broadening their criteria.
+- Do NOT list the restaurants by name — the cards will show them.
+- Be concise and conversational.
+"""
+
+    try:
+        resp = model.generate_content(prompt)
+        return (getattr(resp, "text", "") or "").strip()
+    except Exception as e:
+        logger.error("Followup filter response generation failed: %s", e)
+        if not filtered_candidates:
+            return (
+                f"None of the {original_count} restaurants matched that filter. "
+                "Try broadening your criteria!"
+            )
+        return f"Here are {len(filtered_candidates)} results after applying your filter."
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Shared helper: build UI-ready restaurant list from candidates
+# ─────────────────────────────────────────────────────────────────────────────
+
+def candidates_to_ui(candidates: list[dict], *, top_n: int = 5) -> list[dict]:
+    """Convert internal candidate dicts to the frontend restaurant card format."""
+    restaurants_for_ui = []
+    for c in candidates[:top_n]:
+        raw_summary = c.get("editorial_summary") or ""
+        description: str = ""
+
+        if isinstance(raw_summary, dict):
+            description = raw_summary.get("overview", "") or ""
+        elif isinstance(raw_summary, str) and raw_summary:
+            try:
+                parsed = json.loads(raw_summary)
+                description = (
+                    (parsed.get("overview", raw_summary) or "")
+                    if isinstance(parsed, dict) else raw_summary
+                )
+            except Exception:
+                description = raw_summary
+
+        # Fall back to rule-based description when DB has nothing
+        if not description.strip():
+            description = build_description_from_data(c)
+
+        candidate_tags = c.get("tags") or []
+        # Send only cuisine/type tags — filter out location, budget, and meta tags
+        food_tags = [
+            t for t in candidate_tags
+            if t not in NON_LOCATION_TAGS or t in CUISINE_TAGS
+        ]
+        restaurants_for_ui.append({
+            "name":                c.get("name", ""),
+            "description":         description,
+            "address":             c.get("address", ""),
+            "maps_url":            c.get("gmaps_uri") or "",
+            "photo_url":           c.get("photo_url") or "",
+            "rating":              c.get("rating"),
+            "opening_hours":       c.get("opening_hours"),
+            "recommended_because": c.get("recommended_because", ""),
+            "rank_reason":         c.get("rank_reason", ""),
+            "is_wink":             "Wink" in candidate_tags,
+            "tags":                food_tags,
+        })
+    return restaurants_for_ui
+
 
 def generate_conversational_response(user_message: str, conversation_history: list) -> str:
     """Generate a friendly conversational response without touching RAG."""
@@ -1022,19 +1602,73 @@ def enrich_candidates_with_reasoning(candidates: list[dict], resolved: dict, has
         enriched.append(c)
     return enriched
 
+_PRICE_LABELS = {1: "budget", 2: "mid-range", 3: "upscale", 4: "premium"}
+
+# Tags that describe the venue type rather than the cuisine
+_VENUE_TAGS = {"Cafe", "Bar", "Bakery", "Food Court", "Buffet", "Fast Food",
+               "Diner", "Tea House", "Juice Bar"}
+
+
+def build_description_from_data(candidate: dict) -> str:
+    """
+    Construct a short one-liner description from a candidate's available data
+    (tags, price level, rating) — no LLM call required.
+    """
+    tags: list[str] = candidate.get("tags") or []
+    price_level: int | None = candidate.get("price_level")
+    rating: float | None = candidate.get("rating")
+
+    cuisine_tags  = [t for t in tags if t in CUISINE_TAGS and t not in _VENUE_TAGS]
+    venue_tags    = [t for t in tags if t in _VENUE_TAGS]
+
+    parts: list[str] = []
+
+    # Price modifier
+    price_word = _PRICE_LABELS.get(price_level, "") if price_level else ""
+
+    # Determine lead noun (venue type or generic "restaurant")
+    if venue_tags:
+        lead = venue_tags[0].lower()          # e.g. "cafe", "bakery"
+    else:
+        lead = "restaurant"
+
+    # Build "A [price] [cuisine] [lead]"
+    descriptor_parts = []
+    if price_word:
+        descriptor_parts.append(price_word)
+    if cuisine_tags:
+        descriptor_parts.append(cuisine_tags[0].lower())
+    descriptor_parts.append(lead)
+
+    sentence = "A " + " ".join(descriptor_parts)
+
+    # Add secondary cuisine if present
+    if len(cuisine_tags) > 1:
+        sentence += f" serving {cuisine_tags[1].lower()} food"
+
+    sentence += "."
+
+    # Append a rating note if highly rated
+    if rating and rating >= 4.5:
+        sentence += f" Highly rated at {rating}/5."
+    elif rating and rating >= 4.0:
+        sentence += f" Well-rated at {rating}/5."
+
+    return sentence
+
+
 @app.route("/api/chat", methods=["POST"])
 def chat():
     data         = request.json
     user_message = data.get("message")
     session_id   = data.get("session_id")
 
+    # Extract optional GPS coordinates sent by the frontend
     raw_lat = data.get("lat")
     raw_lng = data.get("lng")
-
     has_gps = False
     gps_lat = None
     gps_lng = None
-
     try:
         if raw_lat is not None and raw_lng is not None:
             gps_lat = float(raw_lat)
@@ -1076,31 +1710,92 @@ def chat():
             return jsonify({"response": reply, "restaurants": []})
 
         # ── Path B: Follow-up review question ─────────────────────────────────
-        if intent == "followup_review" and has_last_candidates:
-            candidates = session["last_candidates"]
+        if intent == "followup_review":
+            candidates = session.get("last_candidates") or []
 
-            gmaps_id_map    = fetch_gmaps_place_ids(candidates)
-            reviews_context = build_reviews_context(candidates, gmaps_id_map)
+            # Try to get Google Places reviews when we have cached candidates
+            reviews_context = ""
+            if candidates:
+                gmaps_id_map  = fetch_gmaps_place_ids(candidates)
+                reviews_context = build_reviews_context(candidates, gmaps_id_map)
 
-            if reviews_context:
-                reply = generate_review_response(
-                    user_message=user_message,
-                    reviews_context=reviews_context,
-                    candidates=candidates,
-                    conversation_history=history_for_intent,
-                )
-            else:
-                reply = (
-                    "I wasn't able to pull up reviews for those restaurants right now. "
-                    "You can check their Google Maps pages for the latest customer opinions — "
-                    "the links are in the cards above!"
-                )
+            # generate_review_response handles both cases:
+            #   - reviews_context present → summarise real reviews
+            #   - reviews_context empty   → web search grounding fallback
+            reply = generate_review_response(
+                user_message=user_message,
+                reviews_context=reviews_context,
+                candidates=candidates,
+                conversation_history=history_for_intent,
+            )
 
             session["history"].append({
                 "role": "assistant", "content": reply,
                 "timestamp": datetime.now().isoformat(),
             })
             return jsonify({"response": reply, "restaurants": []})
+
+        # ── Path B2: Follow-up info question (non-review) ────────────────────
+        if intent == "followup_info":
+            candidates = session.get("last_candidates") or []
+            reply = generate_followup_info_response(
+                user_message=user_message,
+                candidates=candidates,
+                conversation_history=history_for_intent,
+            )
+            session["history"].append({
+                "role": "assistant", "content": reply,
+                "timestamp": datetime.now().isoformat(),
+            })
+            return jsonify({"response": reply, "restaurants": []})
+
+        # ── Path B3: Follow-up filter (refine/sort previous results) ─────────
+        if intent == "followup_filter" and has_last_candidates:
+            cached = session["last_candidates"]
+            original_count = len(cached)
+
+            filtered = apply_followup_filter(
+                user_message,
+                cached,
+                user_lat=gps_lat,
+                user_lng=gps_lng,
+            )
+
+            # Re-number ranking reasons for the filtered set
+            for idx, c in enumerate(filtered, start=1):
+                resolved_tags = session.get("tags") or {}
+                c["recommended_because"] = build_candidate_reason(c, resolved_tags, has_gps=has_gps)
+                c["rank_reason"] = build_rank_reason(c, idx, resolved_tags, has_gps=has_gps)
+
+            reply = generate_followup_filter_response(
+                user_message=user_message,
+                original_count=original_count,
+                filtered_candidates=filtered,
+                conversation_history=history_for_intent,
+            )
+
+            # Update cached candidates so further follow-ups chain correctly
+            if filtered:
+                session["last_candidates"] = filtered
+
+            session["history"].append({
+                "role": "assistant", "content": reply,
+                "timestamp": datetime.now().isoformat(),
+            })
+
+            restaurants_for_ui = candidates_to_ui(filtered, top_n=10)
+
+            return jsonify({
+                "response": reply,
+                "restaurants": restaurants_for_ui,
+                "active_tags": {k: v for k, v in (session.get("tags") or {}).items() if v},
+                "debug": {
+                    "intent": "followup_filter",
+                    "original_candidates": original_count,
+                    "filtered_candidates": len(filtered),
+                },
+            })
+
 
         # ── Path C: Restaurant search — full RAG pipeline ─────────────────────
 
@@ -1387,6 +2082,12 @@ def chat():
             logger.info("opening_hours sample type=%s value=%s", type(sample_oh).__name__, repr(sample_oh)[:200])
 
         # ── Ranking: score by preference / distance / popularity ──────────────
+        # When only a location is given (no budget/cuisine) and no GPS distance
+        # context, ranking by composite score is nearly uniform — sort by rating
+        # first so the best-rated places always rise to the top.
+        if location_only_mode and not latlng:
+            candidates = sort_best_rated(candidates)
+
         candidates = rank_candidates(
             candidates,
             resolved_tags=resolved,
@@ -1512,36 +2213,11 @@ def chat():
             "timestamp": datetime.now().isoformat(),
         })
 
-        restaurants_for_ui = []
+        # Cache candidates so follow-up questions can operate on them
+        session["last_candidates"] = candidates
+
         top_n = 10 if broad_reco_mode else 5
-
-        for c in candidates[:top_n]:
-            raw_summary = c.get("editorial_summary") or ""
-            description: str = ""
-
-            if isinstance(raw_summary, dict):
-                description = raw_summary.get("overview", "") or ""
-            elif isinstance(raw_summary, str) and raw_summary:
-                try:
-                    parsed = json.loads(raw_summary)
-                    description = (
-                        (parsed.get("overview", raw_summary) or "")
-                        if isinstance(parsed, dict) else raw_summary
-                    )
-                except Exception:
-                    description = raw_summary
-
-            restaurants_for_ui.append({
-                "name":                c.get("name", ""),
-                "description":         description,
-                "address":             c.get("address", ""),
-                "maps_url":            c.get("gmaps_uri") or "",
-                "photo_url":           c.get("photo_url") or "",
-                "rating":              c.get("rating"),
-                "opening_hours":       c.get("opening_hours"),
-                "recommended_because": c.get("recommended_because", ""),
-                "rank_reason":         c.get("rank_reason", ""),
-            })
+        restaurants_for_ui = candidates_to_ui(candidates, top_n=top_n)
 
         return jsonify({
             "response": assistant_message,
@@ -1644,25 +2320,10 @@ def set_session_tags():
 def create_session():
     try:
         session_id = str(uuid.uuid4())
-        get_session(session_id)
+        get_session(session_id)  # initialise session state
         return jsonify({"session_id": session_id})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-
-@app.route("/api/health", methods=["GET"])
-def health():
-    return jsonify({
-        "status":            "healthy",
-        "active_sessions":   len(sessions),
-        "gemini_configured": os.environ.get("GOOGLE_API_KEY") is not None,
-        "places_key_src": (
-            "GOOGLE_PLACES_API_KEY" if os.getenv("GOOGLE_PLACES_API_KEY")
-            else "GOOGLE_MAPS_API_KEY" if os.getenv("GOOGLE_MAPS_API_KEY")
-            else "GOOGLE_API_KEY (fallback — may lack Places API)"
-        ),
-        "rag_enabled": True,
-    })
 
 
 def google_text_search(query: str, limit=5):
@@ -1694,6 +2355,20 @@ def google_photo_url(photo_ref: str, maxwidth=800):
         f"https://maps.googleapis.com/maps/api/place/photo"
         f"?maxwidth={maxwidth}&photo_reference={photo_ref}&key={PLACES_KEY}"
     )
+
+
+@app.route('/api/health', methods=['GET'])
+def health():
+    return jsonify({
+        "status": "healthy",
+        "active_sessions": len(sessions),
+        "gemini_configured": os.environ.get("GOOGLE_API_KEY") is not None,
+        "places_key_src": (
+            "GOOGLE_PLACES_API_KEY" if os.getenv("GOOGLE_PLACES_API_KEY")
+            else "GOOGLE_MAPS_API_KEY" if os.getenv("GOOGLE_MAPS_API_KEY")
+            else "GOOGLE_API_KEY (fallback — may lack Places API)"
+        ),
+    })
 
 
 @app.get("/api/google-places")
