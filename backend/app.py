@@ -398,6 +398,54 @@ def merge_selected_tags(rule_selected, llm_selected):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Helper: Detect specific restaurant info queries
+# ─────────────────────────────────────────────────────────────────────────────
+
+def looks_like_specific_restaurant_info_query(user_message: str) -> bool:
+    """
+    Detect questions about a specific restaurant's details that should be
+    answered through Gemini + grounded Google Search instead of the normal
+    recommendation / RAG pipeline.
+    """
+    msg = (user_message or "").strip()
+    if not msg:
+        return False
+
+    msg_lower = msg.lower()
+
+    info_keywords = [
+        "popular dish", "popular dishes", "signature dish", "signature dishes",
+        "best dish", "best dishes", "must try", "must-try", "recommended dish",
+        "famous dish", "famous for", "menu", "menu item", "menu items",
+        "what do they serve", "what does it serve", "what do they sell",
+        "what food", "opening hours", "what time do they close",
+        "what time does it close", "how much does", "how much do",
+        "average price", "average cost", "price range", "tell me more about",
+        "tell me about", "more about",
+    ]
+
+    if not any(keyword in msg_lower for keyword in info_keywords):
+        return False
+
+    # Strong signals that the query is about a named / specific place.
+    specific_place_patterns = [
+        r"\bat\s+[A-Z][A-Za-z0-9&'().\-\s]{2,}",
+        r"\bfor\s+[A-Z][A-Za-z0-9&'().\-\s]{2,}",
+        r"\babout\s+[A-Z][A-Za-z0-9&'().\-\s]{2,}",
+    ]
+    if any(re.search(pattern, msg) for pattern in specific_place_patterns):
+        return True
+
+    # Queries with multiple title-cased words often refer to a restaurant name,
+    # e.g. Imperial Treasure Fine Teochew Cuisine.
+    title_case_chunks = re.findall(r"\b[A-Z][a-zA-Z'&().-]+(?:\s+[A-Z][a-zA-Z'&().-]+){1,}\b", msg)
+    if title_case_chunks:
+        return True
+
+    return False
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Intent classification
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -418,18 +466,25 @@ def classify_message_intent(user_message: str, conversation_history: list, has_l
     """
     msg_lower = user_message.lower()
 
+    if looks_like_specific_restaurant_info_query(user_message):
+        logger.info("Specific restaurant info query detected → followup_info for: %r", user_message)
+        return "followup_info"
+
     # ── PRE-FILTER: catch clear-cut patterns before calling the LLM ──────
     # These patterns are unambiguously about getting *info* about a
     # restaurant (popular dishes, menu, prices, hours) and should always
     # bypass RAG — regardless of whether we have prior candidates.
     _info_pre_patterns = [
-        "popular dish", "signature dish", "best dish", "must try", "must-try",
+        "popular dish", "popular dishes", "signature dish", "signature dishes",
+        "best dish", "best dishes", "must try", "must-try",
         "recommended dish", "famous dish", "famous for",
         "what do they serve", "what do they sell", "what does it serve",
-        "what's on the menu", "what is on the menu", "menu item",
-        "popular food at", "popular item", "what food do they",
+        "what's on the menu", "what is on the menu", "menu item", "menu items",
+        "popular food at", "popular item", "popular items", "what food do they",
         "tell me about", "tell me more about", "more about",
         "what are the prices", "how much does", "how much do",
+        "opening hours", "what time do they close", "what time does it close",
+        "price range", "average cost", "average price",
     ]
     if any(kw in msg_lower for kw in _info_pre_patterns):
         logger.info("Pre-filter matched followup_info for: %r", user_message)
@@ -501,11 +556,14 @@ Reply with ONLY one of these exact strings: restaurant_search, followup_filter, 
         ]
         followup_info_keywords = [
             "what food", "what do they sell", "what do they serve", "what cuisine",
-            "menu", "tell me more", "more about", "tell me about", "info about",
-            "which one", "how far",
+            "menu", "menu item", "menu items", "tell me more", "more about",
+            "tell me about", "info about", "which one", "how far",
             "what time", "when do they", "opening hours", "average", "price",
-            "popular dish", "signature dish", "best dish", "must try",
-            "first one", "second one", "third one", "the one", "compare",
+            "price range", "cost", "popular dish", "popular dishes",
+            "signature dish", "signature dishes", "best dish", "best dishes",
+            "must try", "must-try", "recommended dish", "famous dish",
+            "famous for", "first one", "second one", "third one", "the one",
+            "compare",
         ]
         food_keywords = [
             "food", "eat", "hungry", "cuisine", "budget", "cheap",
@@ -789,9 +847,15 @@ Instructions:
 """
         try:
             resp = model.generate_content(prompt)
-            text = (getattr(resp, "text", "") or "").strip()
-            if text:
-                return text
+            # resp.text is a property that raises ValueError when the response
+            # is blocked — getattr only catches AttributeError, so access it
+            # inside its own try block.
+            try:
+                text = resp.text
+            except (ValueError, AttributeError):
+                text = ""
+            if text and text.strip():
+                return text.strip()
         except Exception as e:
             logger.warning("Review response (Places API) LLM call failed: %s", e)
 
@@ -841,31 +905,48 @@ _PRICE_LEVEL_DESCRIPTIONS = {
 
 def _gemini_search_grounded(prompt: str) -> str | None:
     """
-    Call the Gemini REST API with Google Search grounding enabled.
+    Call the Gemini REST API with Google Search grounding enabled
+    (gemini-2.5-flash-lite supports the google_search tool).
     Returns the generated text, or None on failure.
     """
     api_key = os.environ.get("GOOGLE_API_KEY")
     if not api_key:
+        logger.warning("_gemini_search_grounded: GOOGLE_API_KEY not set — skipping web search")
         return None
     url = (
         "https://generativelanguage.googleapis.com/v1beta/"
         "models/gemini-2.5-flash-lite:generateContent"
         f"?key={api_key}"
     )
+    # ── IMPORTANT: the REST API requires "role" in every content object.
+    # Without it the request is rejected with a 400 INVALID_ARGUMENT error.
     payload = {
-        "contents": [{"parts": [{"text": prompt}]}],
+        "contents": [{"role": "user", "parts": [{"text": prompt}]}],
         "tools": [{"google_search": {}}],
     }
     try:
-        resp = requests.post(url, json=payload, timeout=30)
+        resp = requests.post(url, json=payload, timeout=20)
         data = resp.json()
         candidates = data.get("candidates")
         if not candidates:
-            logger.warning("Search-grounded call returned no candidates: %s",
-                           data.get("error", {}).get("message", "unknown"))
+            err_msg = data.get("error", {}).get("message", "unknown")
+            logger.warning(
+                "Search-grounded call failed (HTTP %d): %s | full response: %s",
+                resp.status_code, err_msg, str(data)[:400],
+            )
             return None
         parts = candidates[0].get("content", {}).get("parts", [])
-        text = " ".join(p.get("text", "") for p in parts if p.get("text")).strip()
+        # ── Filter out internal "thought" parts produced by Gemini 2.5
+        # thinking models — only keep the actual user-facing response text.
+        text = " ".join(
+            p.get("text", "")
+            for p in parts
+            if p.get("text") and not p.get("thought")
+        ).strip()
+        if not text:
+            # Fallback: include all parts (e.g. model didn't think, just responded)
+            text = " ".join(p.get("text", "") for p in parts if p.get("text")).strip()
+        logger.info("Search-grounded response: %d chars", len(text))
         return text or None
     except Exception as e:
         logger.warning("Search-grounded Gemini call failed: %s", e)
@@ -910,16 +991,18 @@ def generate_followup_info_response(
     conversation_history: list,
 ) -> str:
     """
-    Answer a factual / analytical question using data from previously shown
-    restaurants AND web search.  Works in two modes:
+    Answer a factual / analytical question using restaurant data first and
+    online search as fallback when the stored data is insufficient.
 
-    1. With candidates: uses restaurant data as primary source, supplements
-       with web search when data is insufficient (e.g. popular dishes).
-    2. Without candidates: answers via web search directly (e.g. user asks
-       about a specific restaurant by name without prior context).
-
-    Never tells the user that data is "not in the database" — instead
-    searches the web or estimates, disclosing when information is approximate.
+    Behaviour:
+    1. If candidate data exists, use it as the primary source.
+    2. If the candidate data is missing details such as popular dishes, menu
+       items, detailed pricing, opening hours, or other restaurant-specific
+       facts, search the internet for those details before answering.
+    3. Never tell the user that the information was not found in the database.
+       Instead, answer using online sources or a reasonable estimate.
+    4. Only disclose uncertainty when the answer is approximate, estimated, or
+       based on general online information.
     """
     history_text = ""
     if conversation_history:
@@ -945,10 +1028,14 @@ The user is now asking: "{user_message}"
 
 Instructions:
 - Use the restaurant data above as your primary source.
-- If the data above is not sufficient to fully answer (e.g. popular dishes, specific menu items, detailed pricing), search the internet for the relevant information.
-- If they ask about price or average cost, the price levels correspond to typical Singapore per-person spending: Budget ≈ S$5–15, Mid-Range ≈ S$15–35, Expensive ≈ S$35–70, Premium ≈ S$70+. Give rough SGD estimates based on the restaurant type, cuisine, and price level.
-- If information is estimated or sourced from general knowledge rather than exact data, say so naturally (e.g. "roughly", "typically around", "based on online sources").
-- NEVER say "I don't have that information" or "not in my database" — always search the internet or estimate instead.
+- If the restaurant data above is insufficient, incomplete, or missing the specific detail the user asked for, search the internet and use relevant online information before answering.
+- This is especially important for questions about popular dishes, signature dishes, must-try items, menu items, pricing, opening hours, and restaurant-specific details.
+- Example: if the user asks "what are the popular dishes at Imperial Treasure Fine Teochew Cuisine", search online for the restaurant's well-known dishes and answer from those results.
+- If they ask about price or average cost, the price levels correspond to typical Singapore per-person spending: Budget ≈ S$5–15, Mid-Range ≈ S$15–35, Expensive ≈ S$35–70, Premium ≈ S$70+.
+- Give rough SGD estimates only when exact figures are unavailable.
+- Never mention that the information was missing from the database.
+- Only mention uncertainty when the answer is approximate, estimated, or based on general online information, using natural phrasing like "roughly", "typically around", or "based on online sources".
+- Always try to answer the user's question directly.
 - Be concise and conversational (3-6 sentences).
 """
     else:
@@ -961,12 +1048,15 @@ Instructions:
 The user is asking: "{user_message}"
 
 Instructions:
-- Search the internet for relevant, up-to-date information to answer the user's question.
-- For restaurant-specific questions (popular dishes, menu, prices, opening hours), search for that specific restaurant in Singapore.
+- Search the internet for relevant, up-to-date information before answering.
+- For restaurant-specific questions such as popular dishes, signature dishes, menu items, prices, and opening hours, search for that specific restaurant in Singapore and answer from relevant online information.
+- Example: if the user asks "what are the popular dishes at Imperial Treasure Fine Teochew Cuisine", search online for the restaurant's well-known dishes and answer from those results.
 - For general food questions, use your knowledge of Singapore's dining scene.
 - If they ask about price, typical Singapore per-person spending ranges are: Budget ≈ S$5–15, Mid-Range ≈ S$15–35, Expensive ≈ S$35–70, Premium ≈ S$70+.
-- If information is estimated or sourced from general knowledge, say so naturally (e.g. "roughly", "typically around", "based on online sources").
-- NEVER say "I don't have that information" — always search or estimate instead.
+- Give rough SGD estimates only when exact figures are unavailable.
+- Never say that the information is unavailable in the database.
+- Only mention uncertainty when the answer is approximate, estimated, or based on general online information, using natural phrasing like "roughly", "typically around", or "based on online sources".
+- Always try to answer the user's question directly.
 - Be concise and conversational (3-6 sentences).
 """
 
@@ -991,13 +1081,15 @@ The user was previously shown these restaurants:
 The user is now asking: "{user_message}"
 
 Instructions:
-- Answer their question using the restaurant data above as primary source.
-- If they ask about food/cuisine, use the tags and description to answer.
+- Answer using the restaurant data above as the primary source.
+- If exact restaurant-specific details are missing, provide your best answer using general knowledge and reasonable estimation.
+- For questions about food, cuisine, or popular dishes, use the tags, description, and any known information about the restaurant style to infer a likely answer.
 - If they ask about distance or nearer options, compare the distances and highlight the closest ones.
-- If they ask about price or average cost, use the price level information above. The price levels correspond to typical Singapore per-person spending: Budget ≈ S$5–15, Mid-Range ≈ S$15–35, Expensive ≈ S$35–70, Premium ≈ S$70+. Give rough SGD estimates where possible — it's okay to estimate based on the restaurant type, cuisine, and price level.
+- If they ask about price or average cost, use the price level information above. The price levels correspond to typical Singapore per-person spending: Budget ≈ S$5–15, Mid-Range ≈ S$15–35, Expensive ≈ S$35–70, Premium ≈ S$70+. Give rough SGD estimates where needed.
 - If they ask about hours, use the opening hours data.
-- You may supplement with your general knowledge about these restaurants or Singapore dining if the data above is incomplete — but clearly indicate when you are estimating (e.g. "roughly", "typically around").
-- NEVER say "I don't have that information" or "not in my database" — always estimate or use general knowledge instead.
+- Never mention that the information was missing from the database.
+- Clearly indicate only when the answer is approximate or estimated, using phrasing like "roughly", "typically", or "likely".
+- Always try to answer the user's question directly.
 - Be concise and conversational (3-6 sentences).
 """
     else:
@@ -1009,23 +1101,90 @@ Instructions:
 The user is asking: "{user_message}"
 
 Instructions:
-- Answer the question using your general knowledge about Singapore restaurants and dining.
-- For specific restaurants, share what you know about their cuisine, popular dishes, price range, or atmosphere.
+- Answer using your general knowledge about Singapore restaurants and dining.
+- For specific restaurants, provide your best answer about cuisine, popular dishes, price range, atmosphere, or operating hours.
+- If you do not know an exact restaurant-specific fact, provide a reasonable estimate based on the restaurant type, cuisine, and common dining patterns.
 - If they ask about price, typical Singapore per-person spending ranges are: Budget ≈ S$5–15, Mid-Range ≈ S$15–35, Expensive ≈ S$35–70, Premium ≈ S$70+.
-- Clearly indicate when you are estimating (e.g. "roughly", "typically around", "generally known for").
-- NEVER say "I don't have that information" — always provide your best estimate or general knowledge.
+- Never mention that the information is unavailable in the database.
+- Clearly indicate only when the answer is approximate or estimated, using phrasing like "roughly", "typically", or "generally known for".
+- Always try to answer the user's question directly.
 - Be concise and conversational (3-6 sentences).
 """
 
     try:
         resp = model.generate_content(fallback_prompt)
-        return (getattr(resp, "text", "") or "").strip()
+        # resp.text is a property that raises ValueError when the response is
+        # blocked by safety filters — catch it explicitly so we can still fall
+        # back gracefully instead of surfacing the error message to the user.
+        try:
+            text = resp.text
+        except (ValueError, AttributeError) as text_err:
+            logger.warning("resp.text raised %s: %s — using data-driven fallback", type(text_err).__name__, text_err)
+            text = ""
+        if text and text.strip():
+            return text.strip()
     except Exception as e:
-        logger.error("Follow-up info response failed: %s", e)
+        logger.error("Follow-up info LLM call failed: %s", e)
+
+    # ── Last-resort: compute answer directly from candidate data ─────────
+    # This path is reached only when all LLM calls fail.  It handles the most
+    # common analytical queries (price, rating, distance) without any API call.
+    return _data_driven_fallback(user_message, candidates)
+
+
+def _data_driven_fallback(user_message: str, candidates: list[dict]) -> str:
+    """
+    Compute a simple text answer from candidate data without any LLM call.
+    Handles average price, average rating, and distance questions.
+    """
+    msg = user_message.lower()
+    if not candidates:
         return (
-            "Hmm, I'm having a bit of trouble looking that up right now. "
-            "You could try checking their Google Maps page for the latest details!"
+            "I can give a rough estimate based on typical Singapore dining patterns, "
+            "but I may need more restaurant details to be more specific."
         )
+
+    price_levels = [c["price_level"] for c in candidates if c.get("price_level") is not None]
+    ratings      = [c["rating"]      for c in candidates if c.get("rating")      is not None]
+    distances    = [c["distance_km"] for c in candidates if c.get("distance_km") is not None]
+
+    _price_range = {
+        1: "Budget (≈ S$5–15/person)",
+        2: "Mid-Range (≈ S$15–35/person)",
+        3: "Expensive (≈ S$35–70/person)",
+        4: "Premium (≈ S$70+/person)",
+    }
+
+    if any(kw in msg for kw in ("price", "cost", "cheap", "expensive", "afford")):
+        if price_levels:
+            avg = sum(price_levels) / len(price_levels)
+            level = round(avg)
+            label = _price_range.get(level, "varies")
+            return (
+                f"Based on the restaurants shown, the average price level is roughly "
+                f"{label}. Individual places may vary, so check the cards for details."
+            )
+
+    if any(kw in msg for kw in ("rating", "rated", "stars", "score")):
+        if ratings:
+            avg = round(sum(ratings) / len(ratings), 1)
+            return f"The average rating across the restaurants shown is about {avg}/5 ⭐."
+
+    if any(kw in msg for kw in ("distance", "far", "near", "close", "km")):
+        if distances:
+            avg = round(sum(distances) / len(distances), 1)
+            closest = min(candidates, key=lambda c: c.get("distance_km") or 9999)
+            return (
+                f"The average distance is about {avg} km. "
+                f"The closest option is {closest.get('name', 'one of them')} "
+                f"at {closest.get('distance_km', '?'):.1f} km away."
+            )
+
+    # Generic fallback
+    return (
+        "Based on the available information, I can only give a rough estimate here. "
+        "For exact details, it may vary by outlet, menu, or time of day."
+    )
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1698,6 +1857,14 @@ def chat():
 
         # ── 1.5. Classify intent ──────────────────────────────────────────────
         intent = classify_message_intent(user_message, history_for_intent, has_last_candidates)
+
+        if intent == "restaurant_search" and looks_like_specific_restaurant_info_query(user_message):
+            logger.info(
+                "Session %s | overriding restaurant_search → followup_info for specific restaurant query",
+                session_id[:8],
+            )
+            intent = "followup_info"
+
         logger.info("Session %s | intent=%s", session_id[:8], intent)
 
         # ── Path A: Conversational ────────────────────────────────────────────

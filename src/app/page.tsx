@@ -1,6 +1,46 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+
+type InlineToken =
+  | { type: 'text'; content: string }
+  | { type: 'bold'; content: string }
+  | { type: 'italic'; content: string }
+  | { type: 'boldItalic'; content: string }
+  | { type: 'code'; content: string };
+
+function parseInlineMarkdown(text: string): InlineToken[] {
+  const tokens: InlineToken[] = [];
+  const pattern = /(\*\*\*[^*]+\*\*\*|\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/g;
+  let lastIndex = 0;
+
+  for (const match of text.matchAll(pattern)) {
+    const full = match[0];
+    const index = match.index ?? 0;
+
+    if (index > lastIndex) {
+      tokens.push({ type: 'text', content: text.slice(lastIndex, index) });
+    }
+
+    if (full.startsWith('***') && full.endsWith('***')) {
+      tokens.push({ type: 'boldItalic', content: full.slice(3, -3) });
+    } else if (full.startsWith('**') && full.endsWith('**')) {
+      tokens.push({ type: 'bold', content: full.slice(2, -2) });
+    } else if (full.startsWith('*') && full.endsWith('*')) {
+      tokens.push({ type: 'italic', content: full.slice(1, -1) });
+    } else if (full.startsWith('`') && full.endsWith('`')) {
+      tokens.push({ type: 'code', content: full.slice(1, -1) });
+    }
+
+    lastIndex = index + full.length;
+  }
+
+  if (lastIndex < text.length) {
+    tokens.push({ type: 'text', content: text.slice(lastIndex) });
+  }
+
+  return tokens;
+}
 import { Send, Utensils, Loader2, MapPin, ExternalLink, Star, Clock, ChevronDown, ChevronUp, Download, X } from 'lucide-react';
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -434,6 +474,70 @@ function formatRestaurantForExport(restaurant: Restaurant): string {
   return parts.join('\n');
 }
 
+function MarkdownText({ content }: { content: string }) {
+  const lines = content.split('\n');
+
+  const renderTokens = (line: string, lineIndex: number) => {
+    const tokens = parseInlineMarkdown(line);
+
+    return tokens.map((token, tokenIndex) => {
+      const key = `${lineIndex}-${tokenIndex}`;
+
+      switch (token.type) {
+        case 'boldItalic':
+          return (
+            <strong key={key} className="font-semibold italic">
+              {token.content}
+            </strong>
+          );
+        case 'bold':
+          return (
+            <strong key={key} className="font-semibold">
+              {token.content}
+            </strong>
+          );
+        case 'italic':
+          return (
+            <em key={key} className="italic">
+              {token.content}
+            </em>
+          );
+        case 'code':
+          return (
+            <code key={key} className="px-1.5 py-0.5 rounded bg-gray-100 text-[0.95em] font-mono">
+              {token.content}
+            </code>
+          );
+        default:
+          return <React.Fragment key={key}>{token.content}</React.Fragment>;
+      }
+    });
+  };
+
+  return (
+    <div className="space-y-2 leading-relaxed">
+      {lines.map((line, lineIndex) => {
+        const trimmed = line.trim();
+
+        if (!trimmed) {
+          return <div key={lineIndex} className="h-2" />;
+        }
+
+        if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+          return (
+            <div key={lineIndex} className="flex items-start gap-2">
+              <span className="mt-1 text-orange-400">•</span>
+              <p>{renderTokens(trimmed.slice(2), lineIndex)}</p>
+            </div>
+          );
+        }
+
+        return <p key={lineIndex}>{renderTokens(line, lineIndex)}</p>;
+      })}
+    </div>
+  );
+}
+
 // ── Main Component ────────────────────────────────────────────────────────────
 
 export default function RestaurantChatbot() {
@@ -710,7 +814,7 @@ export default function RestaurantChatbot() {
                         : 'bg-white text-gray-800 shadow-sm border border-orange-100'
                     }`}
                   >
-                    <p className="whitespace-pre-wrap">{msg.content}</p>
+                    <MarkdownText content={msg.content} />
                   </div>
                 )}
                 {hasCards && (

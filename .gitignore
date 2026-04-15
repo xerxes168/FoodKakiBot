@@ -1,5 +1,5 @@
 backend/.env
 /node_modules
 /.next
-backend/.env
 /backend/__pycache__
+.vscode/
