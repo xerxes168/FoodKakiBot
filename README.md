@@ -63,9 +63,9 @@ A unified data enrichment tool with both a CLI interface (for one-time/batch run
 
 Three enrichers can be run independently or together:
 
-- **`LocationEnricher`** — Adds location-based tags: nearest MRT station (within configurable radius), Singapore planning area (derived from postal code), and road name (parsed from address).
-- **`GoogleEnricher`** — Calls the Google Places Details API to add cuisine type, dietary/allergy tags, and other attributes inferred from Google's place data.
-- **`AutoTagger`** — Infers tags from the existing dataset or Supabase records using keyword rules (e.g. mapping sub-cuisines like "Ramen" or "Dim Sum" to their parent cuisine tags like "Japanese" or "Chinese").
+- **`LocationEnricher`**: Adds location-based tags: nearest MRT station (within configurable radius), Singapore planning area (derived from postal code), and road name (parsed from address).
+- **`GoogleEnricher`**: Calls the Google Places Details API to add cuisine type, dietary/allergy tags, and other attributes inferred from Google's place data.
+- **`AutoTagger`**: Infers tags from the existing dataset or Supabase records using keyword rules (e.g. mapping sub-cuisines like "Ramen" or "Dim Sum" to their parent cuisine tags like "Japanese" or "Chinese").
 
 The module also exposes helper functions used at query time to expand location tags to nearby areas and build multi-tag filter sets for retrieval.
 
@@ -74,9 +74,9 @@ The module also exposes helper functions used at query time to expand location t
 A standalone one-time/batch script that enriches the `places` table with data from the Google Places API. Run this after initially populating the database.
 
 Fetches and writes back:
-- **Editorial summary** — a short human-readable description of the restaurant.
-- **Opening hours** — structured weekly schedule stored as JSONB.
-- **Photo** — downloads the primary Google Places photo and uploads it to a Supabase Storage bucket, storing the public URL.
+- **Editorial summary**: a short human-readable description of the restaurant.
+- **Opening hours**: structured weekly schedule stored as JSONB.
+- **Photo**: downloads the primary Google Places photo and uploads it to a Supabase Storage bucket, storing the public URL.
 
 Supports `--limit`, `--force`, `--skip-photos`, and `--skip-details` flags to control which fields are refreshed and how many places are processed.
 
