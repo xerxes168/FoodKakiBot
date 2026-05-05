@@ -86,8 +86,7 @@ A one-time utility script that creates a "Wink" tag in the `tags` table and assi
 
 ---
 
-## SETUP INSTRUCTIONS
-
+## Setup Instructions
 """
 
 1. Enter API keys in:
@@ -118,7 +117,7 @@ A one-time utility script that creates a "Wink" tag in the `tags` table and assi
    Backend will run on <http://localhost:5000>
 """
 
-## For tagging test
+## For Tagging Test
 
 """
 1. Set up virtual environment:
