@@ -233,7 +233,7 @@ def retrieve_by_tags(required_tags: list[str], limit: int = 10) -> list[dict[str
             return []
 
         res = supabase.table("places").select(
-        "id, name, address, gmaps_uri, editorial_summary, rating, opening_hours, price_level, photo_url, latitude, longitude"
+        "id, name, address, gmaps_uri, editorial_summary, rating, opening_hours, price_level, photo_url, latitude, longitude, types"
         ).in_("id", list(valid_ids)).limit(limit).execute()
 
         return res.data or []

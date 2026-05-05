@@ -186,6 +186,23 @@ NON_RESTAURANT_REQUEST_TERMS = {
     "Tea House": ["tea house", "teahouse"],
 }
 
+# Google Places primary types that mark a place as a *dedicated* sweets / drinks
+# specialty shop rather than a meal restaurant. These are authoritative — much
+# more reliable than the over-applied "Dessert" tag (which gets attached to any
+# restaurant whose reviews mention dessert items).
+DEDICATED_SPECIALTY_PRIMARY_TYPES = {
+    "dessert_shop",
+    "ice_cream_shop",
+    "bakery",
+    "bubble_tea_store",
+    "juice_shop",
+    "tea_house",
+    "tea_room",
+    "chocolate_shop",
+    "candy_store",
+    "donut_shop",
+}
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Tag utilities
@@ -215,6 +232,28 @@ def user_explicitly_requested_non_restaurant_spot(user_message: str, resolved: d
     return False
 
 
+def _parse_google_types(candidate: dict) -> list[str]:
+    raw = candidate.get("types")
+    if isinstance(raw, str):
+        try:
+            raw = json.loads(raw)
+        except Exception:
+            return []
+    if not isinstance(raw, list):
+        return []
+    return [str(t).strip().lower() for t in raw if t]
+
+
+def is_dedicated_specialty_spot(candidate: dict) -> bool:
+    """True iff Google's primary type marks this as a dedicated dessert / drinks
+    shop (not a meal restaurant). Uses the first entry in `types` — Google
+    returns the most specific category first."""
+    types = _parse_google_types(candidate)
+    if not types:
+        return False
+    return types[0] in DEDICATED_SPECIALTY_PRIMARY_TYPES
+
+
 def filter_non_restaurant_candidates(
     candidates: list[dict],
     *,
@@ -223,16 +262,32 @@ def filter_non_restaurant_candidates(
 ) -> list[dict]:
     if not candidates:
         return candidates
-    if user_explicitly_requested_non_restaurant_spot(user_message, resolved):
-        return candidates
+
+    wants_specialty = user_explicitly_requested_non_restaurant_spot(user_message, resolved)
 
     filtered: list[dict] = []
     for candidate in candidates:
+        types = _parse_google_types(candidate)
+        primary = types[0] if types else None
+        is_specialty_by_primary = primary in DEDICATED_SPECIALTY_PRIMARY_TYPES if primary else False
+
         tags = set(candidate.get("tags") or [])
         cuisine_tags = tags & CUISINE_TAGS
-        if cuisine_tags and cuisine_tags <= NON_RESTAURANT_SPECIALTY_TAGS:
-            continue
-        filtered.append(candidate)
+        is_specialty_by_tags = bool(cuisine_tags) and cuisine_tags <= NON_RESTAURANT_SPECIALTY_TAGS
+
+        # Trust Google's primary type when present; otherwise fall back to tags.
+        is_specialty = is_specialty_by_primary if primary else is_specialty_by_tags
+
+        if wants_specialty:
+            # User explicitly asked for dessert / bakery / etc.
+            # Only keep dedicated specialty spots — drop full restaurants that
+            # happen to also be tagged "Dessert".
+            if is_specialty:
+                filtered.append(candidate)
+        else:
+            # User asked for a meal — drop dedicated specialty spots.
+            if not is_specialty:
+                filtered.append(candidate)
 
     return filtered
 
@@ -395,6 +450,17 @@ def merge_selected_tags(rule_selected, llm_selected):
         if merged.get(key) is None and llm_selected.get(key):
             merged[key] = llm_selected[key]
     return merged
+
+
+_NEAR_ME_PATTERNS = [
+    "near me", "nearby", "close to me", "around me", "my location",
+    "current location", "where i am", "around here", "food nearby",
+    "restaurants nearby", "places nearby",
+]
+
+def is_near_me_request(message: str) -> bool:
+    lower = (message or "").lower()
+    return any(p in lower for p in _NEAR_ME_PATTERNS)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1986,6 +2052,11 @@ def chat():
             "budget": current_tags.get("budget") or remembered.get("budget"),
         }
 
+        # When user says "nearby/near me" and GPS is available, let GPS drive the
+        # search — don't let the LLM map "nearby" to an MRT location tag.
+        if has_gps and is_near_me_request(user_message):
+            resolved["location"] = None
+
         session["tags"] = resolved
 
         required_tags = [t for t in [
@@ -2096,7 +2167,7 @@ def chat():
                     strategy = "singapore_tag_fallback"
                 else:
                     candidates = supabase.table("places").select(
-                        "id, name, address, gmaps_uri, editorial_summary, rating, opening_hours, price_level, photo_url, latitude, longitude"
+                        "id, name, address, gmaps_uri, editorial_summary, rating, opening_hours, price_level, photo_url, latitude, longitude, types"
                     ).limit(200).execute().data or []
                     strategy = "singapore_global_fallback"
 
@@ -2183,7 +2254,7 @@ def chat():
                         strategy = "singapore_tag_fallback"
                     else:
                         candidates = supabase.table("places").select(
-                            "id, name, address, gmaps_uri, editorial_summary, rating, opening_hours, price_level, photo_url, latitude, longitude"
+                            "id, name, address, gmaps_uri, editorial_summary, rating, opening_hours, price_level, photo_url, latitude, longitude, types"
                         ).limit(200).execute().data or []
                         strategy = "singapore_global_fallback"
 
@@ -2249,18 +2320,20 @@ def chat():
             logger.info("opening_hours sample type=%s value=%s", type(sample_oh).__name__, repr(sample_oh)[:200])
 
         # ── Ranking: score by preference / distance / popularity ──────────────
-        # When only a location is given (no budget/cuisine) and no GPS distance
-        # context, ranking by composite score is nearly uniform — sort by rating
-        # first so the best-rated places always rise to the top.
-        if location_only_mode and not latlng:
-            candidates = sort_best_rated(candidates)
-
-        candidates = rank_candidates(
-            candidates,
-            resolved_tags=resolved,
-            user_lat=user_lat if latlng else None,
-            user_lng=user_lng if latlng else None,
-        )
+        if location_only_mode:
+            # Location-only: rank purely by distance (candidates already sorted
+            # by rerank_candidates_by_distance). Fall back to rating when no
+            # coordinates are available.
+            if not latlng:
+                candidates = sort_best_rated(candidates)
+            # Skip composite rank_candidates to preserve pure distance order.
+        else:
+            candidates = rank_candidates(
+                candidates,
+                resolved_tags=resolved,
+                user_lat=user_lat if latlng else None,
+                user_lng=user_lng if latlng else None,
+            )
 
         candidates = enrich_candidates_with_reasoning(
             candidates,

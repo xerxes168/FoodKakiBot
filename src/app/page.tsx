@@ -41,7 +41,7 @@ function parseInlineMarkdown(text: string): InlineToken[] {
 
   return tokens;
 }
-import { Send, Utensils, Loader2, MapPin, ExternalLink, Star, Clock, ChevronDown, ChevronUp, Download, X } from 'lucide-react';
+import { Send, Utensils, Loader2, MapPin, ExternalLink, Star, Clock, ChevronDown, ChevronUp, Download } from 'lucide-react';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -99,141 +99,6 @@ function getGeolocation(): Promise<{ lat: number; lng: number }> {
   });
 }
 
-// ── TagFilterDropdown ─────────────────────────────────────────────────────────
-
-interface TagCatalog {
-  cuisines: string[];
-  budgets: string[];
-  locations: string[];
-}
-
-function TagCategoryDropdown({
-  categoryKey,
-  label,
-  emoji,
-  activeValue,
-  options,
-  activeClass,
-  onSelect,
-  onClear,
-  openKey,
-  setOpenKey,
-}: {
-  categoryKey: string;
-  label: string;
-  emoji: string;
-  activeValue?: string;
-  options: string[];
-  activeClass: string;
-  onSelect: (category: string, value: string) => void;
-  onClear: (category: string) => void;
-  openKey: string | null;
-  setOpenKey: (k: string | null) => void;
-}) {
-  const open = openKey === categoryKey;
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (open && ref.current && !ref.current.contains(e.target as Node)) {
-        setOpenKey(null);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [open, setOpenKey]);
-
-  return (
-    <div ref={ref} className="relative flex-1">
-      {/* Trigger */}
-      <button
-        onClick={() => setOpenKey(open ? null : categoryKey)}
-        className={`flex items-center justify-between gap-1.5 w-full px-3 py-2 rounded-xl border text-sm transition-colors ${
-          activeValue
-            ? `${activeClass} border-transparent font-medium`
-            : 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100'
-        }`}
-      >
-        <span className="truncate">
-          {activeValue ? `${label}: ${activeValue}` : `${emoji} ${label}`}
-        </span>
-        {open ? <ChevronUp className="w-3.5 h-3.5 shrink-0" /> : <ChevronDown className="w-3.5 h-3.5 shrink-0" />}
-      </button>
-
-      {/* Dropdown panel */}
-      {open && (
-        <div className="absolute bottom-full mb-1 left-0 min-w-[200px] w-max max-w-xs bg-white border border-gray-200 rounded-xl shadow-lg z-50">
-          <div className="px-3 pt-3 pb-1 flex items-center justify-between">
-            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{emoji} {label}</span>
-            {activeValue && (
-              <button
-                onClick={() => { onClear(categoryKey); setOpenKey(null); }}
-                className="text-xs text-gray-400 hover:text-red-500 flex items-center gap-0.5 transition-colors"
-              >
-                <X className="w-3 h-3" /> Clear
-              </button>
-            )}
-          </div>
-          <div className="px-3 pb-3 flex flex-wrap gap-1.5 max-h-48 overflow-y-auto">
-            {options.map(opt => (
-              <button
-                key={opt}
-                onClick={() => { onSelect(categoryKey, opt); setOpenKey(null); }}
-                className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
-                  opt === activeValue
-                    ? `${activeClass} ring-2 ring-offset-1 ring-current`
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {opt}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function TagFilterDropdown({
-  activeTags,
-  catalog,
-  onSelect,
-  onClear,
-}: {
-  activeTags: Record<string, string>;
-  catalog: TagCatalog;
-  onSelect: (category: string, value: string) => void;
-  onClear: (category: string) => void;
-}) {
-  const [openKey, setOpenKey] = useState<string | null>(null);
-
-  return (
-    <div className="flex gap-2 mb-2">
-      <TagCategoryDropdown
-        categoryKey="cuisine" label="Cuisine" emoji="🍽️"
-        activeValue={activeTags.cuisine} options={catalog.cuisines}
-        activeClass="bg-orange-100 text-orange-700"
-        onSelect={onSelect} onClear={onClear}
-        openKey={openKey} setOpenKey={setOpenKey}
-      />
-      <TagCategoryDropdown
-        categoryKey="location" label="Location" emoji="📍"
-        activeValue={activeTags.location} options={catalog.locations}
-        activeClass="bg-blue-100 text-blue-700"
-        onSelect={onSelect} onClear={onClear}
-        openKey={openKey} setOpenKey={setOpenKey}
-      />
-      <TagCategoryDropdown
-        categoryKey="budget" label="Budget" emoji="💰"
-        activeValue={activeTags.budget} options={catalog.budgets}
-        activeClass="bg-green-100 text-green-700"
-        onSelect={onSelect} onClear={onClear}
-        openKey={openKey} setOpenKey={setOpenKey}
-      />
-    </div>
-  );
-}
 
 // ── OpeningHoursDropdown ──────────────────────────────────────────────────────
 
@@ -553,8 +418,6 @@ export default function RestaurantChatbot() {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   // 'unknown' = never tried | 'granted' = have coords | 'denied' = user blocked
   const [gpsStatus, setGpsStatus] = useState<'unknown' | 'granted' | 'denied'>('unknown');
-  const [activeTags, setActiveTags] = useState<Record<string, string>>({});
-  const [tagCatalog, setTagCatalog] = useState<TagCatalog>({ cuisines: [], budgets: [], locations: [] });
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -589,49 +452,6 @@ export default function RestaurantChatbot() {
       );
     }
   }, []);
-
-  useEffect(() => {
-    fetch('http://localhost:5000/api/tags')
-      .then(r => r.json())
-      .then(data => setTagCatalog(data))
-      .catch(() => {});
-  }, []);
-
-  const handleTagSelect = async (category: string, value: string) => {
-    if (!sessionId) return;
-    const res = await fetch('http://localhost:5000/api/session/tags', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ session_id: sessionId, [category]: value }),
-    }).catch(() => null);
-    if (res?.ok) {
-      const data = await res.json();
-      setActiveTags(data.active_tags ?? {});
-    }
-  };
-
-  const handleTagClear = async (category: string) => {
-    if (!sessionId) return;
-    const res = await fetch('http://localhost:5000/api/session/tags', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ session_id: sessionId, [category]: null }),
-    }).catch(() => null);
-    if (res?.ok) {
-      const data = await res.json();
-      setActiveTags(data.active_tags ?? {});
-    }
-  };
-
-  const buildTagMessage = (tags: Record<string, string>): string => {
-    const parts: string[] = [];
-    if (tags.cuisine) parts.push(tags.cuisine);
-    if (tags.location) parts.push(`in ${tags.location}`);
-    if (tags.budget) parts.push(`with ${tags.budget.toLowerCase()} budget`);
-    return parts.length ? `Find me ${parts.join(' ')} restaurants` : 'Recommend me restaurants';
-  };
-
-  const hasEnoughTags = Object.keys(activeTags).length >= 2;
 
   const handleSubmit = async (overrideMessage?: string) => {
     const textMessage = overrideMessage ?? input.trim();
@@ -707,7 +527,6 @@ export default function RestaurantChatbot() {
           content: data.response,
           restaurants: data.restaurants || [],
         }]);
-        if (data.active_tags) setActiveTags(data.active_tags);
       } else {
         setMessages(prev => [...prev, {
           role: 'assistant',
@@ -839,22 +658,6 @@ export default function RestaurantChatbot() {
       {/* Input */}
       <div className="bg-white border-t border-orange-100 px-4 py-4">
         <div className="max-w-4xl mx-auto">
-          <TagFilterDropdown
-            activeTags={activeTags}
-            catalog={tagCatalog}
-            onSelect={handleTagSelect}
-            onClear={handleTagClear}
-          />
-          {hasEnoughTags && (
-            <button
-              onClick={() => handleSubmit(buildTagMessage(activeTags))}
-              disabled={loading}
-              className="w-full mb-2 py-2.5 rounded-xl bg-orange-500 text-white text-sm font-medium hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
-            >
-              <Send className="w-4 h-4" />
-              Search with filters
-            </button>
-          )}
           <div className="flex gap-2">
             <input
               type="text"
