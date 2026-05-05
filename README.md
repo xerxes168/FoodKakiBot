@@ -87,7 +87,6 @@ A one-time utility script that creates a "Wink" tag in the `tags` table and assi
 ---
 
 ## Setup Instructions
-"""
 
 1. Enter API keys in:
    /backend/.env
@@ -115,11 +114,9 @@ A one-time utility script that creates a "Wink" tag in the `tags` table and assi
    python app.py
 
    Backend will run on <http://localhost:5000>
-"""
-
+   
 ## For Tagging Test
 
-"""
 1. Set up virtual environment:
    python -m venv venv
    source venv/bin/activate
@@ -145,4 +142,3 @@ A one-time utility script that creates a "Wink" tag in the `tags` table and assi
    The script will prompt for how many restaurants to process, then save an Excel workbook with:
    - a restaurant summary sheet
    - a review details sheet showing extracted dishes per review
-"""
