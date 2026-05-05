@@ -37,9 +37,17 @@ from rag import (
         generate_grounded_response,
         fetch_place_tags_map_rag,
     )
-from location_expansion import expand_location_tags, build_location_tag_sets
 from ranking import rank_candidates, detect_allow_closed
-from tagging import auto_tags_from_google
+from enrich import (
+    MRT_STATIONS,
+    AREA_ALIAS_TO_PLANNING_AREA,
+    POSTAL_DISTRICT_TO_AREA,
+    PLANNING_AREA_NEIGHBORS,
+    get_planning_area_from_postal,
+    expand_location_tags,
+    build_location_tag_sets,
+    auto_tags_from_google,
+)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -70,14 +78,6 @@ PLACES_KEY = (
 )
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-
-# ── Google Places API key ──────────────────────────────────────────────────────
-# Prefer the dedicated Places key; fall back to the shared Gemini key.
-PLACES_KEY = (
-    os.getenv("GOOGLE_PLACES_API_KEY")
-    or os.getenv("GOOGLE_MAPS_API_KEY")
-    or os.getenv("GOOGLE_API_KEY")
-)
 
 # ── Per-session state ─────────────────────────────────────────────────────────
 sessions: dict[str, dict] = {}
